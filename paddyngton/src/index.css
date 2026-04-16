@@ -1,0 +1,488 @@
+/* Kraken Design System */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Primary - Kraken Purple */
+  --purple: #7132f5;
+  --purple-dark: #5741d8;
+  --purple-deep: #5b1ecf;
+  --purple-subtle: rgba(133, 91, 251, 0.16);
+  
+  /* Neutral */
+  --near-black: #101114;
+  --cool-gray: #686b82;
+  --silver-blue: #9497a9;
+  --white: #ffffff;
+  --border-gray: #dedee5;
+  
+  /* Semantic */
+  --green: #149e61;
+  --green-dark: #026b3f;
+  --green-subtle: rgba(20, 158, 97, 0.16);
+  
+  /* Editor */
+  --editor-bg: #282c34;
+  
+  /* Shadows */
+  --shadow-subtle: rgba(0, 0, 0, 0.03) 0px 4px 24px;
+  --shadow-micro: rgba(16, 24, 40, 0.04) 0px 1px 4px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: var(--white);
+  color: var(--near-black);
+  font-size: 16px;
+  line-height: 1.38;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* Header */
+.header {
+  height: 56px;
+  background: var(--white);
+  border-bottom: 1px solid var(--border-gray);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 16px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  width: 32px;
+  height: 32px;
+  background: var(--purple);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.app-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--near-black);
+}
+
+.header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.file-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.file-tab {
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--cool-gray);
+  cursor: pointer;
+  transition: all 0.2s;
+  max-width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-tab:hover {
+  background: var(--purple-subtle);
+  color: var(--purple);
+}
+
+.file-tab.active {
+  background: var(--purple-subtle);
+  color: var(--purple);
+  font-weight: 500;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background: var(--purple);
+  color: var(--white);
+  border: none;
+}
+
+.btn-primary:hover {
+  background: var(--purple-dark);
+}
+
+.btn-secondary {
+  background: rgba(148, 151, 169, 0.08);
+  color: var(--near-black);
+  border: none;
+}
+
+.btn-secondary:hover {
+  background: rgba(148, 151, 169, 0.15);
+}
+
+.btn-outline {
+  background: var(--white);
+  color: var(--purple-dark);
+  border: 1px solid var(--purple-dark);
+}
+
+.btn-outline:hover {
+  background: var(--purple-subtle);
+}
+
+.btn-icon {
+  padding: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--cool-gray);
+  cursor: pointer;
+}
+
+.btn-icon:hover {
+  background: rgba(148, 151, 169, 0.08);
+  color: var(--near-black);
+}
+
+/* Main Content */
+.main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 240px;
+  background: var(--white);
+  border-right: 1px solid var(--border-gray);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-gray);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--cool-gray);
+}
+
+.sidebar-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.file-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.file-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.file-list::-webkit-scrollbar-thumb {
+  background: var(--border-gray);
+  border-radius: 3px;
+}
+
+.file-item {
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--cool-gray);
+  transition: all 0.15s;
+}
+
+.file-item:hover {
+  background: rgba(148, 151, 169, 0.08);
+  color: var(--near-black);
+}
+
+.file-item.active {
+  background: var(--purple-subtle);
+  color: var(--purple);
+}
+
+.file-icon {
+  font-size: 16px;
+}
+
+/* Editor */
+.editor-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--editor-bg);
+}
+
+.editor {
+  flex: 1;
+  overflow: hidden;
+}
+
+.editor .cm-editor {
+  height: 100%;
+}
+
+.editor .cm-scroller {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 14px;
+}
+
+/* Footer / Status Bar */
+.status-bar {
+  height: 28px;
+  background: var(--purple);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  font-size: 12px;
+  color: var(--white);
+  gap: 16px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.9;
+}
+
+.status-spacer {
+  flex: 1;
+}
+
+.status-badge {
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+/* Command Palette */
+.command-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(16, 17, 20, 0.6);
+  display: flex;
+  justify-content: center;
+  padding-top: 120px;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.command-palette {
+  background: var(--white);
+  border-radius: 16px;
+  width: 480px;
+  max-height: 400px;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+}
+
+.command-input-wrapper {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-gray);
+}
+
+.command-input {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 16px;
+  background: rgba(148, 151, 169, 0.08);
+  border: none;
+  border-radius: 12px;
+  color: var(--near-black);
+  outline: none;
+  font-family: inherit;
+}
+
+.command-input::placeholder {
+  color: var(--cool-gray);
+}
+
+.command-list {
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.command-item {
+  padding: 12px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--near-black);
+  transition: all 0.15s;
+}
+
+.command-item:hover,
+.command-item.selected {
+  background: var(--purple-subtle);
+  color: var(--purple);
+}
+
+.command-icon {
+  width: 32px;
+  height: 32px;
+  background: rgba(148, 151, 169, 0.08);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.command-shortcut {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--silver-blue);
+  padding: 2px 6px;
+  background: rgba(148, 151, 169, 0.08);
+  border-radius: 4px;
+}
+
+/* Welcome Screen */
+.welcome-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--white);
+  padding: 40px;
+}
+
+.welcome-logo {
+  width: 80px;
+  height: 80px;
+  background: var(--purple);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-subtle);
+}
+
+.welcome-logo span {
+  font-size: 32px;
+  font-weight: 700;
+  color: white;
+}
+
+.welcome-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--near-black);
+  margin-bottom: 8px;
+}
+
+.welcome-subtitle {
+  font-size: 16px;
+  color: var(--cool-gray);
+  margin-bottom: 32px;
+}
+
+.welcome-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* Tooltip */
+.tooltip {
+  position: relative;
+}
+
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 10px;
+  background: var(--near-black);
+  color: var(--white);
+  font-size: 12px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s;
+}
+
+.tooltip:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.command-palette {
+  animation: fadeIn 0.2s ease-out;
+}

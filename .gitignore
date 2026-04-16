@@ -1,0 +1,9 @@
+# Paddyngton editor
+# Ignore build artifacts
+
+paddyngton/node_modules/
+paddyngton/dist/
+paddyngton/src-tauri/target/
+paddyngton/src-tauri/gen/
+*.exe
+*.msi

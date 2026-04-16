@@ -1,0 +1,163 @@
+{
+  "app": {
+    "title": "Paddyngton",
+    "subtitle": "Book Writing Editor",
+    "welcome": {
+      "newBook": "Create New Book",
+      "openBook": "Open Book Folder",
+      "hintNew": "Ctrl+N — new book",
+      "hintOpen": "Ctrl+O — open folder",
+      "hintCommands": "Ctrl+K — commands"
+    }
+  },
+  "header": {
+    "save": "Save",
+    "search": "Search",
+    "settings": "Settings"
+  },
+  "sidebar": {
+    "chapters": "Chapters",
+    "context": "Context"
+  },
+  "chapter": {
+    "default": "Chapter",
+    "new": "New Chapter",
+    "selectOrCreate": "Select or create a chapter"
+  },
+  "editor": {
+    "placeholder": "Start writing..."
+  },
+  "settings": {
+    "title": "Settings",
+    "tabs": {
+      "appearance": "Appearance",
+      "book": "Book",
+      "about": "About"
+    },
+    "themes": "Theme",
+    "language": "Language",
+    "editor": "Editor",
+    "lineNumbers": "Line Numbers",
+    "fontSize": "Font Size",
+    "fontFamily": "Font",
+    "bookInfo": "Book Information",
+    "bookTitle": "Title",
+    "bookAuthor": "Author",
+    "bookGenre": "Genre",
+    "bookType": "Type",
+    "bookDescription": "Description",
+    "bookSave": "Save",
+    "noBookOpen": "Open a book to edit information",
+    "aboutTitle": "Paddyngton",
+    "aboutVersion": "Version 1.0.0",
+    "aboutDesc": "Cross-platform book writing editor. Character context, wiki, interaction map, chapter search.",
+    "aboutBuilt": "Tauri + React + CodeMirror 6"
+  },
+  "context": {
+    "title": "Context",
+    "add": "Add",
+    "save": "Save",
+    "wiki": "Wiki",
+    "map": "Map",
+    "name": "Name",
+    "type": "Type",
+    "group": "Group",
+    "property": "Property",
+    "addProperty": "+ Property",
+    "types": {
+      "character": "Character",
+      "place": "Place",
+      "date": "Event",
+      "item": "Item"
+    },
+    "noGroup": "No Group"
+  },
+  "wiki": {
+    "title": "Wiki",
+    "selectItem": "Select an item on the left to view",
+    "related": "Related Characters",
+    "group": "Group"
+  },
+  "mindmap": {
+    "title": "Interaction Map",
+    "characters": "characters",
+    "noCharacters": "Add characters to context to display the map",
+    "addCharacter": "Add Character",
+    "connectMode": "Connect",
+    "disconnectMode": "Disconnect",
+    "editCharacter": "Edit",
+    "connectionFrom": "Click another character to connect",
+    "connectionRemoved": "Connection removed",
+    "enterName": "Enter character name",
+    "groups": "Groups",
+    "connectGroups": "Connect Groups",
+    "noGroups": "No groups defined"
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Enter a name or word...",
+    "context": "Context",
+    "chapters": "Chapters",
+    "matches": "matches",
+    "noResults": "No results found",
+    "minChars": "Enter at least 2 characters",
+    "occurrences": "occurrences"
+  },
+  "commands": {
+    "title": "Command",
+    "newBook": "New Book",
+    "openBook": "Open Book Folder",
+    "saveChapter": "Save Chapter",
+    "newChapter": "New Chapter",
+    "toggleSidebar": "Toggle Sidebar",
+    "toggleTheme": "Toggle Theme",
+    "editBookInfo": "Edit Book Info",
+    "editContext": "Edit Context",
+    "wiki": "Wiki",
+    "mindMap": "Mind Map",
+    "search": "Search in Chapters",
+    "settings": "Settings"
+  },
+  "about": {
+    "title": "About",
+    "version": "Version 1.0.0",
+    "desc": "Cross-platform book writing editor. 7 themes, character context, wiki, interaction map.",
+    "built": "Tauri + React + CodeMirror 6"
+  },
+  "format": {
+    "bold": "Bold",
+    "italic": "Italic",
+    "underline": "Underline",
+    "strikethrough": "Strikethrough",
+    "subscript": "Subscript",
+    "superscript": "Superscript",
+    "textColor": "Text Color",
+    "highlight": "Highlight",
+    "link": "Insert Link",
+    "alignLeft": "Align Left",
+    "alignCenter": "Align Center",
+    "alignRight": "Align Right",
+    "alignJustify": "Justify",
+    "h1": "Heading 1",
+    "h2": "Heading 2",
+    "h3": "Heading 3",
+    "quote": "Quote",
+    "code": "Inline Code",
+    "codeBlock": "Code Block",
+    "ul": "Bullet List",
+    "ol": "Numbered List",
+    "hr": "Divider"
+  },
+  "status": {
+    "modified": "Modified"
+  },
+  "versions": {
+    "title": "Version History",
+    "snapshot": "Snapshot",
+    "restore": "Restore",
+    "noSnapshots": "No snapshots yet. Save a snapshot to create a restore point.",
+    "label": "Snapshot label (optional)",
+    "files": "files",
+    "confirmRestore": "Restore this version? Current files will be overwritten."
+  }
+}

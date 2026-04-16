@@ -1,0 +1,143 @@
+{
+  "app": {
+    "title": "Paddyngton",
+    "subtitle": "Editor de Escritura de Libros",
+    "welcome": {
+      "newBook": "Crear Nuevo Libro",
+      "openBook": "Abrir Carpeta del Libro",
+      "hintNew": "Ctrl+N — nuevo libro",
+      "hintOpen": "Ctrl+O — abrir carpeta",
+      "hintCommands": "Ctrl+K — comandos"
+    }
+  },
+  "header": {
+    "save": "Guardar",
+    "search": "Buscar",
+    "settings": "Configuración"
+  },
+  "sidebar": {
+    "chapters": "Capítulos",
+    "context": "Contexto"
+  },
+  "chapter": {
+    "default": "Capítulo",
+    "new": "Nuevo Capítulo",
+    "selectOrCreate": "Selecciona o crea un capítulo"
+  },
+  "editor": {
+    "placeholder": "Empieza a escribir..."
+  },
+  "settings": {
+    "title": "Configuración",
+    "tabs": {
+      "appearance": "Apariencia",
+      "book": "Libro",
+      "about": "Acerca de"
+    },
+    "themes": "Tema",
+    "language": "Idioma",
+    "editor": "Editor",
+    "lineNumbers": "Números de línea",
+    "fontSize": "Tamaño de fuente",
+    "fontFamily": "Fuente",
+    "bookInfo": "Información del libro",
+    "bookTitle": "Título",
+    "bookAuthor": "Autor",
+    "bookGenre": "Género",
+    "bookDescription": "Descripción",
+    "bookSave": "Guardar",
+    "noBookOpen": "Abre un libro para editar información",
+    "aboutTitle": "Paddyngton",
+    "aboutVersion": "Versión 1.0.0",
+    "aboutDesc": "Editor multiplataforma para escribir libros. Contexto de personajes, wiki, mapa de interacciones, búsqueda por capítulos.",
+    "aboutBuilt": "Tauri + React + CodeMirror 6"
+  },
+  "context": {
+    "title": "Contexto",
+    "add": "Añadir",
+    "save": "Guardar",
+    "wiki": "Wiki",
+    "map": "Mapa",
+    "name": "Nombre",
+    "type": "Tipo",
+    "group": "Grupo",
+    "property": "Propiedad",
+    "addProperty": "+ Propiedad",
+    "types": {
+      "character": "Personaje",
+      "place": "Lugar",
+      "date": "Evento",
+      "item": "Objeto"
+    },
+    "noGroup": "Sin grupo"
+  },
+  "wiki": {
+    "title": "Wiki",
+    "selectItem": "Selecciona un elemento a la izquierda para ver",
+    "related": "Personajes relacionados",
+    "group": "Grupo"
+  },
+  "mindmap": {
+    "title": "Mapa de Interacciones",
+    "characters": "personajes",
+    "noCharacters": "Añade personajes al contexto para mostrar el mapa"
+  },
+  "search": {
+    "title": "Búsqueda",
+    "placeholder": "Introduce un nombre o palabra...",
+    "context": "Contexto",
+    "chapters": "Capítulos",
+    "matches": "coincidencias",
+    "noResults": "No se encontraron resultados",
+    "minChars": "Introduce al menos 2 caracteres",
+    "occurrences": "ocurrencias"
+  },
+  "commands": {
+    "title": "Comando",
+    "newBook": "Nuevo Libro",
+    "openBook": "Abrir Carpeta del Libro",
+    "saveChapter": "Guardar Capítulo",
+    "newChapter": "Nuevo Capítulo",
+    "toggleSidebar": "Mostrar/Ocultar Barra Lateral",
+    "toggleTheme": "Cambiar Tema",
+    "editBookInfo": "Editar Info del Libro",
+    "editContext": "Editar Contexto",
+    "wiki": "Wiki",
+    "mindMap": "Mapa Mental",
+    "search": "Buscar en Capítulos",
+    "settings": "Configuración"
+  },
+  "about": {
+    "title": "Acerca de",
+    "version": "Versión 1.0.0",
+    "desc": "Editor multiplataforma para escribir libros. 7 temas, contexto de personajes, wiki, mapa de interacciones.",
+    "built": "Tauri + React + CodeMirror 6"
+  },
+  "format": {
+    "bold": "Negrita",
+    "italic": "Cursiva",
+    "underline": "Subrayado",
+    "strikethrough": "Tachado",
+    "subscript": "Subíndice",
+    "superscript": "Superíndice",
+    "textColor": "Color de texto",
+    "highlight": "Resaltar",
+    "link": "Insertar enlace",
+    "alignLeft": "Alinear izquierda",
+    "alignCenter": "Centrar",
+    "alignRight": "Alinear derecha",
+    "alignJustify": "Justificar",
+    "h1": "Título 1",
+    "h2": "Título 2",
+    "h3": "Título 3",
+    "quote": "Cita",
+    "code": "Código en línea",
+    "codeBlock": "Bloque de código",
+    "ul": "Lista con viñetas",
+    "ol": "Lista numerada",
+    "hr": "Separador"
+  },
+  "status": {
+    "modified": "Modificado"
+  }
+}

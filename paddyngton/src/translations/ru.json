@@ -1,0 +1,143 @@
+{
+  "app": {
+    "title": "Paddyngton",
+    "subtitle": "Редактор для написания книг",
+    "welcome": {
+      "newBook": "Создать новую книгу",
+      "openBook": "Открыть папку с книгой",
+      "hintNew": "Ctrl+N — новая книга",
+      "hintOpen": "Ctrl+O — открыть папку",
+      "hintCommands": "Ctrl+K — команды"
+    }
+  },
+  "header": {
+    "save": "Сохранить",
+    "search": "Поиск",
+    "settings": "Настройки"
+  },
+  "sidebar": {
+    "chapters": "Главы",
+    "context": "Контекст"
+  },
+  "chapter": {
+    "default": "Глава",
+    "new": "Новая глава",
+    "selectOrCreate": "Выберите или создайте главу"
+  },
+  "editor": {
+    "placeholder": "Начните писать..."
+  },
+  "settings": {
+    "title": "Настройки",
+    "tabs": {
+      "appearance": "Внешний вид",
+      "book": "Книга",
+      "about": "О программе"
+    },
+    "themes": "Тема",
+    "language": "Язык",
+    "editor": "Редактор",
+    "lineNumbers": "Нумерация строк",
+    "fontSize": "Размер шрифта",
+    "fontFamily": "Шрифт",
+    "bookInfo": "Информация о книге",
+    "bookTitle": "Название",
+    "bookAuthor": "Автор",
+    "bookGenre": "Жанр",
+    "bookDescription": "Описание",
+    "bookSave": "Сохранить",
+    "noBookOpen": "Откройте книгу для редактирования",
+    "aboutTitle": "Paddyngton",
+    "aboutVersion": "Версия 1.0.0",
+    "aboutDesc": "Кроссплатформенный редактор для написания книг. Контекст персонажей, вики, карта взаимодействий, поиск по главам.",
+    "aboutBuilt": "Tauri + React + CodeMirror 6"
+  },
+  "context": {
+    "title": "Контекст",
+    "add": "Добавить",
+    "save": "Сохранить",
+    "wiki": "Вики",
+    "map": "Карта",
+    "name": "Имя",
+    "type": "Тип",
+    "group": "Группа",
+    "property": "Свойство",
+    "addProperty": "+ Свойство",
+    "types": {
+      "character": "Персонаж",
+      "place": "Место",
+      "date": "Событие",
+      "item": "Предмет"
+    },
+    "noGroup": "Без группы"
+  },
+  "wiki": {
+    "title": "Вики",
+    "selectItem": "Выберите элемент слева",
+    "related": "Связанные персонажи",
+    "group": "Группа"
+  },
+  "mindmap": {
+    "title": "Карта взаимодействий",
+    "characters": "персонажей",
+    "noCharacters": "Добавьте персонажей в контекст"
+  },
+  "search": {
+    "title": "Поиск",
+    "placeholder": "Введите имя или слово...",
+    "context": "Контекст",
+    "chapters": "Главы",
+    "matches": "совпадений",
+    "noResults": "Ничего не найдено",
+    "minChars": "Введите минимум 2 символа",
+    "occurrences": "вхождений"
+  },
+  "commands": {
+    "title": "Команда",
+    "newBook": "Новая книга",
+    "openBook": "Открыть папку книги",
+    "saveChapter": "Сохранить главу",
+    "newChapter": "Новая глава",
+    "toggleSidebar": "Показать/скрыть сайдбар",
+    "toggleTheme": "Сменить тему",
+    "editBookInfo": "Информация о книге",
+    "editContext": "Редактировать контекст",
+    "wiki": "Вики",
+    "mindMap": "Карта взаимодействий",
+    "search": "Поиск по главам",
+    "settings": "Настройки"
+  },
+  "about": {
+    "title": "О программе",
+    "version": "Версия 1.0.0",
+    "desc": "Кроссплатформенный редактор для написания книг. 7 тем, контекст персонажей, вики, карта взаимодействий.",
+    "built": "Tauri + React + CodeMirror 6"
+  },
+  "format": {
+    "bold": "Жирный",
+    "italic": "Курсив",
+    "underline": "Подчёркнутый",
+    "strikethrough": "Зачёркнутый",
+    "subscript": "Нижний индекс",
+    "superscript": "Верхний индекс",
+    "textColor": "Цвет текста",
+    "highlight": "Выделение",
+    "link": "Вставить ссылку",
+    "alignLeft": "По левому краю",
+    "alignCenter": "По центру",
+    "alignRight": "По правому краю",
+    "alignJustify": "По ширине",
+    "h1": "Заголовок 1",
+    "h2": "Заголовок 2",
+    "h3": "Заголовок 3",
+    "quote": "Цитата",
+    "code": "Код",
+    "codeBlock": "Блок кода",
+    "ul": "Список",
+    "ol": "Нумерованный список",
+    "hr": "Разделитель"
+  },
+  "status": {
+    "modified": "Изменено"
+  }
+}

@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::fs;
+use std::io::{Read, Write};
 use std::path::Path;
 
 #[derive(Serialize, Deserialize)]
@@ -238,6 +239,73 @@ fn restore_version_snapshot(book_dir: String, snapshot_id: String) -> Result<(),
     Ok(())
 }
 
+#[tauri::command]
+fn open_bear(bear_path: String) -> Result<String, String> {
+    let file = fs::File::open(&bear_path).map_err(|e| e.to_string())?;
+    let mut archive = zip::ZipArchive::new(file).map_err(|e| e.to_string())?;
+    let temp_dir = std::env::temp_dir().join(format!("paddyngton_{}", rand_id()));
+    fs::create_dir_all(&temp_dir).map_err(|e| e.to_string())?;
+    for i in 0..archive.len() {
+        let mut file = archive.by_index(i).map_err(|e| e.to_string())?;
+        let outpath = temp_dir.join(file.name());
+        if file.name().ends_with('/') {
+            fs::create_dir_all(&outpath).map_err(|e| e.to_string())?;
+        } else {
+            if let Some(p) = outpath.parent() {
+                if !p.exists() { fs::create_dir_all(p).map_err(|e| e.to_string())?; }
+            }
+            let mut outfile = fs::File::create(&outpath).map_err(|e| e.to_string())?;
+            std::io::copy(&mut file, &mut outfile).map_err(|e| e.to_string())?;
+        }
+    }
+    Ok(temp_dir.to_string_lossy().to_string())
+}
+
+#[tauri::command]
+fn save_bear(book_dir: String, bear_path: String) -> Result<(), String> {
+    let file = fs::File::create(&bear_path).map_err(|e| e.to_string())?;
+    let mut zip = zip::ZipWriter::new(file);
+    let options = zip::write::SimpleFileOptions::default()
+        .compression_method(zip::CompressionMethod::Deflated);
+    let dir = Path::new(&book_dir);
+    for path in walkdir_files(dir) {
+        if !path.file_name().map(|n| n.to_string_lossy().starts_with('.')).unwrap_or(false) {
+            let relative = path.strip_prefix(dir).unwrap_or(&path);
+            let mut f = fs::File::open(&path).map_err(|e| e.to_string())?;
+            let mut buffer = Vec::new();
+            f.read_to_end(&mut buffer).map_err(|e| e.to_string())?;
+            zip.start_file(relative.to_string_lossy(), options).map_err(|e| e.to_string())?;
+            zip.write_all(&buffer).map_err(|e| e.to_string())?;
+        }
+    }
+    zip.finish().map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+fn rand_id() -> String {
+    use std::time::{SystemTime, UNIX_EPOCH};
+    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+    format!("{}", now.as_nanos())
+}
+
+fn walkdir_files(dir: &Path) -> Vec<std::path::PathBuf> {
+    let mut results = vec![];
+    let mut stack = vec![dir.to_path_buf()];
+    while let Some(current) = stack.pop() {
+        if let Ok(entries) = fs::read_dir(&current) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.is_dir() {
+                    stack.push(path);
+                } else {
+                    results.push(path);
+                }
+            }
+        }
+    }
+    results
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -251,7 +319,9 @@ pub fn run() {
             get_system_fonts,
             save_version_snapshot,
             list_version_snapshots,
-            restore_version_snapshot
+            restore_version_snapshot,
+            open_bear,
+            save_bear
         ])
         .setup(|app| {
             if cfg!(debug_assertions) {

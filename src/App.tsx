@@ -79,7 +79,7 @@ function App() {
   const colorInputRef = useRef<HTMLInputElement>(null)
   const bgColorInputRef = useRef<HTMLInputElement>(null)
   const mindMapDragRef = useRef<string | null>(null)
-  const mindMapDragCursorStart = useRef<{ x: number; y: number } | null>(null)
+  const mindMapDragCursorStart = useRef<{ x: number; y: number; zoom: number; panX: number; panY: number } | null>(null)
   const mindMapDragEntryStart = useRef<{ x: number; y: number } | null>(null)
   const mindMapPanRef = useRef<string | null>(null)
   const mindMapPanStart = useRef<{ panX: number; panY: number; cursorX: number; cursorY: number } | null>(null)
@@ -713,15 +713,20 @@ function App() {
 
   const handleMinimize = () => invoke('minimize_window')
 
-  const getCanvasCoords = (e: React.MouseEvent) => {
-    const canvas = mindMapCanvasRef.current
-    if (!canvas) return { x: 0, y: 0 }
-    const rect = canvas.getBoundingClientRect()
-    const centerX = rect.width / 2 + rect.left
-    const centerY = rect.height / 2 + rect.top
-    const x = (e.clientX - centerX - state.mindMapPanX) / state.mindMapZoom + 420
-    const y = (e.clientY - centerY - state.mindMapPanY) / state.mindMapZoom + 230
-    return { x, y }
+  const getCanvasCoords = (e: React.MouseEvent, zoom: number, panX: number, panY: number) => {
+    try {
+      const canvas = mindMapCanvasRef.current
+      if (!canvas) return { x: 0, y: 0 }
+      const rect = canvas.getBoundingClientRect()
+      if (rect.width === 0 || rect.height === 0) return { x: 0, y: 0 }
+      const centerX = rect.width / 2
+      const centerY = rect.height / 2
+      const x = (e.clientX - rect.left - centerX - panX) / zoom + 420
+      const y = (e.clientY - rect.top - centerY - panY) / zoom + 230
+      return { x, y }
+    } catch {
+      return { x: 0, y: 0 }
+    }
   }
 
   const handleMindMapMouseDown = (e: React.MouseEvent, entryName: string) => {
@@ -730,9 +735,9 @@ function App() {
     const existing = contextData.find(c => c.name === entryName)
     const startX = existing?._x ?? 420
     const startY = existing?._y ?? 230
-    const coords = getCanvasCoords(e)
+    const coords = getCanvasCoords(e, state.mindMapZoom, state.mindMapPanX, state.mindMapPanY)
     mindMapDragEntryStart.current = { x: startX, y: startY }
-    mindMapDragCursorStart.current = { x: coords.x, y: coords.y }
+    mindMapDragCursorStart.current = { x: coords.x, y: coords.y, zoom: state.mindMapZoom, panX: state.mindMapPanX, panY: state.mindMapPanY }
     mindMapDragRef.current = entryName
     mindMapPanRef.current = null
     setState(s => ({ ...s, mindMapDrag: entryName }))
@@ -755,19 +760,36 @@ function App() {
       return
     }
     if (!mindMapDragRef.current || !mindMapDragCursorStart.current || !mindMapDragEntryStart.current) return
-    const coords = getCanvasCoords(e)
-    const dx = coords.x - mindMapDragCursorStart.current.x
-    const dy = coords.y - mindMapDragCursorStart.current.y
+    const start = mindMapDragCursorStart.current
+    const zoom = start.zoom
+    const panX = start.panX
+    const panY = start.panY
+    const coords = getCanvasCoords(e, zoom, panX, panY)
+    const dx = coords.x - start.x
+    const dy = coords.y - start.y
     if (Math.abs(dx) < 2 && Math.abs(dy) < 2) return
-    const newX = mindMapDragEntryStart.current.x + dx
-    const newY = mindMapDragEntryStart.current.y + dy
-    const d = contextData.map(c => c.name === mindMapDragRef.current ? { ...c, _x: Math.round(newX), _y: Math.round(newY) } : c)
+    const entryName = mindMapDragRef.current
+    const entry = contextData.find(c => c.name === entryName)
+    if (!entry) return
+    const newX = entry._x! + dx
+    const newY = entry._y! + dy
+    const d = contextData.map(c => c.name === entryName ? { ...c, _x: Math.round(newX), _y: Math.round(newY) } : c)
     updateActiveBook({ contextData: d })
-    mindMapDragCursorStart.current = { x: coords.x, y: coords.y }
+    mindMapDragCursorStart.current = { x: coords.x, y: coords.y, zoom, panX, panY }
     mindMapDragEntryStart.current = { x: newX, y: newY }
   }
 
   const handleMindMapMouseUp = () => {
+    if (mindMapDragRef.current && mindMapDragEntryStart.current) {
+      const entryName = mindMapDragRef.current
+      const entry = contextData.find(c => c.name === entryName)
+      if (entry) {
+        const newX = mindMapDragEntryStart.current.x
+        const newY = mindMapDragEntryStart.current.y
+        const d = contextData.map(c => c.name === entryName ? { ...c, _x: Math.round(newX), _y: Math.round(newY) } : c)
+        updateActiveBook({ contextData: d })
+      }
+    }
     mindMapDragRef.current = null
     mindMapDragCursorStart.current = null
     mindMapDragEntryStart.current = null

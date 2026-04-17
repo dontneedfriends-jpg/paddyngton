@@ -36,8 +36,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ github.sha }}
-          releaseName: 'Paddyngton ${{ github.sha }}'
-          releaseBody: 'Auto-built from commit ${{ github.sha }}'
+          tagName: v${{ github.run_number }}
+          releaseName: 'Paddyngton Build #${{ github.run_number }}'
+          releaseBody: 'Auto-built from push to main branch.'
           releaseDraft: false
           prerelease: false

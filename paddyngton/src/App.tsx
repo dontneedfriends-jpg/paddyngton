@@ -8,302 +8,45 @@ import { readTextFile, writeTextFile, exists } from '@tauri-apps/plugin-fs'
 import { undo, redo } from '@codemirror/commands'
 import { useTranslation } from './i18n'
 import { Language, languages } from './i18n'
+import { Toast, ConfirmDialog, InputDialog } from './components/dialogs'
+import { TimelinePanel } from './components/panels'
+import { FORMAT_BUTTONS, MARKER_CLOSERS } from './constants'
+import { loadSettings, saveSettingsToStorage } from './hooks/useSettings'
+import {
+  type ThemeName,
+  type Chapter,
+  type ContextEntry,
+  type Relation,
+  type RelationType,
+  type ContextGroup,
+  type BookConfig,
+  type AppSettings,
+  type BookInstance,
+  type WorldEntry,
+  type KanbanBoard,
+  type KanbanColumn,
+  type KanbanCard,
+  type TimelineEntry,
+  type Note,
+  type AppState,
+  type VersionSnapshot,
+  type FormatButton,
+  RELATION_COLORS,
+  THEME_LABELS,
+  THEME_ICONS,
+  THEME_ORDER,
+  BOOK_TYPES,
+  CONTEXT_TEMPLATES,
+  TEMPLATE_NAMES,
+  DEFAULT_SETTINGS,
+} from './types'
 
-type ThemeName = 'galaxy' | 'aurora' | 'forest' | 'obsidian' | 'neon' | 'retro' | 'monochrome'
-
-
-
-interface Chapter {
-  id: string
-  name: string
-  path: string | null
-  code: string
-  isModified: boolean
-  renaming?: boolean
-}
-
-interface ContextEntry {
-  name: string
-  type: 'character' | 'place' | 'date' | 'item'
-  details: Record<string, string>
-  group?: string
-  relations?: Relation[]
-  notes?: string
-  _x?: number
-  _y?: number
-}
-
-interface Relation {
-  name: string
-  type: 'ally' | 'enemy' | 'family' | 'neutral' | 'romantic' | 'rival'
-}
-
-export const relationColors: Record<Relation['type'], string> = {
-  ally: '#38a169',
-  enemy: '#e53e3e',
-  family: '#3182ce',
-  neutral: '#718096',
-  romantic: '#d69e2e',
-  rival: '#805ad5',
-}
-
-export const relationLabels: Record<Relation['type'], string> = {
-  ally: 'Ally',
-  enemy: 'Enemy',
-  family: 'Family',
-  neutral: 'Neutral',
-  romantic: 'Romantic',
-  rival: 'Rival',
-}
-
-interface ContextGroup {
-  name: string
-  type: 'character' | 'place' | 'date' | 'item'
-}
-
-interface BookConfig {
-  title: string
-  author: string
-  genre: string
-  bookType: string
-  description: string
-  createdAt: string
-  chapters: { id: string; name: string; file: string }[]
-}
-
-interface AppSettings {
-  theme: ThemeName
-  fontSize: number
-  fontFamily: string
-  showLineNumbers: boolean
-  autoSnapshotMinutes: number
-  autoSaveToast: boolean
-}
-
-interface BookInstance {
-  id: string
-  title: string
-  dir: string
-  bookConfig: BookConfig
-  contextData: ContextEntry[]
-  contextGroups: ContextGroup[]
-  chapters: Chapter[]
-  activeChapterId: string | null
-  isModified: boolean
-  worldData: WorldEntry[]
-  kanbanData: KanbanBoard
-  notes: Note[]
-  timelineData: TimelineEntry[]
-}
-
-interface WorldEntry {
-  id: string
-  title: string
-  content: string
-  category: string
-}
-
-interface KanbanBoard {
-  columns: KanbanColumn[]
-}
-
-interface KanbanColumn {
-  id: string
-  name: string
-  cards: KanbanCard[]
-}
-
-interface KanbanCard {
-  id: string
-  title: string
-  content: string
-  color: string
-}
-
-interface TimelineEntry {
-  id: string
-  date: string
-  label: string
-  content: string
-  characterIds: string[]
-}
-
-interface Note {
-  id: string
-  title: string
-  content: string
-  createdAt: string
-}
-
-interface AppState {
-  openBooks: BookInstance[]
-  activeBookId: string | null
-  sidebarOpen: boolean
-  showSettings: boolean
-  showContextEditor: boolean
-  showBookEditor: boolean
-  showBookDialog: boolean
-  bookDialogMode: 'open' | 'save'
-  showAbout: boolean
-  showWiki: boolean
-  showMindMap: boolean
-  showSearch: boolean
-  showVersions: boolean
-  isMaximized: boolean
-  tooltip: { name: string; type: string; details: Record<string, string>; x: number; y: number } | null
-  settingsTab: number
-  wikiSelected: ContextEntry | null
-  wikiEditMode: boolean
-  welcomeTab: 'create' | 'open'
-  showTemplateSelector: boolean
-  searchQuery: string
-  mindMapConnectFrom: string | null
-  mindMapEditEntry: ContextEntry | null
-  showLinkModal: boolean
-  showColorPicker: boolean
-  colorPickerType: 'color' | 'bgColor'
-  mindMapConnectGroupFrom: string | null
-  mindMapSelectedGroup: string | null
-  mindMapDrag: string | null
-  showTimeline: boolean
-  showNotes: boolean
-  showWorld: boolean
-  showKanban: boolean
-  mindMapZoom: number
-}
-
-interface VersionSnapshot {
-  id: string
-  timestamp: string
-  label: string
-  files: string[]
-  word_count: number
-  char_count: number
-  chapter_count: number
-}
-
-const themeLabels: Record<ThemeName, string> = {
-  galaxy: 'Galaxy', aurora: 'Aurora', forest: 'Forest',
-  obsidian: 'Obsidian', neon: 'Neon', retro: 'Retro', monochrome: 'Mono',
-}
-
-const themeIcons: Record<ThemeName, string> = {
-  galaxy: '🌌', aurora: '🌿', forest: '🌲', obsidian: '◼️', neon: '💡', retro: '📺', monochrome: '◑',
-}
-
-
-interface FormatButton {
-  id: string
-  icon: string
-  titleKey: string
-  type?: 'wrap' | 'line' | 'block' | 'color' | 'bgColor' | 'align' | 'link' | 'codeblock' | 'sub' | 'sup' | 'sep' | 'fontFamily' | 'fontSize'
-  value?: string
-}
-
-type FormatType = 'wrap' | 'line' | 'block' | 'color' | 'bgColor' | 'align' | 'link' | 'codeblock' | 'sub' | 'sup' | 'sep' | 'fontFamily' | 'fontSize'
-
-const bookTypes = ['Novel', 'Novella', 'Short Story', 'Flash Fiction', 'Poetry', 'Non-Fiction', 'Memoir', 'Biography', 'Essay', 'Script', 'Anthology', 'Other']
-
-export const contextTemplates: Record<ContextEntry['type'], Record<string, string>> = {
-  character: {
-    Age: '',
-    Gender: '',
-    Occupation: '',
-    Personality: '',
-    Appearance: '',
-    Background: '',
-    Motivation: '',
-    Flaws: '',
-    Strengths: '',
-    Skills: '',
-    Status: 'Alive',
-    FirstAppearance: '',
-  },
-  place: {
-    Type: '',
-    Location: '',
-    Description: '',
-    Atmosphere: '',
-    Inhabitants: '',
-    History: '',
-    Significance: '',
-    Rules: '',
-  },
-  date: {
-    Year: '',
-    Era: '',
-    Season: '',
-    Description: '',
-    Significance: '',
-    Events: '',
-  },
-  item: {
-    Type: '',
-    Description: '',
-    Origin: '',
-    Owner: '',
-    Significance: '',
-    Properties: '',
-    Condition: '',
-  },
-}
-
-export const templateNames = Object.keys(contextTemplates.character)
-
-const formatButtons: FormatButton[] = [
-  { id: 'sep0', icon: '', titleKey: '', type: 'sep' },
-  { id: 'bold', icon: 'B', titleKey: 'format.bold', type: 'wrap', value: '**' },
-  { id: 'italic', icon: 'I', titleKey: 'format.italic', type: 'wrap', value: '*' },
-  { id: 'underline', icon: 'U', titleKey: 'format.underline', type: 'wrap', value: '<u>' },
-  { id: 'strike', icon: 'S', titleKey: 'format.strikethrough', type: 'wrap', value: '~~' },
-  { id: 'sub', icon: 'A₂', titleKey: 'format.subscript', type: 'wrap', value: '<sub>' },
-  { id: 'sup', icon: 'A²', titleKey: 'format.superscript', type: 'wrap', value: '<sup>' },
-  { id: 'sep1', icon: '', titleKey: '', type: 'sep' },
-  { id: 'h1', icon: 'H1', titleKey: 'format.h1', type: 'line', value: '# ' },
-  { id: 'h2', icon: 'H2', titleKey: 'format.h2', type: 'line', value: '## ' },
-  { id: 'h3', icon: 'H3', titleKey: 'format.h3', type: 'line', value: '### ' },
-  { id: 'sep2', icon: '', titleKey: '', type: 'sep' },
-  { id: 'color', icon: '🎨', titleKey: 'format.textColor', type: 'color' },
-  { id: 'bgColor', icon: '🖌', titleKey: 'format.highlight', type: 'bgColor' },
-  { id: 'link', icon: '🔗', titleKey: 'format.link', type: 'link' },
-  { id: 'sep3', icon: '', titleKey: '', type: 'sep' },
-  { id: 'align-left', icon: '☰', titleKey: 'format.alignLeft', type: 'align', value: 'left' },
-  { id: 'align-center', icon: '☱', titleKey: 'format.alignCenter', type: 'align', value: 'center' },
-  { id: 'align-right', icon: '☲', titleKey: 'format.alignRight', type: 'align', value: 'right' },
-  { id: 'align-justify', icon: '☳', titleKey: 'format.alignJustify', type: 'align', value: 'justify' },
-  { id: 'sep4', icon: '', titleKey: '', type: 'sep' },
-  { id: 'quote', icon: '"', titleKey: 'format.quote', type: 'line', value: '> ' },
-  { id: 'code', icon: '<>', titleKey: 'format.code', type: 'wrap', value: '`' },
-  { id: 'codeblock', icon: '⌨', titleKey: 'format.codeBlock', type: 'codeblock' },
-  { id: 'sep5', icon: '', titleKey: '', type: 'sep' },
-  { id: 'ul', icon: '•', titleKey: 'format.ul', type: 'line', value: '- ' },
-  { id: 'ol', icon: '1.', titleKey: 'format.ol', type: 'line', value: '1. ' },
-  { id: 'sep6', icon: '', titleKey: '', type: 'sep' },
-  { id: 'hr', icon: '—', titleKey: 'format.hr', type: 'block', value: '\n---\n' },
-  { id: 'sep7', icon: '', titleKey: '', type: 'sep' },
-  { id: 'fontFamily', icon: 'Aa', titleKey: 'format.fontFamily', type: 'fontFamily' },
-  { id: 'fontSize', icon: 'T', titleKey: 'format.fontSize', type: 'fontSize' },
-]
+export const relationColors = RELATION_COLORS
 
 const editorExtensions = [
   highlightActiveLine(),
   search({ top: false }),
 ]
-
-function loadSettings(): AppSettings {
-  try {
-    const s = localStorage.getItem('paddyngton-settings')
-    if (s) {
-      const parsed = JSON.parse(s)
-      return { ...{ theme: 'galaxy', fontSize: 16, fontFamily: 'IBM Plex Sans', showLineNumbers: true, autoSnapshotMinutes: 0, autoSaveToast: false }, ...parsed }
-    }
-  } catch {}
-  return { theme: 'galaxy', fontSize: 16, fontFamily: 'IBM Plex Sans', showLineNumbers: true, autoSnapshotMinutes: 0, autoSaveToast: false }
-}
-
-function saveSettings(settings: AppSettings) {
-  try { localStorage.setItem('paddyngton-settings', JSON.stringify(settings)) } catch {}
-}
 
 const defaultSettings = loadSettings()
 
@@ -338,6 +81,8 @@ function App() {
   const mindMapDragCursorStart = useRef<{ x: number; y: number } | null>(null)
   const mindMapDragEntryStart = useRef<{ x: number; y: number } | null>(null)
   const mindMapCanvasRef = useRef<HTMLDivElement>(null)
+  const [pendingRelation, setPendingRelation] = useState<{ from: string; to: string } | null>(null)
+  const [relationTypeSelect, setRelationTypeSelect] = useState<RelationType>('neutral')
 
   const activeBook = state.openBooks.find(b => b.id === state.activeBookId) || null
   const chapters = activeBook?.chapters || []
@@ -373,7 +118,7 @@ function App() {
   const updateSettings = useCallback((patch: Partial<AppSettings>) => {
     setSettings(prev => {
       const next = { ...prev, ...patch }
-      saveSettings(next)
+      saveSettingsToStorage(next)
       return next
     })
   }, [])
@@ -398,11 +143,7 @@ function App() {
   const filteredCommands = commands.filter(cmd => cmd.name.toLowerCase().includes(commandQuery.toLowerCase()))
 
   const getCloseMarker = (marker: string): string => {
-    const closers: Record<string, string> = {
-      '**': '**', '*': '*', '<u>': '</u>', '~~': '~~',
-      '<sub>': '</sub>', '<sup>': '</sup>', '`': '`',
-    }
-    return closers[marker] || marker
+    return MARKER_CLOSERS[marker] || marker
   }
 
   const applyColor = (color: string, isBg: boolean) => {
@@ -429,9 +170,8 @@ function App() {
   }
 
   const cycleTheme = () => {
-    const order: ThemeName[] = ['galaxy', 'aurora', 'forest', 'obsidian', 'neon', 'retro', 'monochrome']
-    const idx = order.indexOf(settings.theme)
-    updateSettings({ theme: order[(idx + 1) % order.length] })
+    const idx = THEME_ORDER.indexOf(settings.theme)
+    updateSettings({ theme: THEME_ORDER[(idx + 1) % THEME_ORDER.length] })
   }
 
   const showToast = (message: string, type: 'info' | 'success' | 'error' = 'info') => {
@@ -638,6 +378,15 @@ function App() {
   }, [])
 
   useEffect(() => {
+    if (inputDialog || confirmDialog) {
+      invoke('set_always_on_top', { value: true }).catch(() => {})
+    }
+    return () => {
+      invoke('set_always_on_top', { value: false }).catch(() => {})
+    }
+  }, [inputDialog, confirmDialog])
+
+  useEffect(() => {
     if (!activeBook || settings.autoSnapshotMinutes <= 0) return
     const interval = setInterval(() => {
       (async () => {
@@ -821,10 +570,18 @@ function App() {
     updateActiveBook({ chapters: newChapters, activeChapterId: id })
   }
 
-  const deleteChapter = (id: string) => {
+  const deleteChapter = async (id: string) => {
     if (chapters.length <= 1 || !activeBook) return
+    const ch = chapters.find(c => c.id === id)
+    if (ch?.path) {
+      try { await invoke('delete_file', { path: ch.path }) } catch {}
+    }
     const next = chapters.filter(c => c.id !== id)
-    updateActiveBook({ chapters: next, activeChapterId: next[0]?.id || null })
+    const newBookConfig = bookConfig ? { ...bookConfig, chapters: bookConfig.chapters.filter(c => c.id !== id) } : null
+    if (newBookConfig) {
+      await writeTextFile(`${activeBook.dir}/.book.json`, JSON.stringify(newBookConfig, null, 2))
+    }
+    updateActiveBook({ chapters: next, activeChapterId: next[0]?.id || null, bookConfig: newBookConfig })
   }
 
   const startRenameChapter = (id: string) => {
@@ -888,9 +645,21 @@ function App() {
     await saveKanbanData()
     await saveNotes()
     await saveTimelineData()
+    const dir = activeBook.dir
     for (const ch of chapters) {
-      if (!ch.path) continue
-      try { await writeTextFile(ch.path, ch.code) } catch {}
+      let path = ch.path
+      if (!path) path = `${dir}/${ch.name}.md`
+      try {
+        await writeTextFile(path, ch.code)
+        if (!ch.path) {
+          const bc = activeBook.bookConfig
+          const newChapter = { id: ch.id, name: ch.name, file: `${ch.name}.md` }
+          if (!bc.chapters.find(c => c.id === ch.id)) {
+            const nc2 = { ...bc, chapters: [...bc.chapters, newChapter] }
+            await writeTextFile(`${dir}/.book.json`, JSON.stringify(nc2, null, 2))
+          }
+        }
+      } catch {}
     }
   }
 
@@ -923,16 +692,17 @@ function App() {
     if (!activeBook) return
     confirmAction('Restore this version? Current files will be overwritten.', async () => {
       try {
-        await invoke('restore_version_snapshot', { bookDir: activeBook.dir, snapshotId })
-        const contextPath = `${activeBook.dir}/.context.json`
-        const bookConfigPath = `${activeBook.dir}/.book.json`
-        let newContextData: ContextEntry[] = []
-        let newBookConfig: BookConfig | null = null
-        if (await exists(contextPath)) newContextData = JSON.parse(await readTextFile(contextPath))
-        if (await exists(bookConfigPath)) newBookConfig = JSON.parse(await readTextFile(bookConfigPath))
-        const groups = extractGroups(newContextData)
-        updateActiveBook({ contextData: newContextData, contextGroups: groups, ...(newBookConfig ? { bookConfig: newBookConfig } : {}) })
-        loadChaptersFromDisk(activeBook.dir, newBookConfig, () => {})
+        const bookDir = activeBook.dir
+        await invoke('restore_version_snapshot', { bookDir, snapshotId })
+        setState(s => ({ ...s, openBooks: s.openBooks.filter(b => b.id !== activeBook.id), activeBookId: s.activeBookId === activeBook.id ? null : s.activeBookId }))
+        let contextData: ContextEntry[] = []
+        let bookConfig: BookConfig | null = null
+        const contextPath = `${bookDir}/.context.json`
+        const bookConfigPath = `${bookDir}/.book.json`
+        if (await exists(contextPath)) contextData = JSON.parse(await readTextFile(contextPath))
+        if (await exists(bookConfigPath)) bookConfig = JSON.parse(await readTextFile(bookConfigPath))
+        const groups = extractGroups(contextData)
+        loadBook(bookDir, contextData, groups, bookConfig)
         showToast('Version restored', 'success')
       } catch (err) { console.error('Error restoring snapshot:', err); showToast('Failed to restore version', 'error') }
     })
@@ -942,34 +712,35 @@ function App() {
 
   const handleMindMapMouseDown = (e: React.MouseEvent, entryName: string) => {
     e.stopPropagation()
-    const rect = mindMapCanvasRef.current?.getBoundingClientRect()
-    if (rect) {
-      mindMapDragCursorStart.current = { x: e.clientX - rect.left, y: e.clientY - rect.top }
-    } else {
-      mindMapDragCursorStart.current = { x: e.clientX, y: e.clientY }
-    }
+    if (state.mindMapConnectFrom) return
+    const canvas = mindMapCanvasRef
+    if (!canvas) return
+    const rect = canvas.getBoundingClientRect()
     const existing = contextData.find(c => c.name === entryName)
-    mindMapDragEntryStart.current = existing ? { x: existing._x ?? 0, y: existing._y ?? 0 } : { x: 0, y: 0 }
+    const startX = existing?._x ?? 420
+    const startY = existing?._y ?? 230
+    mindMapDragEntryStart.current = { x: startX, y: startY }
+    mindMapDragCursorStart.current = { x: e.clientX - rect.left + canvas.scrollLeft, y: e.clientY - rect.top + canvas.scrollTop }
     mindMapDragRef.current = entryName
     setState(s => ({ ...s, mindMapDrag: entryName }))
   }
 
   const handleMindMapMouseMove = (e: React.MouseEvent) => {
     if (!mindMapDragRef.current || !mindMapDragCursorStart.current || !mindMapDragEntryStart.current) return
-    const rect = mindMapCanvasRef.current?.getBoundingClientRect()
-    let clientX = e.clientX
-    let clientY = e.clientY
-    if (rect) {
-      clientX = clientX - rect.left
-      clientY = clientY - rect.top
-    }
-    const dx = clientX - mindMapDragCursorStart.current.x
-    const dy = clientY - mindMapDragCursorStart.current.y
-    if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return
+    const canvas = mindMapCanvasRef
+    if (!canvas) return
+    const rect = canvas.getBoundingClientRect()
+    const mouseX = e.clientX - rect.left + canvas.scrollLeft
+    const mouseY = e.clientY - rect.top + canvas.scrollTop
+    const dx = mouseX - mindMapDragCursorStart.current.x
+    const dy = mouseY - mindMapDragCursorStart.current.y
+    if (Math.abs(dx) < 3 && Math.abs(dy) < 3) return
     const newX = mindMapDragEntryStart.current.x + dx
     const newY = mindMapDragEntryStart.current.y + dy
     const d = contextData.map(c => c.name === mindMapDragRef.current ? { ...c, _x: newX, _y: newY } : c)
     updateActiveBook({ contextData: d })
+    mindMapDragCursorStart.current = { x: mouseX, y: mouseY }
+    mindMapDragEntryStart.current = { x: newX, y: newY }
   }
 
   const handleMindMapMouseUp = () => {
@@ -1060,9 +831,9 @@ function App() {
                   <div className="setting-section">
                     <h3>{t('settings.themes')}</h3>
                     <div className="theme-grid">
-                      {(Object.keys(themeLabels) as ThemeName[]).map(th => (
+                      {(Object.keys(THEME_LABELS) as ThemeName[]).map(th => (
                         <button key={th} className={`theme-option ${settings.theme === th ? 'active' : ''}`} onClick={() => updateSettings({ theme: th })}>
-                          {themeIcons[th]} {themeLabels[th]}
+                          {THEME_ICONS[th]} {THEME_LABELS[th]}
                         </button>
                       ))}
                     </div>
@@ -1104,7 +875,7 @@ function App() {
                   <div className="form-group"><label>{t('settings.bookType')}</label>
                     <select className="form-input" value={bookConfig.bookType || 'Novel'}
                       onChange={e => updateActiveBook({ bookConfig: { ...bookConfig, bookType: e.target.value } })}>
-                      {bookTypes.map(bt => <option key={bt} value={bt}>{bt}</option>)}
+                      {BOOK_TYPES.map(bt => <option key={bt} value={bt}>{bt}</option>)}
                     </select>
                   </div>
                   <div className="form-group"><label>{t('settings.bookGenre')}</label>
@@ -1172,7 +943,7 @@ function App() {
                   Editing: <strong>{state.mindMapEditEntry.name}</strong>
                   {state.mindMapEditEntry.relations && state.mindMapEditEntry.relations.length > 0 && (
                     <div style={{ marginTop: '4px', fontSize: '12px', opacity: 0.9 }}>
-                      Relations: {state.mindMapEditEntry.relations.map(r => `${r.name} (${relationLabels[r.type]})`).join(', ')}
+                      Relations: {state.mindMapEditEntry.relations.map(r => `${r.name} (${t('relations.' + r.type)})`).join(', ')}
                     </div>
                   )}
                 </div>
@@ -1203,7 +974,7 @@ function App() {
                           {(ctx!.relations || []).map((rel, ri) => (
                             <span key={ri} className="relation-tag" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', background: relationColors[rel.type], color: 'white', borderRadius: '12px', fontSize: '11px' }}>
                               👤 {rel.name}
-                              <span style={{ opacity: 0.7, fontSize: '9px' }}>{relationLabels[rel.type]}</span>
+                              <span style={{ opacity: 0.7, fontSize: '9px' }}>{t('relations.' + rel.type)}</span>
                               <button style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: '0', fontSize: '12px', lineHeight: 1 }} onClick={() => {
                                 const d = [...contextData]; const idx = d.findIndex(x => x.name === ctx!.name)
                                 if (idx >= 0) d[idx].relations = (d[idx].relations || []).filter((r: Relation) => r.name !== rel.name)
@@ -1260,7 +1031,7 @@ function App() {
                               setInputDialog({ title: `Add ${typeLabel}`, label: `${typeLabel} name:`, defaultValue: '', onSubmit: (name) => {
                                 if (name && name.trim()) {
                                   const details: Record<string, string> = {}
-                                  Object.keys(contextTemplates[type]).forEach(k => { details[k] = '' })
+                                  Object.keys(CONTEXT_TEMPLATES[type]).forEach(k => { details[k] = '' })
                                   updateActiveBook({ contextData: [...contextData, { name: name.trim(), type, details, group: '', relations: [], notes: '' }] })
                                 }
                                 setState(s => ({ ...s, showTemplateSelector: false }))
@@ -1412,6 +1183,65 @@ function App() {
                             <div style={{ fontSize: '13px', color: 'var(--text)', background: 'var(--bg-secondary)', borderRadius: '8px', padding: '12px', whiteSpace: 'pre-wrap' }}>{state.wikiSelected.notes}</div>
                           </div>
                         )}
+                        {state.wikiSelected.type === 'character' && (
+                          <div style={{ marginTop: '16px' }}>
+                            <h4 style={{ fontSize: '12px', color: 'var(--cool-gray)', marginBottom: '8px' }}>{t('wiki.relationships')}</h4>
+                            {state.wikiSelected.relations && state.wikiSelected.relations.length > 0 ? (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                {state.wikiSelected.relations.map((rel, i) => {
+                                  const relEntry = contextData.find(c => c.name === rel.name)
+                                  return (
+                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-secondary)', borderRadius: '8px', padding: '8px 12px', borderLeft: `4px solid ${relationColors[rel.type]}` }}>
+                                      <span style={{ fontSize: '12px' }}>{relEntry?.type === 'character' ? '👤' : relEntry?.type === 'place' ? '📍' : '📦'}</span>
+                                      <span style={{ fontSize: '13px', fontWeight: 600, cursor: 'pointer', color: 'var(--accent)' }}
+                                        onClick={() => relEntry && setState(s => ({ ...s, wikiSelected: relEntry }))}>
+                                        {rel.name}
+                                      </span>
+                                      <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '10px', background: relationColors[rel.type] + '30', color: relationColors[rel.type], fontWeight: 600 }}>
+                                        {t('relations.' + rel.type)}
+                                      </span>
+                                      <select
+                                        value={rel.type}
+                                        onChange={e => {
+                                          const newType = e.target.value as Relation['type']
+                                          const newD = contextData.map(c => c.name === state.wikiSelected!.name
+                                            ? { ...c, relations: c.relations?.map(r => r.name === rel.name ? { ...r, type: newType } : r) }
+                                            : c)
+                                          updateActiveBook({ contextData: newD })
+                                          setState(s => ({ ...s, wikiSelected: { ...s.wikiSelected!, relations: s.wikiSelected!.relations?.map(r => r.name === rel.name ? { ...r, type: newType } : r) } }))
+                                        }}
+                                        style={{ marginLeft: 'auto', padding: '2px 6px', borderRadius: '6px', border: '1px solid var(--border-gray)', fontSize: '11px', fontFamily: 'inherit', cursor: 'pointer' }}>
+                                        <option value="ally">🤝 {t('relations.friendly')}</option>
+                                        <option value="family">👨‍👩‍👧 {t('relations.family')}</option>
+                                        <option value="romantic">❤️ {t('relations.romantic')}</option>
+                                        <option value="neutral">➖ {t('relations.neutral')}</option>
+                                        <option value="rival">⚔️ {t('relations.rival')}</option>
+                                        <option value="enemy">💀 {t('relations.hostile')}</option>
+                                      </select>
+                                      <button className="btn-icon" style={{ fontSize: '11px', padding: '2px 6px' }}
+                                        onClick={() => {
+                                          const newD = contextData.map(c => c.name === state.wikiSelected!.name
+                                            ? { ...c, relations: c.relations?.filter(r => r.name !== rel.name) }
+                                            : c)
+                                          updateActiveBook({ contextData: newD })
+                                          setState(s => ({ ...s, wikiSelected: { ...s.wikiSelected!, relations: s.wikiSelected!.relations?.filter(r => r.name !== rel.name) } }))
+                                        }}>🗑️</button>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            ) : (
+                              <div style={{ fontSize: '12px', color: 'var(--cool-gray)', background: 'var(--bg-secondary)', borderRadius: '8px', padding: '12px' }}>
+                                {t('wiki.noRelationships')}
+                              </div>
+                            )}
+                            <div style={{ marginTop: '8px' }}>
+                              <button className="btn btn-sm" onClick={() => setState(s => ({ ...s, showMindMap: true }))}>
+                                🕸️ {t('wiki.openMindMap')}
+                              </button>
+                            </div>
+                          </div>
+                        )}
                         <div className="wiki-cross-refs">
                           <h4>{t('wiki.related')}</h4>
                           {contextData.filter(e => e.type === 'character' && e.name !== state.wikiSelected!.name).map((e, i) => (
@@ -1443,7 +1273,7 @@ function App() {
                   setInputDialog({ title: t('mindmap.addCharacter'), label: t('mindmap.enterName'), defaultValue: '', onSubmit: (name) => {
                     if (name && name.trim()) {
                       const details: Record<string, string> = {}
-                      Object.keys(contextTemplates.character).forEach(k => { details[k] = '' })
+                      Object.keys(CONTEXT_TEMPLATES.character).forEach(k => { details[k] = '' })
                       updateActiveBook({ contextData: [...contextData, { name: name.trim(), type: 'character', details, relations: [], group: '', notes: '' }] })
                     }
                   }})
@@ -1456,6 +1286,31 @@ function App() {
                 <button className="btn-icon" onClick={() => setState(s => ({ ...s, showMindMap: false, mindMapConnectFrom: null, mindMapConnectGroupFrom: null }))}>×</button>
               </div>
             </div>
+            {pendingRelation && (
+              <div style={{ padding: '12px 16px', background: 'var(--accent)', color: 'white', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '13px', fontWeight: 600 }}>
+                  {pendingRelation.from} → {pendingRelation.to}
+                </span>
+                <select
+                  value={relationTypeSelect}
+                  onChange={e => setRelationTypeSelect(e.target.value as typeof relationTypeSelect)}
+                  style={{ padding: '4px 8px', borderRadius: '6px', border: 'none', fontSize: '12px', fontFamily: 'inherit', cursor: 'pointer' }}>
+                  <option value="ally" style={{ color: '#38a169' }}>🤝 {t('relations.friendly')}</option>
+                  <option value="family" style={{ color: '#3182ce' }}>👨‍👩‍👧 {t('relations.family')}</option>
+                  <option value="romantic" style={{ color: '#d69e2e' }}>❤️ {t('relations.romantic')}</option>
+                  <option value="neutral" style={{ color: '#718096' }}>➖ {t('relations.neutral')}</option>
+                  <option value="rival" style={{ color: '#805ad5' }}>⚔️ {t('relations.rival')}</option>
+                  <option value="enemy" style={{ color: '#e53e3e' }}>💀 {t('relations.hostile')}</option>
+                </select>
+                <button className="btn btn-sm" style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none' }} onClick={() => {
+                  const newD = contextData.map(e => e.name === pendingRelation.from && !e.relations?.find(r => r.name === pendingRelation.to)
+                    ? { ...e, relations: [...(e.relations || []), { name: pendingRelation.to, type: relationTypeSelect }] } : e)
+                  updateActiveBook({ contextData: newD })
+                  setPendingRelation(null)
+                }}>Add Connection</button>
+                <button className="btn btn-sm" style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none' }} onClick={() => setPendingRelation(null)}>Cancel</button>
+              </div>
+            )}
             <div className="mindmap-toolbar">
               <span style={{ fontSize: '12px', color: 'var(--cool-gray)' }}>{mindMapEntries.length} {t('mindmap.characters')}</span>
               {(() => {
@@ -1481,7 +1336,7 @@ function App() {
                     setInputDialog({ title: t('mindmap.addCharacter'), label: t('mindmap.enterName'), defaultValue: '', onSubmit: (name) => {
                       if (name && name.trim()) {
                         const details: Record<string, string> = {}
-                        Object.keys(contextTemplates.character).forEach(k => { details[k] = '' })
+                        Object.keys(CONTEXT_TEMPLATES.character).forEach(k => { details[k] = '' })
                         updateActiveBook({ contextData: [...contextData, { name: name.trim(), type: 'character', details, relations: [], group: '', notes: '' }] })
                       }
                     }})
@@ -1516,7 +1371,7 @@ function App() {
                 })
                 return (
                   <>
-                    <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+                    <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1 }}>
                       {groups.map((g, gi) => {
                         const gp = groupPositions[g]
                         return groups.slice(gi + 1).map((g2, gi2) => {
@@ -1542,6 +1397,7 @@ function App() {
                         })
                       )}
                     </svg>
+                    <div style={{ position: 'relative', zIndex: 2 }}>
                     {groups.map(g => {
                       const gp = groupPositions[g]
                       const members = mindMapEntries.filter(e => (e.group || t('context.noGroup')) === g)
@@ -1558,7 +1414,7 @@ function App() {
                             return (
                               <div key={entry.name}
                                 className={`mindmap-node ${isConnectFrom ? 'connecting' : isConnectTarget ? 'target' : ''} ${isDragging ? 'dragging' : ''}`}
-                                style={{ left: mp.x - 60, top: mp.y - 20, cursor: state.mindMapDrag ? 'grabbing' : isDragging ? 'grabbing' : 'grab' }}
+                                style={{ left: mp.x - 60, top: mp.y - 20, cursor: state.mindMapDrag ? 'grabbing' : isDragging ? 'grabbing' : 'grab', zIndex: isDragging ? 100 : 2 }}
                                 onMouseDown={(e) => { e.preventDefault(); handleMindMapMouseDown(e, entry.name) }}
                                 onClick={() => {
                                   if (state.mindMapDrag) return
@@ -1566,22 +1422,13 @@ function App() {
                                     setState(s => ({ ...s, mindMapConnectFrom: entry.name }))
                                   } else if (state.mindMapConnectFrom && state.mindMapConnectFrom !== entry.name) {
                                     const fromName = state.mindMapConnectFrom
-                                    const d = [...contextData]
-                                    const fromEntry = d.find(e => e.name === fromName)
-                                    const toEntry = d.find(e => e.name === entry.name)
-                                    if (fromEntry && toEntry) {
-                                      if (!fromEntry.relations) fromEntry.relations = []
-                                      if (!fromEntry.relations.find(r => r.name === entry.name)) {
-                                        const relTypes: Relation['type'][] = ['ally', 'enemy', 'family', 'neutral', 'romantic', 'rival']
-                                        setInputDialog({ title: 'Relation Type', label: 'Select relation type:', defaultValue: 'ally', onSubmit: (type) => {
-                                          const relType = relTypes.includes(type as Relation['type']) ? type as Relation['type'] : 'neutral'
-                                          const newD = contextData.map(e => e.name === fromName && !e.relations?.find(r => r.name === entry.name) ? { ...e, relations: [...(e.relations || []), { name: entry.name, type: relType }] } : e)
-                                          updateActiveBook({ contextData: newD })
-                                        }})
-                                      }
+                                    const fromEntry = contextData.find(e => e.name === fromName)
+                                    const toEntry = contextData.find(e => e.name === entry.name)
+                                    if (fromEntry && toEntry && !fromEntry.relations?.find(r => r.name === entry.name)) {
+                                      setPendingRelation({ from: fromName, to: entry.name })
+                                      setRelationTypeSelect('neutral')
                                     }
                                     setState(s => ({ ...s, mindMapConnectFrom: null }))
-                                    updateActiveBook({ contextData: d })
                                   }
                                 }}
                                 onDoubleClick={() => {
@@ -1599,8 +1446,9 @@ function App() {
                         </div>
                       )
                     })}
-                    <div className="mindmap-node center-node" style={{ left: cx - 60, top: cy - 20, cursor: 'default' }}>
+                    <div className="mindmap-node center-node" style={{ left: cx - 60, top: cy - 20, cursor: 'default', zIndex: 2 }}>
                       <span>📖</span><span>{bookConfig?.title || 'Book'}</span>
+                    </div>
                     </div>
                   </>
                 )
@@ -1609,7 +1457,7 @@ function App() {
             </div>
               {mindMapEntries.length > 0 && (
                 <div className="mindmap-relations-list" style={{ borderTop: '1px solid var(--border-gray)', padding: '8px 16px', maxHeight: '140px', overflowY: 'auto' }}>
-                  <div style={{ fontSize: '11px', color: 'var(--cool-gray)', marginBottom: '4px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Connections</div>
+                  <div style={{ fontSize: '11px', color: 'var(--cool-gray)', marginBottom: '4px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('mindmap.connections')}</div>
                   {(() => {
                     const rels: { from: string; to: string; toName: string; fromGroup: string; toGroup: string; type: Relation['type'] }[] = []
                     mindMapEntries.forEach(e => {
@@ -1626,7 +1474,7 @@ function App() {
                       })
                     })
                     return rels.length === 0 ? (
-                      <div style={{ fontSize: '12px', color: 'var(--cool-gray)' }}>No connections yet. Click "Connect" then select two characters.</div>
+                      <div style={{ fontSize: '12px', color: 'var(--cool-gray)' }}>{t('mindmap.noConnections')}</div>
                     ) : rels.map((rel, i) => (
                       <div key={i} className="mindmap-relation-row" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', padding: '2px 0' }}>
                         <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: relationColors[rel.type], flexShrink: 0 }} />
@@ -1635,7 +1483,7 @@ function App() {
                         <span style={{ color: 'var(--accent)' }}>→</span>
                         <span style={{ fontWeight: 600 }}>{rel.to}</span>
                         <span className="mindmap-rel-group">{rel.toGroup}</span>
-                        <span style={{ marginLeft: '4px', fontSize: '10px', color: relationColors[rel.type], fontWeight: 600 }}>{relationLabels[rel.type]}</span>
+                        <span style={{ marginLeft: '4px', fontSize: '10px', color: relationColors[rel.type], fontWeight: 600 }}>{t('relations.' + rel.type)}</span>
                         <button className="btn-icon" style={{ fontSize: '11px', padding: '1px 5px', marginLeft: 'auto' }}
                           onClick={() => {
                             const d = [...contextData]
@@ -1746,44 +1594,6 @@ function App() {
                   <button className="btn btn-sm" onClick={() => restoreSnapshot(v.id)}>↩ Restore</button>
                 </div>
               ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {toast && (
-        <div className={`toast toast-${toast.type}`}>
-          {toast.type === 'success' ? '✓' : toast.type === 'error' ? '✕' : 'ℹ'} {toast.message}
-        </div>
-      )}
-
-      {confirmDialog && (
-        <div className="modal-overlay" onClick={() => setConfirmDialog(null)}>
-          <div className="confirm-dialog" onClick={e => e.stopPropagation()}>
-            <div className="confirm-message">{confirmDialog.message}</div>
-            <div className="confirm-actions">
-              <button className="btn btn-sm" onClick={() => setConfirmDialog(null)}>Cancel</button>
-              <button className="btn btn-primary btn-sm" onClick={() => { confirmDialog.onConfirm(); setConfirmDialog(null) }}>Confirm</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {inputDialog && (
-        <div className="modal-overlay" onClick={() => setInputDialog(null)}>
-          <div className="input-dialog" onClick={e => e.stopPropagation()}>
-            <div className="input-dialog-title">{inputDialog.title}</div>
-            <div className="form-group">
-              <label>{inputDialog.label}</label>
-              {inputDialog.multiline ? (
-                <textarea className="form-textarea" ref={inputDialogRef as unknown as React.RefObject<HTMLTextAreaElement>} defaultValue={inputDialog.defaultValue} autoFocus rows={4} />
-              ) : (
-                <input type="text" className="form-input" ref={inputDialogRef as React.RefObject<HTMLInputElement>} defaultValue={inputDialog.defaultValue} autoFocus onKeyDown={e => { if (e.key === 'Enter') { inputDialog.onSubmit((inputDialogRef.current as HTMLInputElement)?.value || ''); setInputDialog(null) } else if (e.key === 'Escape') setInputDialog(null) }} />
-              )}
-            </div>
-            <div className="input-dialog-actions">
-              <button className="btn btn-sm" onClick={() => setInputDialog(null)}>Cancel</button>
-              <button className="btn btn-primary btn-sm" onClick={() => { inputDialog.onSubmit((inputDialogRef.current as HTMLInputElement | HTMLTextAreaElement)?.value || ''); setInputDialog(null) }}>OK</button>
             </div>
           </div>
         </div>
@@ -1956,6 +1766,7 @@ function App() {
                         <span className="chapter-name">{ch.name}</span>
                       )}
                       {ch.isModified && !ch.renaming && <span className="modified-dot">•</span>}
+                      <button className="chapter-delete" onClick={e => { e.stopPropagation(); confirmAction(t('chapter.deleteConfirm'), () => deleteChapter(ch.id)) }}>×</button>
                     </div>
                   ))}
                   <button className="btn btn-sm chapter-add" onClick={addChapter}>+</button>
@@ -1998,7 +1809,7 @@ function App() {
                     <input ref={bgColorInputRef} type="color" style={{ display: 'none' }}
                       value={selectedBgColor}
                       onChange={e => { setSelectedBgColor(e.target.value); applyColor(e.target.value, true) }} />
-                    {formatButtons.map(btn => {
+                    {FORMAT_BUTTONS.map(btn => {
                       if (btn.type === 'sep') return <span key={btn.id} className="format-sep" />
                       const style: React.CSSProperties = {}
                       if (btn.id === 'bold') style.fontWeight = 700
@@ -2057,81 +1868,36 @@ function App() {
       )}
 
       {state.showTimeline && activeBook && (
-        <div className="modal-overlay" onClick={() => setState(s => ({ ...s, showTimeline: false }))}>
-          <div className="timeline-panel" onClick={e => e.stopPropagation()}>
-            <div className="panel-header">
-              <h2>📅 Timeline</h2>
-              <div className="panel-header-actions">
-                <button className="btn btn-sm" onClick={() => {
-                  setInputDialog({ title: 'Add Timeline Event', label: 'Event label:', defaultValue: '', onSubmit: (label) => {
-                    if (label) {
-                      setInputDialog({ title: 'Event Date', label: 'Date (e.g., Chapter 1, Year 100):', defaultValue: '', onSubmit: (date) => {
-                        setInputDialog({ title: 'Event Description', label: 'Description:', defaultValue: '', multiline: true, onSubmit: (content) => {
-                          updateTimeline([...activeBook.timelineData, { id: Date.now().toString(), date, label, content, characterIds: [] }])
-                        }})
-                      }})
-                    }
-                  }})
-                }}>➕ Add Event</button>
-                <button className="btn-icon" onClick={() => setState(s => ({ ...s, showTimeline: false }))}>×</button>
-              </div>
-            </div>
-            <div className="timeline-body">
-              {activeBook.timelineData.length === 0 ? (
-                <div style={{ color: 'var(--cool-gray)', textAlign: 'center', padding: '40px', fontSize: '14px' }}>
-                  No events yet. Click "Add Event" to start building your timeline.
-                </div>
-              ) : (
-                <div className="timeline-line">
-                  {activeBook.timelineData.sort((a, b) => a.date.localeCompare(b.date)).map((entry, i) => (
-                    <div key={entry.id} className="timeline-entry">
-                      <div className="timeline-marker" />
-                      <div className="timeline-card">
-                        <div className="timeline-date">{entry.date}</div>
-                        <div className="timeline-label">{entry.label}</div>
-                        {entry.content && <div className="timeline-content">{entry.content}</div>}
-                        <div className="timeline-actions">
-                          <button className="btn btn-sm" onClick={() => {
-                            setInputDialog({ title: 'Edit Description', label: 'Description:', defaultValue: entry.content, multiline: true, onSubmit: (content) => {
-                              updateTimeline(activeBook.timelineData.map(e => e.id === entry.id ? { ...e, content } : e))
-                            }})
-                          }}>✏️</button>
-                          <button className="btn btn-sm" onClick={() => {
-                            confirmAction('Delete this event?', () => {
-                              updateTimeline(activeBook.timelineData.filter(e => e.id !== entry.id))
-                            })
-                          }}>🗑️</button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        <TimelinePanel
+          timelineData={activeBook.timelineData}
+          contextData={contextData}
+          onUpdate={updateTimeline}
+          onClose={() => setState(s => ({ ...s, showTimeline: false }))}
+          t={t}
+          confirmAction={confirmAction}
+        />
       )}
 
       {state.showNotes && activeBook && (
         <div className="modal-overlay" onClick={() => setState(s => ({ ...s, showNotes: false }))}>
           <div className="notes-panel" onClick={e => e.stopPropagation()}>
             <div className="panel-header">
-              <h2>📝 Notes</h2>
+              <h2>📝 {t('notes.title')}</h2>
               <div className="panel-header-actions">
                 <button className="btn btn-sm" onClick={() => {
-                  setInputDialog({ title: 'Add Note', label: 'Note title:', defaultValue: '', onSubmit: (title) => {
+                  setInputDialog({ title: t('notes.addNote'), label: t('notes.noteTitle') + ':', defaultValue: '', onSubmit: (title) => {
                     if (title) {
                       updateNotes([...activeBook.notes, { id: Date.now().toString(), title, content: '', createdAt: new Date().toISOString() }])
                     }
                   }})
-                }}>➕ Add Note</button>
+                }}>➕ {t('notes.addNote')}</button>
                 <button className="btn-icon" onClick={() => setState(s => ({ ...s, showNotes: false }))}>×</button>
               </div>
             </div>
             <div className="notes-body">
               {activeBook.notes.length === 0 ? (
                 <div style={{ color: 'var(--cool-gray)', textAlign: 'center', padding: '40px', fontSize: '14px' }}>
-                  No notes yet. Click "Add Note" to create one.
+                  {t('notes.noNotes')}
                 </div>
               ) : (
                 <div className="notes-grid">
@@ -2141,11 +1907,11 @@ function App() {
                         <span className="note-title">{note.title}</span>
                         <button className="btn-icon" style={{ fontSize: '12px', padding: '2px' }}
                           onClick={() => {
-                            confirmAction('Delete this note?', () => updateNotes(activeBook.notes.filter(n => n.id !== note.id)))
+                            confirmAction(t('notes.deleteNote'), () => updateNotes(activeBook.notes.filter(n => n.id !== note.id)))
                           }}>×</button>
                       </div>
                       <textarea className="note-content" value={note.content}
-                        placeholder="Write your note here..."
+                        placeholder={t('context.notesPlaceholder')}
                         onChange={e => updateNotes(activeBook.notes.map(n => n.id === note.id ? { ...n, content: e.target.value } : n))}
                       />
                     </div>
@@ -2161,24 +1927,24 @@ function App() {
         <div className="modal-overlay" onClick={() => setState(s => ({ ...s, showWorld: false }))}>
           <div className="world-panel" onClick={e => e.stopPropagation()}>
             <div className="panel-header">
-              <h2>🌍 World Building</h2>
+              <h2>🌍 {t('world.title')}</h2>
               <div className="panel-header-actions">
                 <button className="btn btn-sm" onClick={() => {
-                  setInputDialog({ title: 'Add World Entry', label: 'Entry title:', defaultValue: '', onSubmit: (title) => {
+                  setInputDialog({ title: t('world.addEntry'), label: t('world.entryTitle') + ':', defaultValue: '', onSubmit: (title) => {
                     if (title) {
-                      setInputDialog({ title: 'Category', label: 'Category (e.g., Geography, History, Magic):', defaultValue: '', onSubmit: (category) => {
+                      setInputDialog({ title: t('world.category'), label: t('world.categoryHint') + ':', defaultValue: '', onSubmit: (category) => {
                         updateWorld([...activeBook.worldData, { id: Date.now().toString(), title, content: '', category }])
                       }})
                     }
                   }})
-                }}>➕ Add Entry</button>
+                }}>➕ {t('world.addEntry')}</button>
                 <button className="btn-icon" onClick={() => setState(s => ({ ...s, showWorld: false }))}>×</button>
               </div>
             </div>
             <div className="world-body">
               {activeBook.worldData.length === 0 ? (
                 <div style={{ color: 'var(--cool-gray)', textAlign: 'center', padding: '40px', fontSize: '14px' }}>
-                  No world entries yet. Click "Add Entry" to start describing your world.
+                  {t('world.noEntries')}
                 </div>
               ) : (
                 <div className="world-grid">
@@ -2189,7 +1955,7 @@ function App() {
                         {entry.category && <span className="world-card-category">{entry.category}</span>}
                         <button className="btn-icon" style={{ fontSize: '12px', padding: '2px', marginLeft: 'auto' }}
                           onClick={() => {
-                            confirmAction('Delete this entry?', () => updateWorld(activeBook.worldData.filter(e => e.id !== entry.id)))
+                            confirmAction(t('world.deleteEntry'), () => updateWorld(activeBook.worldData.filter(e => e.id !== entry.id)))
                           }}>×</button>
                       </div>
                       <textarea className="world-content" value={entry.content}
@@ -2209,16 +1975,16 @@ function App() {
         <div className="modal-overlay" onClick={() => setState(s => ({ ...s, showKanban: false }))}>
           <div className="kanban-panel" onClick={e => e.stopPropagation()}>
             <div className="panel-header">
-              <h2>📋 Kanban Board</h2>
+              <h2>📋 {t('kanban.title')}</h2>
               <div className="panel-header-actions">
                 <button className="btn btn-sm" onClick={() => {
-                  setInputDialog({ title: 'Add Column', label: 'Column name:', defaultValue: '', onSubmit: (name) => {
+                  setInputDialog({ title: t('kanban.addColumn'), label: t('kanban.columnName') + ':', defaultValue: '', onSubmit: (name) => {
                     if (name) {
                       const newCol = { id: Date.now().toString(), name, cards: [] }
                       updateKanban({ columns: [...activeBook.kanbanData.columns, newCol] })
                     }
                   }})
-                }}>➕ Add Column</button>
+                }}>➕ {t('kanban.addColumn')}</button>
                 <button className="btn-icon" onClick={() => setState(s => ({ ...s, showKanban: false }))}>×</button>
               </div>
             </div>
@@ -2238,8 +2004,8 @@ function App() {
                           <div className="kanban-card-actions">
                             <button className="btn-icon" style={{ fontSize: '11px', padding: '2px 6px' }}
                               onClick={() => {
-                                setInputDialog({ title: 'Edit Card', label: 'Card title:', defaultValue: card.title, onSubmit: (title) => {
-                                  setInputDialog({ title: 'Card Content', label: 'Content:', defaultValue: card.content, multiline: true, onSubmit: (content) => {
+                                setInputDialog({ title: t('kanban.editCard'), label: t('kanban.cardTitle') + ':', defaultValue: card.title, onSubmit: (title) => {
+                                  setInputDialog({ title: t('kanban.cardContent'), label: t('kanban.cardContent') + ':', defaultValue: card.content, multiline: true, onSubmit: (content) => {
                                     updateKanban({ columns: activeBook.kanbanData.columns.map(c => c.id === col.id ? {
                                       ...c, cards: c.cards.map(k => k.id === card.id ? { ...k, title, content } : k)
                                     } : c) })
@@ -2248,7 +2014,7 @@ function App() {
                               }}>✏️</button>
                             <button className="btn-icon" style={{ fontSize: '11px', padding: '2px 6px' }}
                               onClick={() => {
-                                confirmAction('Delete this card?', () => {
+                                confirmAction(t('kanban.deleteCard'), () => {
                                   updateKanban({ columns: activeBook.kanbanData.columns.map(c => c.id === col.id ? {
                                     ...c, cards: c.cards.filter(k => k.id !== card.id)
                                   } : c) })
@@ -2279,9 +2045,9 @@ function App() {
                     </div>
                     <button className="btn btn-sm" style={{ width: '100%', marginTop: '8px' }}
                       onClick={() => {
-                        setInputDialog({ title: 'Add Card', label: 'Card title:', defaultValue: '', onSubmit: (title) => {
+                        setInputDialog({ title: t('kanban.addCard'), label: t('kanban.cardTitle') + ':', defaultValue: '', onSubmit: (title) => {
                           if (title) {
-                            setInputDialog({ title: 'Card Content', label: 'Content:', defaultValue: '', multiline: true, onSubmit: (content) => {
+                            setInputDialog({ title: t('kanban.cardContent'), label: t('kanban.cardContent') + ':', defaultValue: '', multiline: true, onSubmit: (content) => {
                               const colors = ['var(--accent)', '#e53e3e', '#38a169', '#3182ce', '#805ad5', '#d69e2e']
                               const color = colors[Math.floor(Math.random() * colors.length)]
                               updateKanban({ columns: activeBook.kanbanData.columns.map(c => c.id === col.id ? {
@@ -2290,7 +2056,7 @@ function App() {
                             }})
                           }
                         }})
-                      }}>➕ Add Card</button>
+                      }}>➕ {t('kanban.addCard')}</button>
                     </div>
                 ))}
               </div>
@@ -2299,8 +2065,46 @@ function App() {
         </div>
       )}
 
+      {toast && (
+        <div className={`toast toast-${toast.type}`}>
+          {toast.type === 'success' ? '✓' : toast.type === 'error' ? '✕' : 'ℹ'} {toast.message}
+        </div>
+      )}
+
+      {confirmDialog && (
+        <div className="modal-overlay" onClick={() => setConfirmDialog(null)}>
+          <div className="confirm-dialog" onClick={e => e.stopPropagation()}>
+            <div className="confirm-message">{confirmDialog.message}</div>
+            <div className="confirm-actions">
+              <button className="btn btn-sm" onClick={() => setConfirmDialog(null)}>Cancel</button>
+              <button className="btn btn-primary btn-sm" onClick={() => { confirmDialog.onConfirm(); setConfirmDialog(null) }}>Confirm</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {inputDialog && (
+        <div className="modal-overlay" onClick={() => setInputDialog(null)}>
+          <div className="input-dialog" onClick={e => e.stopPropagation()}>
+            <div className="input-dialog-title">{inputDialog.title}</div>
+            <div className="form-group">
+              <label>{inputDialog.label}</label>
+              {inputDialog.multiline ? (
+                <textarea className="form-textarea" ref={inputDialogRef as unknown as React.RefObject<HTMLTextAreaElement>} defaultValue={inputDialog.defaultValue} autoFocus rows={4} />
+              ) : (
+                <input type="text" className="form-input" ref={inputDialogRef as React.RefObject<HTMLInputElement>} defaultValue={inputDialog.defaultValue} autoFocus onKeyDown={e => { if (e.key === 'Enter') { inputDialog.onSubmit((inputDialogRef.current as HTMLInputElement)?.value || ''); setInputDialog(null) } else if (e.key === 'Escape') setInputDialog(null) }} />
+              )}
+            </div>
+            <div className="input-dialog-actions">
+              <button className="btn btn-sm" onClick={() => setInputDialog(null)}>Cancel</button>
+              <button className="btn btn-primary btn-sm" onClick={() => { inputDialog.onSubmit((inputDialogRef.current as HTMLInputElement | HTMLTextAreaElement)?.value || ''); setInputDialog(null) }}>OK</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <footer className="status-bar">
-        <span className="status-item">{themeIcons[settings.theme]} {themeLabels[settings.theme]}</span>
+        <span className="status-item">{THEME_ICONS[settings.theme]} {THEME_LABELS[settings.theme]}</span>
         {activeChapter && (
           <><span className="status-item">{activeChapter.name}</span>
           <span className="status-item" style={{ color: 'var(--cool-gray)', fontSize: '11px' }}>

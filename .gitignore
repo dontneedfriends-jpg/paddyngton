@@ -7,3 +7,4 @@ paddyngton/src-tauri/target/
 paddyngton/src-tauri/gen/
 *.exe
 *.msi
+paddyngton/CONTEXT.md

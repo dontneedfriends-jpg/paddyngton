@@ -22,7 +22,8 @@
   "chapter": {
     "default": "Глава",
     "new": "Новая глава",
-    "selectOrCreate": "Выберите или создайте главу"
+    "selectOrCreate": "Выберите или создайте главу",
+    "deleteConfirm": "Удалить эту главу? Файл будет удалён с диска."
   },
   "editor": {
     "placeholder": "Начните писать..."
@@ -50,7 +51,11 @@
     "aboutTitle": "Paddyngton",
     "aboutVersion": "Версия 1.0.0",
     "aboutDesc": "Кроссплатформенный редактор для написания книг. Контекст персонажей, вики, карта взаимодействий, поиск по главам.",
-    "aboutBuilt": "Tauri + React + CodeMirror 6"
+    "aboutBuilt": "Tauri + React + CodeMirror 6",
+    "autoSave": "Автосохранение и снапшоты",
+    "autoSnapshotMinutes": "Интервал авто-снапшота (минуты, 0 = выкл)",
+    "showAutoSaveToast": "Показывать уведомление при автосохранении",
+    "autoSaveToastEnabled": "Включено"
   },
   "context": {
     "title": "Контекст",
@@ -63,24 +68,55 @@
     "group": "Группа",
     "property": "Свойство",
     "addProperty": "+ Свойство",
+    "notes": "Заметки",
+    "notesPlaceholder": "Личные заметки, идеи, черновики...",
     "types": {
       "character": "Персонаж",
       "place": "Место",
       "date": "Событие",
       "item": "Предмет"
     },
-    "noGroup": "Без группы"
+    "noGroup": "Без группы",
+    "view": "Просмотр",
+    "addRelation": "Добавить отношение",
+    "relationType": "Тип отношения"
   },
   "wiki": {
     "title": "Вики",
     "selectItem": "Выберите элемент слева",
     "related": "Связанные персонажи",
-    "group": "Группа"
+    "group": "Группа",
+    "relationships": "Отношения",
+    "noRelationships": "Отношений пока нет. Используйте Карту взаимодействий для связи персонажей.",
+    "openMindMap": "Открыть Карту"
   },
   "mindmap": {
     "title": "Карта взаимодействий",
     "characters": "персонажей",
-    "noCharacters": "Добавьте персонажей в контекст"
+    "noCharacters": "Добавьте персонажей в контекст",
+    "addCharacter": "Добавить персонажа",
+    "connectMode": "Связать",
+    "disconnectMode": "Отменить связь",
+    "editCharacter": "Редактировать",
+    "connectionFrom": "Кликните на другого персонажа для связи",
+    "connectionRemoved": "Связь удалена",
+    "enterName": "Введите имя персонажа",
+    "groups": "Группы",
+    "connectGroups": "Связать группы",
+    "noGroups": "Группы не определены",
+    "connections": "Связи",
+    "noConnections": "Связей пока нет. Нажмите 'Связать' и выберите двух персонажей.",
+    "addConnection": "Добавить связь"
+  },
+  "relations": {
+    "ally": "Союзник",
+    "enemy": "Враг",
+    "family": "Семья",
+    "neutral": "Нейтральный",
+    "romantic": "Романтика",
+    "rival": "Соперник",
+    "friendly": "Дружеское (Союзник)",
+    "hostile": "Враждебное (Враг)"
   },
   "search": {
     "title": "Поиск",
@@ -139,5 +175,77 @@
   },
   "status": {
     "modified": "Изменено"
+  },
+  "versions": {
+    "title": "История версий",
+    "snapshot": "Снимок",
+    "restore": "Восстановить",
+    "noSnapshots": "Снимков пока нет. Сохраните снимок для создания точки восстановления.",
+    "label": "Метка снимка (необязательно)",
+    "files": "файлов",
+    "confirmRestore": "Восстановить эту версию? Текущие файлы будут перезаписаны."
+  },
+  "timeline": {
+    "title": "Хронология",
+    "addEvent": "Добавить событие",
+    "newEvent": "Новое событие",
+    "eventLabel": "Название события",
+    "eventDate": "Дата",
+    "eventDescription": "Описание",
+    "date": "Дата",
+    "color": "Цвет",
+    "linkContext": "Связать персонажей/места/предметы",
+    "notes": "Заметки",
+    "search": "Поиск...",
+    "noEvents": "Событий пока нет. Нажмите 'Добавить событие' для создания хронологии.",
+    "deleteEvent": "Удалить это событие?"
+  },
+  "notes": {
+    "title": "Заметки",
+    "addNote": "Добавить заметку",
+    "noteTitle": "Название заметки",
+    "noNotes": "Заметок пока нет. Нажмите 'Добавить заметку'.",
+    "deleteNote": "Удалить эту заметку?"
+  },
+  "world": {
+    "title": "Мир",
+    "addEntry": "Добавить запись",
+    "entryTitle": "Название записи",
+    "category": "Категория",
+    "categoryHint": "напр., География, История, Магия",
+    "noEntries": "Записей о мире пока нет. Нажмите 'Добавить запись'.",
+    "deleteEntry": "Удалить эту запись?"
+  },
+  "kanban": {
+    "title": "Канбан-доска",
+    "addColumn": "Добавить колонку",
+    "columnName": "Название колонки",
+    "addCard": "Добавить карточку",
+    "cardTitle": "Название карточки",
+    "cardContent": "Содержание",
+    "editCard": "Редактировать карточку",
+    "deleteCard": "Удалить эту карточку?",
+    "moveTo": "Переместить в..."
+  },
+  "dialogs": {
+    "cancel": "Отмена",
+    "confirm": "Подтвердить",
+    "ok": "ОК",
+    "delete": "Удалить"
+  },
+  "toast": {
+    "saved": "Сохранено",
+    "autoSnapshotCreated": "Авто-снимок создан",
+    "snapshotCreated": "Снимок создан",
+    "snapshotFailed": "Не удалось создать снимок",
+    "versionRestored": "Версия восстановлена",
+    "versionRestoreFailed": "Не удалось восстановить версию",
+    "autoSaved": "Книга автосохранена"
+  },
+  "export": {
+    "exportPdf": "Экспорт в PDF",
+    "exporting": "Экспорт...",
+    "exportSuccess": "PDF успешно экспортирован",
+    "exportFailed": "Не удалось экспортировать PDF"
   }
 }

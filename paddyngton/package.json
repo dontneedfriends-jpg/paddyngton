@@ -28,8 +28,12 @@
     "@tauri-apps/plugin-fs": "^2.5.0",
     "@uiw/react-codemirror": "^4.23.10",
     "codemirror": "^6.0.1",
+    "jspdf": "^4.2.1",
+    "marked": "^18.0.1",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.10.1",

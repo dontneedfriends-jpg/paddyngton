@@ -22,7 +22,8 @@
   "chapter": {
     "default": "Chapter",
     "new": "New Chapter",
-    "selectOrCreate": "Select or create a chapter"
+    "selectOrCreate": "Select or create a chapter",
+    "deleteConfirm": "Delete this chapter? The file will be removed from disk."
   },
   "editor": {
     "placeholder": "Start writing..."
@@ -51,32 +52,20 @@
     "aboutTitle": "Paddyngton",
     "aboutVersion": "Version 1.0.0",
     "aboutDesc": "Cross-platform book writing editor. Character context, wiki, interaction map, chapter search.",
-    "aboutBuilt": "Tauri + React + CodeMirror 6"
-  },
-  "context": {
-    "title": "Context",
-    "add": "Add",
-    "save": "Save",
-    "wiki": "Wiki",
-    "map": "Map",
-    "name": "Name",
-    "type": "Type",
-    "group": "Group",
-    "property": "Property",
-    "addProperty": "+ Property",
-    "types": {
-      "character": "Character",
-      "place": "Place",
-      "date": "Event",
-      "item": "Item"
-    },
-    "noGroup": "No Group"
+    "aboutBuilt": "Tauri + React + CodeMirror 6",
+    "autoSave": "Auto Save & Snapshots",
+    "autoSnapshotMinutes": "Auto-snapshot interval (minutes, 0 = off)",
+    "showAutoSaveToast": "Show toast on auto-save",
+    "autoSaveToastEnabled": "Enabled"
   },
   "wiki": {
     "title": "Wiki",
     "selectItem": "Select an item on the left to view",
     "related": "Related Characters",
-    "group": "Group"
+    "group": "Group",
+    "relationships": "Relationships",
+    "noRelationships": "No relationships yet. Use the Mind Map to connect characters.",
+    "openMindMap": "Open Mind Map"
   },
   "mindmap": {
     "title": "Interaction Map",
@@ -91,7 +80,44 @@
     "enterName": "Enter character name",
     "groups": "Groups",
     "connectGroups": "Connect Groups",
-    "noGroups": "No groups defined"
+    "noGroups": "No groups defined",
+    "connections": "Connections",
+    "noConnections": "No connections yet. Click 'Connect' then select two characters.",
+    "addConnection": "Add Connection"
+  },
+  "relations": {
+    "ally": "Friendly",
+    "enemy": "Hostile",
+    "family": "Family",
+    "neutral": "Neutral",
+    "romantic": "Romantic",
+    "rival": "Rival",
+    "friendly": "Friendly (Ally)",
+    "hostile": "Hostile (Enemy)"
+  },
+  "context": {
+    "title": "Context",
+    "add": "Add",
+    "save": "Save",
+    "wiki": "Wiki",
+    "map": "Map",
+    "name": "Name",
+    "type": "Type",
+    "group": "Group",
+    "property": "Property",
+    "addProperty": "+ Property",
+    "notes": "Notes",
+    "notesPlaceholder": "Personal notes, ideas, drafts...",
+    "types": {
+      "character": "Character",
+      "place": "Place",
+      "date": "Event",
+      "item": "Item"
+    },
+    "noGroup": "No Group",
+    "view": "View",
+    "addRelation": "Add Relation",
+    "relationType": "Relation Type"
   },
   "search": {
     "title": "Search",
@@ -159,5 +185,68 @@
     "label": "Snapshot label (optional)",
     "files": "files",
     "confirmRestore": "Restore this version? Current files will be overwritten."
+  },
+  "timeline": {
+    "title": "Timeline",
+    "addEvent": "Add Event",
+    "newEvent": "New Timeline Event",
+    "eventLabel": "Event label",
+    "eventDate": "Date",
+    "eventDescription": "Description",
+    "date": "Date",
+    "color": "Color",
+    "linkContext": "Link Characters/Places/Items",
+    "notes": "Notes",
+    "search": "Search...",
+    "noEvents": "No events yet. Click 'Add Event' to start building your timeline.",
+    "deleteEvent": "Delete this event?"
+  },
+  "notes": {
+    "title": "Notes",
+    "addNote": "Add Note",
+    "noteTitle": "Note title",
+    "noNotes": "No notes yet. Click 'Add Note' to create one.",
+    "deleteNote": "Delete this note?"
+  },
+  "world": {
+    "title": "World Building",
+    "addEntry": "Add Entry",
+    "entryTitle": "Entry title",
+    "category": "Category",
+    "categoryHint": "e.g., Geography, History, Magic",
+    "noEntries": "No world entries yet. Click 'Add Entry' to start describing your world.",
+    "deleteEntry": "Delete this entry?"
+  },
+  "kanban": {
+    "title": "Kanban Board",
+    "addColumn": "Add Column",
+    "columnName": "Column name",
+    "addCard": "Add Card",
+    "cardTitle": "Card title",
+    "cardContent": "Content",
+    "editCard": "Edit Card",
+    "deleteCard": "Delete this card?",
+    "moveTo": "Move to..."
+  },
+  "dialogs": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "ok": "OK",
+    "delete": "Delete"
+  },
+  "toast": {
+    "saved": "Saved",
+    "autoSnapshotCreated": "Auto-snapshot created",
+    "snapshotCreated": "Snapshot created",
+    "snapshotFailed": "Failed to create snapshot",
+    "versionRestored": "Version restored",
+    "versionRestoreFailed": "Failed to restore version",
+    "autoSaved": "Book auto-saved"
+  },
+  "export": {
+    "exportPdf": "Export PDF",
+    "exporting": "Exporting...",
+    "exportSuccess": "PDF exported successfully",
+    "exportFailed": "Failed to export PDF"
   }
 }

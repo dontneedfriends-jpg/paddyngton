@@ -39,6 +39,11 @@ fn is_maximized(window: tauri::Window) -> bool {
 }
 
 #[tauri::command]
+fn set_always_on_top(window: tauri::Window, value: bool) -> Result<(), String> {
+    window.set_always_on_top(value).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 fn get_system_fonts() -> Vec<String> {
     let source = font_kit::source::SystemSource::new();
     match source.all_families() {
@@ -73,6 +78,19 @@ fn save_version_snapshot(book_dir: String, label: String) -> Result<VersionSnaps
         }
     }
 
+    for (src, dst_name) in [
+        (Path::new(&book_dir).join(".world.json"), ".world.json"),
+        (Path::new(&book_dir).join(".kanban.json"), ".kanban.json"),
+        (Path::new(&book_dir).join(".notes.json"), ".notes.json"),
+        (Path::new(&book_dir).join(".timeline.json"), ".timeline.json"),
+    ].iter() {
+        if src.exists() {
+            let dst = snapshot_dir.join(dst_name);
+            let _ = fs::copy(src, &dst);
+            files_copied.push(dst_name.to_string());
+        }
+    }
+
     if let Ok(config_str) = fs::read_to_string(&book_config_path) {
         if let Ok(config) = serde_json::from_str::<serde_json::Value>(&config_str) {
             if let Some(chapters) = config.get("chapters").and_then(|c| c.as_array()) {
@@ -94,35 +112,18 @@ fn save_version_snapshot(book_dir: String, label: String) -> Result<VersionSnaps
         "id": snapshot_id,
         "timestamp": timestamp,
         "label": label,
-        "files": files_copied
+        "files": files_copied.clone()
     });
     fs::write(snapshot_dir.join("meta.json"), serde_json::to_string_pretty(&meta).unwrap())
         .map_err(|e| e.to_string())?;
 
     let mut total_words = 0u64;
     let mut total_chars = 0u64;
-    for (src, _) in [
-        (&book_config_path, ".book.json"),
-        (&context_path, ".context.json"),
-    ].iter() {
-        if let Ok(content) = fs::read_to_string(src) {
+    for file in &files_copied {
+        let src = Path::new(&book_dir).join(file);
+        if let Ok(content) = fs::read_to_string(&src) {
             total_words += content.split_whitespace().count() as u64;
             total_chars += content.chars().count() as u64;
-        }
-    }
-    if let Ok(config_str) = fs::read_to_string(&book_config_path) {
-        if let Ok(config) = serde_json::from_str::<serde_json::Value>(&config_str) {
-            if let Some(chapters) = config.get("chapters").and_then(|c| c.as_array()) {
-                for ch in chapters {
-                    if let Some(file) = ch.get("file").and_then(|f| f.as_str()) {
-                        let src = Path::new(&book_dir).join(file);
-                        if let Ok(content) = fs::read_to_string(&src) {
-                            total_words += content.split_whitespace().count() as u64;
-                            total_chars += content.chars().count() as u64;
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -221,22 +222,47 @@ fn list_version_snapshots(book_dir: String) -> Result<Vec<VersionSnapshot>, Stri
 }
 
 #[tauri::command]
-fn restore_version_snapshot(book_dir: String, snapshot_id: String) -> Result<(), String> {
+fn restore_version_snapshot(book_dir: String, snapshot_id: String) -> Result<Vec<String>, String> {
     let snapshot_dir = Path::new(&book_dir).join(".paddyngton").join("versions").join(&snapshot_id);
     if !snapshot_dir.exists() {
-        return Err("Snapshot not found".to_string());
+        return Err(format!("Snapshot not found: {:?}", snapshot_dir));
     }
+
     let meta_path = snapshot_dir.join("meta.json");
-    let meta: serde_json::Value = serde_json::from_str(&fs::read_to_string(&meta_path).map_err(|e| e.to_string())?)
-        .map_err(|e| e.to_string())?;
-    for file in meta["files"].as_array().map(|a| a.iter().filter_map(|v| v.as_str().map(String::from)).collect::<Vec<_>>()).unwrap_or_default() {
-        let src = snapshot_dir.join(&file);
-        let dst = Path::new(&book_dir).join(&file);
-        if src.exists() {
-            fs::copy(&src, &dst).map_err(|e| e.to_string())?;
+    let meta_content = fs::read_to_string(&meta_path).map_err(|e| format!("Failed to read meta.json: {}", e))?;
+    let meta: serde_json::Value = serde_json::from_str(&meta_content)
+        .map_err(|e| format!("Failed to parse meta.json: {}", e))?;
+
+    for entry in fs::read_dir(&book_dir).map_err(|e| e.to_string())? {
+        let entry = entry.map_err(|e| e.to_string())?;
+        let path = entry.path();
+        let name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
+        if name == ".paddyngton" || name.starts_with('.') && !name.ends_with(".md") && name != ".book.json" && name != ".context.json" && name != ".world.json" && name != ".kanban.json" && name != ".notes.json" && name != ".timeline.json" {
+            continue;
+        }
+        if path.is_dir() && name != ".paddyngton" {
+            let _ = fs::remove_dir_all(&path);
+        } else if path.is_file() {
+            let _ = fs::remove_file(&path);
         }
     }
-    Ok(())
+
+    let files: Vec<String> = meta["files"].as_array()
+        .map(|arr| arr.iter().filter_map(|v| v.as_str().map(String::from)).collect())
+        .unwrap_or_default();
+
+    for file in &files {
+        let src = snapshot_dir.join(file);
+        let dst = Path::new(&book_dir).join(file);
+        if let Some(parent) = dst.parent() {
+            let _ = fs::create_dir_all(parent);
+        }
+        if src.exists() {
+            fs::copy(&src, &dst).map_err(|e| format!("Failed to copy {:?}: {}", src, e))?;
+        }
+    }
+
+    Ok(files)
 }
 
 #[tauri::command]
@@ -268,18 +294,40 @@ fn save_bear(book_dir: String, bear_path: String) -> Result<(), String> {
     let options = zip::write::SimpleFileOptions::default()
         .compression_method(zip::CompressionMethod::Deflated);
     let dir = Path::new(&book_dir);
+    let known_files = [
+        ".book.json", ".context.json", ".world.json", ".kanban.json",
+        ".notes.json", ".timeline.json",
+    ];
+    let known_extensions = [".md"];
     for path in walkdir_files(dir) {
-        if !path.file_name().map(|n| n.to_string_lossy().starts_with('.')).unwrap_or(false) {
-            let relative = path.strip_prefix(dir).unwrap_or(&path);
-            let mut f = fs::File::open(&path).map_err(|e| e.to_string())?;
+        let file_name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
+        let relative = path.strip_prefix(dir).unwrap_or(&path);
+        let relative_str = relative.to_string_lossy();
+        if relative_str.starts_with(".paddyngton") { continue; }
+        if known_extensions.iter().any(|ext| file_name.ends_with(ext)) || known_files.contains(&file_name) {
             let mut buffer = Vec::new();
-            f.read_to_end(&mut buffer).map_err(|e| e.to_string())?;
-            zip.start_file(relative.to_string_lossy(), options).map_err(|e| e.to_string())?;
+            let mut src = fs::File::open(&path).map_err(|e| e.to_string())?;
+            src.read_to_end(&mut buffer).map_err(|e| e.to_string())?;
+            zip.start_file(relative_str.replace("\\", "/"), options).map_err(|e| e.to_string())?;
             zip.write_all(&buffer).map_err(|e| e.to_string())?;
         }
     }
     zip.finish().map_err(|e| e.to_string())?;
     Ok(())
+}
+
+#[tauri::command]
+fn delete_file(path: String) -> Result<(), String> {
+    let p = Path::new(&path);
+    if p.exists() {
+        if p.is_dir() {
+            fs::remove_dir_all(p).map_err(|e| e.to_string())
+        } else {
+            fs::remove_file(p).map_err(|e| e.to_string())
+        }
+    } else {
+        Ok(())
+    }
 }
 
 fn rand_id() -> String {
@@ -316,12 +364,14 @@ pub fn run() {
             maximize_window,
             close_window,
             is_maximized,
+            set_always_on_top,
             get_system_fonts,
             save_version_snapshot,
             list_version_snapshots,
             restore_version_snapshot,
             open_bear,
-            save_bear
+            save_bear,
+            delete_file
         ])
         .setup(|app| {
             if cfg!(debug_assertions) {

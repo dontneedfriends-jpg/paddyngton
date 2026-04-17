@@ -22,7 +22,8 @@
   "chapter": {
     "default": "Capítulo",
     "new": "Nuevo Capítulo",
-    "selectOrCreate": "Selecciona o crea un capítulo"
+    "selectOrCreate": "Selecciona o crea un capítulo",
+    "deleteConfirm": "¿Eliminar este capítulo? El archivo se eliminará del disco."
   },
   "editor": {
     "placeholder": "Empieza a escribir..."
@@ -50,7 +51,11 @@
     "aboutTitle": "Paddyngton",
     "aboutVersion": "Versión 1.0.0",
     "aboutDesc": "Editor multiplataforma para escribir libros. Contexto de personajes, wiki, mapa de interacciones, búsqueda por capítulos.",
-    "aboutBuilt": "Tauri + React + CodeMirror 6"
+    "aboutBuilt": "Tauri + React + CodeMirror 6",
+    "autoSave": "Auto Guardado y Snapshots",
+    "autoSnapshotMinutes": "Intervalo de auto-snapshot (minutos, 0 = off)",
+    "showAutoSaveToast": "Mostrar notificación de auto-guardado",
+    "autoSaveToastEnabled": "Activado"
   },
   "context": {
     "title": "Contexto",
@@ -63,24 +68,55 @@
     "group": "Grupo",
     "property": "Propiedad",
     "addProperty": "+ Propiedad",
+    "notes": "Notas",
+    "notesPlaceholder": "Notas personales, ideas, borradores...",
     "types": {
       "character": "Personaje",
       "place": "Lugar",
       "date": "Evento",
       "item": "Objeto"
     },
-    "noGroup": "Sin grupo"
+    "noGroup": "Sin grupo",
+    "view": "Ver",
+    "addRelation": "Añadir Relación",
+    "relationType": "Tipo de relación"
   },
   "wiki": {
     "title": "Wiki",
     "selectItem": "Selecciona un elemento a la izquierda para ver",
     "related": "Personajes relacionados",
-    "group": "Grupo"
+    "group": "Grupo",
+    "relationships": "Relaciones",
+    "noRelationships": "Sin relaciones aún. Usa el Mapa de Interacciones para conectar personajes.",
+    "openMindMap": "Abrir Mapa"
   },
   "mindmap": {
     "title": "Mapa de Interacciones",
     "characters": "personajes",
-    "noCharacters": "Añade personajes al contexto para mostrar el mapa"
+    "noCharacters": "Añade personajes al contexto para mostrar el mapa",
+    "addCharacter": "Añadir Personaje",
+    "connectMode": "Conectar",
+    "disconnectMode": "Desconectar",
+    "editCharacter": "Editar",
+    "connectionFrom": "Haz clic en otro personaje para conectar",
+    "connectionRemoved": "Conexión eliminada",
+    "enterName": "Introduce nombre del personaje",
+    "groups": "Grupos",
+    "connectGroups": "Conectar Grupos",
+    "noGroups": "Sin grupos definidos",
+    "connections": "Conexiones",
+    "noConnections": "Sin conexiones aún. Haz clic en 'Conectar' y selecciona dos personajes.",
+    "addConnection": "Añadir Conexión"
+  },
+  "relations": {
+    "ally": "Aliado",
+    "enemy": "Enemigo",
+    "family": "Familia",
+    "neutral": "Neutral",
+    "romantic": "Romántico",
+    "rival": "Rival",
+    "friendly": "Amigable (Aliado)",
+    "hostile": "Hostil (Enemigo)"
   },
   "search": {
     "title": "Búsqueda",
@@ -139,5 +175,77 @@
   },
   "status": {
     "modified": "Modificado"
+  },
+  "versions": {
+    "title": "Historial de Versiones",
+    "snapshot": "Snapshot",
+    "restore": "Restaurar",
+    "noSnapshots": "No hay snapshots. Guarda un snapshot para crear un punto de restauración.",
+    "label": "Etiqueta del snapshot (opcional)",
+    "files": "archivos",
+    "confirmRestore": "¿Restaurar esta versión? Los archivos actuales serán sobrescritos."
+  },
+  "timeline": {
+    "title": "Cronología",
+    "addEvent": "Añadir Evento",
+    "newEvent": "Nuevo Evento",
+    "eventLabel": "Etiqueta del evento",
+    "eventDate": "Fecha",
+    "eventDescription": "Descripción",
+    "date": "Fecha",
+    "color": "Color",
+    "linkContext": "Vincular Personajes/Lugares/Objetos",
+    "notes": "Notas",
+    "search": "Buscar...",
+    "noEvents": "No hay eventos. Haz clic en 'Añadir Evento' para crear tu cronología.",
+    "deleteEvent": "¿Eliminar este evento?"
+  },
+  "notes": {
+    "title": "Notas",
+    "addNote": "Añadir Nota",
+    "noteTitle": "Título de la nota",
+    "noNotes": "No hay notas. Haz clic en 'Añadir Nota' para crear una.",
+    "deleteNote": "¿Eliminar esta nota?"
+  },
+  "world": {
+    "title": "Construcción del Mundo",
+    "addEntry": "Añadir Entrada",
+    "entryTitle": "Título de la entrada",
+    "category": "Categoría",
+    "categoryHint": "p. ej., Geografía, Historia, Magia",
+    "noEntries": "No hay entradas del mundo. Haz clic en 'Añadir Entrada'.",
+    "deleteEntry": "¿Eliminar esta entrada?"
+  },
+  "kanban": {
+    "title": "Tablero Kanban",
+    "addColumn": "Añadir Columna",
+    "columnName": "Nombre de la columna",
+    "addCard": "Añadir Tarjeta",
+    "cardTitle": "Título de la tarjeta",
+    "cardContent": "Contenido",
+    "editCard": "Editar Tarjeta",
+    "deleteCard": "¿Eliminar esta tarjeta?",
+    "moveTo": "Mover a..."
+  },
+  "dialogs": {
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "ok": "OK",
+    "delete": "Eliminar"
+  },
+  "toast": {
+    "saved": "Guardado",
+    "autoSnapshotCreated": "Auto-snapshot creado",
+    "snapshotCreated": "Snapshot creado",
+    "snapshotFailed": "Error al crear snapshot",
+    "versionRestored": "Versión restaurada",
+    "versionRestoreFailed": "Error al restaurar versión",
+    "autoSaved": "Libro auto-guardado"
+  },
+  "export": {
+    "exportPdf": "Exportar PDF",
+    "exporting": "Exportando...",
+    "exportSuccess": "PDF exportado con éxito",
+    "exportFailed": "Error al exportar PDF"
   }
 }

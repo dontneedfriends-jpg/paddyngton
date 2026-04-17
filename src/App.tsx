@@ -65,6 +65,7 @@ function App() {
     mindMapConnectFrom: null, mindMapEditEntry: null,
     showLinkModal: false, showColorPicker: false, colorPickerType: 'color',
     mindMapConnectGroupFrom: null, mindMapSelectedGroup: null, mindMapDrag: null,
+    mindMapPanX: 0, mindMapPanY: 0,
   })
   const [versions, setVersions] = useState<VersionSnapshot[]>([])
   const [snapshotLabel, setSnapshotLabel] = useState('')
@@ -80,6 +81,8 @@ function App() {
   const mindMapDragRef = useRef<string | null>(null)
   const mindMapDragCursorStart = useRef<{ x: number; y: number } | null>(null)
   const mindMapDragEntryStart = useRef<{ x: number; y: number } | null>(null)
+  const mindMapPanRef = useRef<string | null>(null)
+  const mindMapPanStart = useRef<{ panX: number; panY: number; cursorX: number; cursorY: number } | null>(null)
   const mindMapCanvasRef = useRef<HTMLDivElement>(null)
   const [pendingRelation, setPendingRelation] = useState<{ from: string; to: string } | null>(null)
   const [relationTypeSelect, setRelationTypeSelect] = useState<RelationType>('neutral')
@@ -710,36 +713,57 @@ function App() {
 
   const handleMinimize = () => invoke('minimize_window')
 
+  const getCanvasCoords = (e: React.MouseEvent) => {
+    const canvas = mindMapCanvasRef.current
+    if (!canvas) return { x: 0, y: 0 }
+    const rect = canvas.getBoundingClientRect()
+    const centerX = rect.width / 2 + rect.left
+    const centerY = rect.height / 2 + rect.top
+    const x = (e.clientX - centerX - state.mindMapPanX) / state.mindMapZoom + 420
+    const y = (e.clientY - centerY - state.mindMapPanY) / state.mindMapZoom + 230
+    return { x, y }
+  }
+
   const handleMindMapMouseDown = (e: React.MouseEvent, entryName: string) => {
     e.stopPropagation()
     if (state.mindMapConnectFrom) return
-    const canvas = mindMapCanvasRef
-    if (!canvas) return
-    const rect = canvas.getBoundingClientRect()
     const existing = contextData.find(c => c.name === entryName)
     const startX = existing?._x ?? 420
     const startY = existing?._y ?? 230
+    const coords = getCanvasCoords(e)
     mindMapDragEntryStart.current = { x: startX, y: startY }
-    mindMapDragCursorStart.current = { x: e.clientX - rect.left + canvas.scrollLeft, y: e.clientY - rect.top + canvas.scrollTop }
+    mindMapDragCursorStart.current = { x: coords.x, y: coords.y }
     mindMapDragRef.current = entryName
+    mindMapPanRef.current = null
     setState(s => ({ ...s, mindMapDrag: entryName }))
   }
 
+  const handleMindMapCanvasMouseDown = (e: React.MouseEvent) => {
+    if (state.mindMapConnectFrom) return
+    mindMapDragRef.current = null
+    mindMapDragCursorStart.current = null
+    mindMapDragEntryStart.current = null
+    mindMapPanStart.current = { panX: state.mindMapPanX, panY: state.mindMapPanY, cursorX: e.clientX, cursorY: e.clientY }
+    mindMapPanRef.current = 'panning'
+  }
+
   const handleMindMapMouseMove = (e: React.MouseEvent) => {
+    if (mindMapPanRef.current === 'panning' && mindMapPanStart.current) {
+      const dx = e.clientX - mindMapPanStart.current.cursorX
+      const dy = e.clientY - mindMapPanStart.current.cursorY
+      setState(s => ({ ...s, mindMapPanX: mindMapPanStart.current!.panX + dx, mindMapPanY: mindMapPanStart.current!.panY + dy }))
+      return
+    }
     if (!mindMapDragRef.current || !mindMapDragCursorStart.current || !mindMapDragEntryStart.current) return
-    const canvas = mindMapCanvasRef
-    if (!canvas) return
-    const rect = canvas.getBoundingClientRect()
-    const mouseX = e.clientX - rect.left + canvas.scrollLeft
-    const mouseY = e.clientY - rect.top + canvas.scrollTop
-    const dx = mouseX - mindMapDragCursorStart.current.x
-    const dy = mouseY - mindMapDragCursorStart.current.y
-    if (Math.abs(dx) < 3 && Math.abs(dy) < 3) return
+    const coords = getCanvasCoords(e)
+    const dx = coords.x - mindMapDragCursorStart.current.x
+    const dy = coords.y - mindMapDragCursorStart.current.y
+    if (Math.abs(dx) < 2 && Math.abs(dy) < 2) return
     const newX = mindMapDragEntryStart.current.x + dx
     const newY = mindMapDragEntryStart.current.y + dy
-    const d = contextData.map(c => c.name === mindMapDragRef.current ? { ...c, _x: newX, _y: newY } : c)
+    const d = contextData.map(c => c.name === mindMapDragRef.current ? { ...c, _x: Math.round(newX), _y: Math.round(newY) } : c)
     updateActiveBook({ contextData: d })
-    mindMapDragCursorStart.current = { x: mouseX, y: mouseY }
+    mindMapDragCursorStart.current = { x: coords.x, y: coords.y }
     mindMapDragEntryStart.current = { x: newX, y: newY }
   }
 
@@ -747,7 +771,20 @@ function App() {
     mindMapDragRef.current = null
     mindMapDragCursorStart.current = null
     mindMapDragEntryStart.current = null
+    mindMapPanRef.current = null
+    mindMapPanStart.current = null
     setState(s => ({ ...s, mindMapDrag: null }))
+  }
+
+  const zoomTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const handleMindMapWheel = (e: React.WheelEvent) => {
+    if (zoomTimeoutRef.current) return
+    const delta = e.deltaY > 0 ? -0.1 : 0.1
+    zoomTimeoutRef.current = setTimeout(() => {
+      zoomTimeoutRef.current = null
+    }, 50)
+    setState(s => ({ ...s, mindMapZoom: Math.max(0.3, Math.min(2.5, s.mindMapZoom + delta)) }))
   }
 
 
@@ -1242,6 +1279,40 @@ function App() {
                             </div>
                           </div>
                         )}
+                        {state.wikiSelected && activeBook && (() => {
+                          const charName = state.wikiSelected.name
+                          const relatedEvents: { type: 'timeline' | 'world'; title: string; date?: string; content: string }[] = []
+                          activeBook.timelineData.forEach(t => {
+                            if (t.characterIds.includes(charName)) {
+                              relatedEvents.push({ type: 'timeline', title: t.label, date: t.date, content: t.content })
+                            }
+                          })
+                          activeBook.worldData.forEach(w => {
+                            if (w.characterIds.includes(charName)) {
+                              relatedEvents.push({ type: 'world', title: w.title, date: w.date, content: w.content })
+                            }
+                          })
+                          if (relatedEvents.length > 0) {
+                            return (
+                              <div style={{ marginTop: '16px' }}>
+                                <h4 style={{ fontSize: '12px', color: 'var(--cool-gray)', marginBottom: '8px' }}>EVENTS & CONNECTIONS</h4>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                  {relatedEvents.map((ev, i) => (
+                                    <div key={i} style={{ background: 'var(--bg-secondary)', borderRadius: '8px', padding: '10px 12px', borderLeft: `4px solid ${ev.type === 'timeline' ? '#e53e3e' : '#38a169'}` }}>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                        <span style={{ fontSize: '11px', fontWeight: 600 }}>{ev.type === 'timeline' ? '📅' : '🌍'}</span>
+                                        <span style={{ fontSize: '13px', fontWeight: 600 }}>{ev.title}</span>
+                                        {ev.date && <span style={{ fontSize: '11px', color: 'var(--cool-gray)' }}>{ev.date}</span>}
+                                      </div>
+                                      {ev.content && <div style={{ fontSize: '12px', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.content}</div>}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )
+                          }
+                          return null
+                        })()}
                         <div className="wiki-cross-refs">
                           <h4>{t('wiki.related')}</h4>
                           {contextData.filter(e => e.type === 'character' && e.name !== state.wikiSelected!.name).map((e, i) => (
@@ -1323,12 +1394,16 @@ function App() {
               <div style={{ marginLeft: 'auto', display: 'flex', gap: '4px', alignItems: 'center' }}>
                 <button className="btn btn-sm" style={{ padding: '4px 8px', fontSize: '12px' }} onClick={() => setState(s => ({ ...s, mindMapZoom: Math.max(0.3, s.mindMapZoom - 0.1) }))}>−</button>
                 <span style={{ fontSize: '11px', color: 'var(--cool-gray)', minWidth: '36px', textAlign: 'center' }}>{Math.round(state.mindMapZoom * 100)}%</span>
-                <button className="btn btn-sm" style={{ padding: '4px 8px', fontSize: '12px' }} onClick={() => setState(s => ({ ...s, mindMapZoom: Math.min(2, s.mindMapZoom + 0.1) }))}>+</button>
+                <button className="btn btn-sm" style={{ padding: '4px 8px', fontSize: '12px' }} onClick={() => setState(s => ({ ...s, mindMapZoom: Math.min(2.5, s.mindMapZoom + 0.1) }))}>+</button>
               </div>
             </div>
-            <div className="mindmap-canvas" ref={mindMapCanvasRef} style={{ position: 'relative', minHeight: '450px', overflow: 'hidden' }}
-              onMouseMove={handleMindMapMouseMove} onMouseUp={handleMindMapMouseUp} onMouseLeave={handleMindMapMouseUp}>
-              <div style={{ transform: `scale(${state.mindMapZoom})`, transformOrigin: 'center', transition: 'transform 0.15s ease' }}>
+            <div className="mindmap-canvas" ref={mindMapCanvasRef}
+              style={{ position: 'relative', minHeight: '450px', overflow: 'hidden', cursor: mindMapPanRef.current === 'panning' ? 'grabbing' : 'default' }}
+              onMouseMove={handleMindMapMouseMove} onMouseUp={handleMindMapMouseUp} onMouseLeave={handleMindMapMouseUp}
+              onMouseDown={handleMindMapCanvasMouseDown} onWheel={handleMindMapWheel}>
+              <div className="mindmap-canvas-inner"
+                style={{ transform: `translate(${state.mindMapPanX}px, ${state.mindMapPanY}px) scale(${state.mindMapZoom})`, transformOrigin: 'center', transition: mindMapPanRef.current ? 'none' : 'transform 0.15s ease', position: 'absolute', left: '50%', top: '50%', marginLeft: '-420px', marginTop: '-230px' }}>
+              <div style={{ width: '840px', height: '460px', position: 'relative' }}>
               {mindMapEntries.length === 0 && (
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--cool-gray)', fontSize: '14px', flexDirection: 'column', gap: '8px' }}>
                   {t('mindmap.noCharacters')}
@@ -1454,8 +1529,9 @@ function App() {
                 )
               })()}
               </div>
+              </div>
             </div>
-              {mindMapEntries.length > 0 && (
+            {mindMapEntries.length > 0 && (
                 <div className="mindmap-relations-list" style={{ borderTop: '1px solid var(--border-gray)', padding: '8px 16px', maxHeight: '140px', overflowY: 'auto' }}>
                   <div style={{ fontSize: '11px', color: 'var(--cool-gray)', marginBottom: '4px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('mindmap.connections')}</div>
                   {(() => {
@@ -1875,6 +1951,7 @@ function App() {
           onClose={() => setState(s => ({ ...s, showTimeline: false }))}
           t={t}
           confirmAction={confirmAction}
+          onOpenWiki={(entry) => setState(s => ({ ...s, showTimeline: false, wikiSelected: entry, showWiki: true }))}
         />
       )}
 
@@ -1933,7 +2010,7 @@ function App() {
                   setInputDialog({ title: t('world.addEntry'), label: t('world.entryTitle') + ':', defaultValue: '', onSubmit: (title) => {
                     if (title) {
                       setInputDialog({ title: t('world.category'), label: t('world.categoryHint') + ':', defaultValue: '', onSubmit: (category) => {
-                        updateWorld([...activeBook.worldData, { id: Date.now().toString(), title, content: '', category }])
+                        updateWorld([...activeBook.worldData, { id: Date.now().toString(), title, content: '', category, characterIds: [] }])
                       }})
                     }
                   }})
@@ -1953,10 +2030,43 @@ function App() {
                       <div className="world-card-header">
                         <span className="world-card-title">{entry.title}</span>
                         {entry.category && <span className="world-card-category">{entry.category}</span>}
+                        {entry.date && <span style={{ fontSize: '10px', color: 'var(--accent)', marginLeft: '6px' }}>{entry.date}</span>}
                         <button className="btn-icon" style={{ fontSize: '12px', padding: '2px', marginLeft: 'auto' }}
                           onClick={() => {
                             confirmAction(t('world.deleteEntry'), () => updateWorld(activeBook.worldData.filter(e => e.id !== entry.id)))
                           }}>×</button>
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '8px', alignItems: 'center' }}>
+                        <input type="text" placeholder="Date (e.g., Year 100)"
+                          value={entry.date || ''}
+                          onChange={e => updateWorld(activeBook.worldData.map(w => w.id === entry.id ? { ...w, date: e.target.value } : w))}
+                          style={{ fontSize: '10px', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--border-gray)', background: 'var(--bg-secondary)', color: 'var(--text)', width: '100px' }}
+                        />
+                        <select
+                          value=""
+                          onChange={e => {
+                            if (e.target.value && !entry.characterIds.includes(e.target.value)) {
+                              updateWorld(activeBook.worldData.map(w => w.id === entry.id ? { ...w, characterIds: [...w.characterIds, e.target.value] } : w))
+                            }
+                            e.target.value = ''
+                          }}
+                          style={{ fontSize: '10px', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--border-gray)', background: 'var(--bg-secondary)', color: 'var(--text)', cursor: 'pointer' }}>
+                          <option value="">+ Link character</option>
+                          {contextData.filter(c => c.type === 'character' && !entry.characterIds.includes(c.name)).map(c => (
+                            <option key={c.name} value={c.name}>👤 {c.name}</option>
+                          ))}
+                        </select>
+                        {entry.characterIds.map(cid => {
+                          const char = contextData.find(c => c.name === cid)
+                          return char ? (
+                            <span key={cid} style={{ fontSize: '10px', background: 'var(--accent)', color: 'white', padding: '2px 6px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                              onClick={() => setState(s => ({ ...s, wikiSelected: char, showWiki: true }))}>
+                              👤 {char.name}
+                              <button style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: 0, marginLeft: '2px', lineHeight: 1 }}
+                                onClick={(e) => { e.stopPropagation(); updateWorld(activeBook.worldData.map(w => w.id === entry.id ? { ...w, characterIds: w.characterIds.filter(id => id !== cid) } : w)) }}>×</button>
+                            </span>
+                          ) : null
+                        })}
                       </div>
                       <textarea className="world-content" value={entry.content}
                         placeholder="Describe this aspect of your world..."

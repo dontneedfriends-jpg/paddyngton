@@ -47,6 +47,8 @@ export interface WorldEntry {
   title: string
   content: string
   category: string
+  characterIds?: string[]
+  date?: string
 }
 
 export interface KanbanCard {
@@ -69,6 +71,8 @@ export interface KanbanBoard {
 export interface TimelineEntry {
   id: string
   date: string
+  endDate?: string
+  dateNote?: string
   label: string
   content: string
   characterIds: string[]
@@ -148,6 +152,8 @@ export interface AppState {
   mindMapConnectGroupFrom: string | null
   mindMapSelectedGroup: string | null
   mindMapDrag: string | null
+  mindMapPanX: number
+  mindMapPanY: number
   showTimeline: boolean
   showNotes: boolean
   showWorld: boolean

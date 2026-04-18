@@ -57,20 +57,24 @@ jobs:
           $json | Out-File -FilePath latest.json -Encoding UTF8
         shell: pwsh
 
-      - name: Get Release Info
+      - name: Get Release Upload URL
         id: release
         run: |
-          $response = Invoke-RestMethod -Uri "https://api.github.com/repos/dontneedfriends-jpg/paddyngton/releases/tags/latest" -Headers @{Authorization = "Bearer ${{ secrets.GITHUB_TOKEN }}"}
-          $uploadUrl = $response.upload_url
-          echo "upload_url=$uploadUrl" >> $env:GITHUB_OUTPUT
+          $token = "${{ secrets.GITHUB_TOKEN }}"
+          $headers = @{Authorization = "Bearer $token"}
+          $rel = Invoke-RestMethod -Uri "https://api.github.com/repos/dontneedfriends-jpg/paddyngton/releases/tags/latest" -Headers $headers
+          $uploadUrl = $rel.upload_url -replace "\{.+", ""
+          "UPLOAD_URL=$uploadUrl" | Out-File -FilePath $env:GITHUB_ENV -Encoding UTF8 -Append
         shell: pwsh
 
       - name: Upload latest.json
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: latest.json
-          asset_content_type: application/json
-          asset_name: latest.json
+        run: |
+          $token = "${{ secrets.GITHUB_TOKEN }}"
+          $json = Get-Content latest.json -Raw -Encoding UTF8
+          $headers = @{
+            Authorization = "Bearer $token"
+            Content-Type = "application/json"
+          }
+          $uri = "${{ env.UPLOAD_URL }}?name=latest.json"
+          Invoke-RestMethod -Method POST -Uri $uri -Headers $headers -Body $json | Out-Null
+        shell: pwsh

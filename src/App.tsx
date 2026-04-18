@@ -1317,7 +1317,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
             </div>
             <div className="panel-content">
               {state.mindMapEditEntry && (
-                <div style={{ marginBottom: '12px', padding: '8px 12px', background: 'var(--accent)', color: 'white', borderRadius: '8px', fontSize: '13px' }}>
+                <div style={{ marginBottom: '12px', padding: '8px 12px', background: 'var(--accent)', color: 'var(--near-white)', borderRadius: '8px', fontSize: '13px' }}>
                   Editing: <strong>{state.mindMapEditEntry.name}</strong>
                   {state.mindMapEditEntry.relations && state.mindMapEditEntry.relations.length > 0 && (
                     <div style={{ marginTop: '4px', fontSize: '12px', opacity: 0.9 }}>
@@ -1350,10 +1350,10 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                         <div style={{ fontSize: '11px', color: 'var(--cool-gray)', marginBottom: '4px', fontWeight: 600 }}>RELATIONS</div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '8px' }}>
                           {(ctx!.relations || []).map((rel, ri) => (
-                            <span key={ri} className="relation-tag" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', background: relationColors[rel.type], color: 'white', borderRadius: '12px', fontSize: '11px' }}>
+                            <span key={ri} className="relation-tag" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', background: relationColors[rel.type], color: 'var(--near-white)', borderRadius: '12px', fontSize: '11px' }}>
                               👤 {rel.name}
                               <span style={{ opacity: 0.7, fontSize: '9px' }}>{t('relations.' + rel.type)}</span>
-                              <button style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: '0', fontSize: '12px', lineHeight: 1 }} onClick={() => {
+                              <button style={{ background: 'none', border: 'none', color: 'var(--near-white)', cursor: 'pointer', padding: '0', fontSize: '12px', lineHeight: 1 }} onClick={() => {
                                 const d = [...contextData]; const idx = d.findIndex(x => x.name === ctx!.name)
                                 if (idx >= 0) d[idx].relations = (d[idx].relations || []).filter((r: Relation) => r.name !== rel.name)
                                 updateActiveBook({ contextData: d })
@@ -1639,7 +1639,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                                 <h4 style={{ fontSize: '12px', color: 'var(--cool-gray)', marginBottom: '8px' }}>EVENTS & CONNECTIONS</h4>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                   {relatedEvents.map((ev, i) => (
-                                    <div key={i} style={{ background: 'var(--bg-secondary)', borderRadius: '8px', padding: '10px 12px', borderLeft: `4px solid ${ev.type === 'timeline' ? '#e53e3e' : '#38a169'}` }}>
+                                    <div key={i} style={{ background: 'var(--surface)', borderRadius: '8px', padding: '10px 12px', borderLeft: `4px solid ${ev.type === 'timeline' ? 'var(--danger)' : 'var(--success)'}` }}>
                                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                                         <span style={{ fontSize: '11px', fontWeight: 600 }}>{ev.type === 'timeline' ? '📅' : '🌍'}</span>
                                         <span style={{ fontSize: '13px', fontWeight: 600 }}>{ev.title}</span>
@@ -1699,7 +1699,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
               </div>
             </div>
             {pendingRelation && (
-              <div style={{ padding: '12px 16px', background: 'var(--accent)', color: 'white', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+              <div style={{ padding: '12px 16px', background: 'var(--accent)', color: 'var(--near-white)', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                 <span style={{ fontSize: '13px', fontWeight: 600 }}>
                   {pendingRelation.from} → {pendingRelation.to}
                 </span>
@@ -1707,20 +1707,20 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                   value={relationTypeSelect}
                   onChange={e => setRelationTypeSelect(e.target.value as typeof relationTypeSelect)}
                   style={{ padding: '4px 8px', borderRadius: '6px', border: 'none', fontSize: '12px', fontFamily: 'inherit', cursor: 'pointer' }}>
-                  <option value="ally" style={{ color: '#38a169' }}>🤝 {t('relations.friendly')}</option>
-                  <option value="family" style={{ color: '#3182ce' }}>👨‍👩‍👧 {t('relations.family')}</option>
-                  <option value="romantic" style={{ color: '#d69e2e' }}>❤️ {t('relations.romantic')}</option>
-                  <option value="neutral" style={{ color: '#718096' }}>➖ {t('relations.neutral')}</option>
-                  <option value="rival" style={{ color: '#805ad5' }}>⚔️ {t('relations.rival')}</option>
-                  <option value="enemy" style={{ color: '#e53e3e' }}>💀 {t('relations.hostile')}</option>
+                  <option value="ally" style={{ color: 'var(--success)' }}>🤝 {t('relations.friendly')}</option>
+                  <option value="family" style={{ color: 'var(--accent)' }}>👨‍👩‍👧 {t('relations.family')}</option>
+                  <option value="romantic" style={{ color: 'var(--purple)' }}>❤️ {t('relations.romantic')}</option>
+                  <option value="neutral" style={{ color: 'var(--cool-gray)' }}>➖ {t('relations.neutral')}</option>
+                  <option value="rival" style={{ color: 'var(--purple)' }}>⚔️ {t('relations.rival')}</option>
+                  <option value="enemy" style={{ color: 'var(--danger)' }}>💀 {t('relations.hostile')}</option>
                 </select>
-                <button className="btn btn-sm" style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none' }} onClick={() => {
+                <button className="btn btn-sm" style={{ background: 'rgba(255,255,255,0.2)', color: 'var(--near-white)', border: 'none' }} onClick={() => {
                   const newD = contextData.map(e => e.name === pendingRelation.from && !e.relations?.find(r => r.name === pendingRelation.to)
                     ? { ...e, relations: [...(e.relations || []), { name: pendingRelation.to, type: relationTypeSelect }] } : e)
                   updateActiveBook({ contextData: newD })
                   setPendingRelation(null)
                 }}>Add Connection</button>
-                <button className="btn btn-sm" style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none' }} onClick={() => setPendingRelation(null)}>Cancel</button>
+                <button className="btn btn-sm" style={{ background: 'rgba(255,255,255,0.1)', color: 'var(--near-white)', border: 'none' }} onClick={() => setPendingRelation(null)}>Cancel</button>
               </div>
             )}
             <div className="mindmap-toolbar">
@@ -2415,10 +2415,10 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                         {entry.characterIds.map(cid => {
                           const char = contextData.find(c => c.name === cid)
                           return char ? (
-                            <span key={cid} style={{ fontSize: '10px', background: 'var(--accent)', color: 'white', padding: '2px 6px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                            <span key={cid} style={{ fontSize: '10px', background: 'var(--accent)', color: 'var(--near-white)', padding: '2px 6px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
                               onClick={() => setState(s => ({ ...s, wikiSelected: char, showWiki: true }))}>
                               👤 {char.name}
-                              <button style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: 0, marginLeft: '2px', lineHeight: 1 }}
+                              <button style={{ background: 'none', border: 'none', color: 'var(--near-white)', cursor: 'pointer', padding: 0, marginLeft: '2px', lineHeight: 1 }}
                                 onClick={(e) => { e.stopPropagation(); updateWorld(activeBook.worldData.map(w => w.id === entry.id ? { ...w, characterIds: w.characterIds.filter(id => id !== cid) } : w)) }}>×</button>
                             </span>
                           ) : null
@@ -2514,7 +2514,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                         setInputDialog({ title: t('kanban.addCard'), label: t('kanban.cardTitle') + ':', defaultValue: '', onSubmit: (title) => {
                           if (title) {
                             setInputDialog({ title: t('kanban.cardContent'), label: t('kanban.cardContent') + ':', defaultValue: '', multiline: true, onSubmit: (content) => {
-                              const colors = ['var(--accent)', '#e53e3e', '#38a169', '#3182ce', '#805ad5', '#d69e2e']
+                              const colors = ['var(--accent)', 'var(--danger)', 'var(--success)', 'var(--purple)', 'var(--cool-gray)']
                               const color = colors[Math.floor(Math.random() * colors.length)]
                               updateKanban({ columns: activeBook.kanbanData.columns.map(c => c.id === col.id ? {
                                 ...c, cards: [...c.cards, { id: Date.now().toString(), title, content, color }]

@@ -65,11 +65,6 @@ fn save_binary_file(path: String, data: Vec<u8>) -> Result<(), String> {
 }
 
 #[tauri::command]
-fn read_binary_file(path: String) -> Result<Vec<u8>, String> {
-    fs::read(&path).map_err(|e| e.to_string())
-}
-
-#[tauri::command]
 fn generate_pdf(path: String, title: String, chapters_json: String) -> Result<(), String> {
     let chapters: Vec<ChapterData> = serde_json::from_str(&chapters_json).map_err(|e| e.to_string())?;
     
@@ -111,24 +106,6 @@ fn generate_pdf(path: String, title: String, chapters_json: String) -> Result<()
 struct ChapterData {
     name: String,
     code: String,
-}
-
-#[tauri::command]
-fn get_download_path() -> Result<String, String> {
-    #[cfg(target_os = "windows")]
-    {
-        let userprofile = std::env::var("USERPROFILE").map_err(|e| e.to_string())?;
-        Ok(format!("{}/Downloads", userprofile))
-    }
-    #[cfg(not(target_os = "windows"))]
-    {
-        std::env::var("HOME").map(|h| format!("{}/Downloads", h)).map_err(|e| e.to_string())
-    }
-}
-
-#[tauri::command]
-fn copy_file(from: String, to: String) -> Result<(), String> {
-    fs::copy(&from, &to).map(|_| ()).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -471,9 +448,6 @@ pub fn run() {
             create_test_book,
             delete_file,
             save_binary_file,
-            read_binary_file,
-            get_download_path,
-            copy_file,
             generate_pdf
         ])
         .setup(|app| {

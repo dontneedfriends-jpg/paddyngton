@@ -110,6 +110,10 @@ paddyngton/
 - Tech stack badges with hover effects
 - Keyboard shortcuts grid
 
+### Export
+- **DOCX**: Uses `docx` library + native save dialog + Rust command
+- **PDF**: Uses Rust `printpdf` crate for generation (no JS callbacks issues)
+
 ## Data Format
 
 ### .book.json
@@ -198,6 +202,8 @@ Required fs permissions for file operations:
 - `get_system_fonts`
 - `save_version_snapshot`, `list_version_snapshots`, `restore_version_snapshot`
 - `open_bear`, `save_bear`
+- `save_binary_file` - saves binary file (DOCX, PDF)
+- `generate_pdf` - generates PDF using printpdf crate
 - `create_test_book` - creates temp book for testing with `--test` flag
 
 ## Tauri Updater (Auto-Update)
@@ -233,3 +239,7 @@ app.exe --test
 ## File Templates
 - `context-template.json`: Template for `.context.json`
 - `book-template.json`: Template for `.book.json`
+
+## Dependencies
+- **Frontend**: react, @tauri-apps/api, @codemirror/*, @uiw/react-codemirror, docx, katex
+- **Backend (Rust)**: tauri, printpdf, zip, font-kit

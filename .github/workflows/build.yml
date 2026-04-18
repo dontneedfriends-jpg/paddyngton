@@ -31,6 +31,14 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
+      - name: Set dynamic version
+        run: |
+          $runNum = $env:GITHUB_RUN_NUMBER
+          $version = "0.1.$runNum"
+          (Get-Content src-tauri/tauri.conf.json) -replace '"version": "[^"]+"', "`"version`": `"$version`"" | Set-Content src-tauri/tauri.conf.json
+          Write-Host "Version set to $version"
+        shell: pwsh
+
       - name: Build and sign Tauri app
         uses: tauri-apps/tauri-action@v0
         id: tauri
@@ -45,20 +53,23 @@ jobs:
           releaseDraft: false
           prerelease: false
 
-      - name: Create latest.json
+      - name: Find built artifact
         run: |
           $runNum = $env:GITHUB_RUN_NUMBER
-          $shortSha = $env:GITHUB_SHA.Substring(0, 7)
           $version = "0.1.$runNum"
-          $exeUrl = "https://github.com/dontneedfriends-jpg/paddyngton/releases/download/latest/Paddyngton_${version}_x64-setup.exe"
-          $json = @{
-            version = $version
-            notes = "Build #$runNum - $shortSha"
-            pubkey = "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDk5NDIyMEU1NDIyQjNCMjQKUldRa095dEM1U0JDbWFVRzhqOHBqUVNGd1N5bXRkZjNPK1l3bkpXbzFHMjlzQ1Y3cXd0OER5U3oK"
-            url = $exeUrl
-            signature = ""
-          } | ConvertTo-Json -Depth 3
-          $json | Out-File -FilePath latest.json -Encoding UTF8
+          $artifact = Get-ChildItem -Path "src-tauri/target/release/bundle/msi" -Filter "Paddyngton*.msi" | Select-Object -First 1
+          if ($artifact) {
+            Write-Host "MSI found: $($artifact.Name)"
+            $exeUrl = "https://github.com/dontneedfriends-jpg/paddyngton/releases/download/latest/$($artifact.Name)"
+            $json = @{
+              version = $version
+              notes = "Build #$runNum"
+              pubkey = "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDk5NDIyMEU1NDIyQjNCMjQKUldRa095dEM1U0JDbWFVRzhqOHBqUVNGd1N5bXRkZjNPK1l3bkpXbzFHMjlzQ1Y3cXd0OER5U3oK"
+              url = $exeUrl
+              signature = ""
+            } | ConvertTo-Json -Depth 3
+            $json | Out-File -FilePath latest.json -Encoding UTF8
+          }
         shell: pwsh
 
       - name: Upload latest.json

@@ -196,18 +196,18 @@ export const TimelinePanel: React.FC<TimelinePanelProps> = ({
               {t('timeline.noEvents')}
             </div>
           ) : (
-            <div style={{ position: 'relative', paddingLeft: '120px', minHeight: '200px' }}>
-              <div style={{ position: 'absolute', left: '100px', top: 0, bottom: 0, width: '4px', background: 'var(--border-gray)', borderRadius: '2px' }} />
+            <div style={{ position: 'relative', paddingLeft: '160px', minHeight: '200px' }}>
+              <div style={{ position: 'absolute', left: '130px', top: 0, bottom: 0, width: '2px', background: 'var(--border-gray)' }} />
               {dateKeys.map(date => (
                 <div key={date} style={{ marginBottom: '24px' }}>
-                  <div style={{ position: 'absolute', left: '20px', width: '80px', textAlign: 'right', fontSize: '13px', fontWeight: 600, color: 'var(--accent)' }}>
+                  <div style={{ position: 'absolute', left: '10px', width: '110px', textAlign: 'right', fontSize: '13px', fontWeight: 600, color: 'var(--accent)', background: 'var(--surface)', padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--border-gray)', marginRight: '10px' }}>
                     {groupedByDate[date][0].dateNote || date}
                     {groupedByDate[date][0].endDate && <div style={{ fontSize: '10px', fontWeight: 400, color: 'var(--cool-gray)' }}>→ {groupedByDate[date][0].endDate}</div>}
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {groupedByDate[date].map((entry, idx) => (
                       <div key={entry.id} style={{ position: 'relative', display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-                        <div style={{ position: 'absolute', left: '-32px', width: '12px', height: '12px', borderRadius: '50%', background: entry.color, border: '3px solid var(--bg-primary)', zIndex: 1 }} />
+                        <div style={{ position: 'absolute', left: '-30px', top: '14px', width: '12px', height: '12px', borderRadius: '50%', background: entry.color, border: '3px solid var(--bg-primary)', zIndex: 1, boxShadow: '0 0 0 2px var(--border-gray)' }} />
                         <div className="timeline-card" style={{
                           flex: 1,
                           borderLeftColor: entry.color || 'var(--accent)',

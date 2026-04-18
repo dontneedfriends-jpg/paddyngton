@@ -57,12 +57,20 @@ jobs:
           $json | Out-File -FilePath latest.json -Encoding UTF8
         shell: pwsh
 
+      - name: Get Release Info
+        id: release
+        run: |
+          $response = Invoke-RestMethod -Uri "https://api.github.com/repos/dontneedfriends-jpg/paddyngton/releases/tags/latest" -Headers @{Authorization = "Bearer ${{ secrets.GITHUB_TOKEN }}"}
+          $uploadUrl = $response.upload_url
+          echo "upload_url=$uploadUrl" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
       - name: Upload latest.json
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.tauri.outputs.upload_url }}
+          upload_url: ${{ steps.release.outputs.upload_url }}
           asset_path: latest.json
           asset_content_type: application/json
           asset_name: latest.json

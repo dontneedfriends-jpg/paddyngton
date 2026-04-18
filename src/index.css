@@ -863,9 +863,10 @@ body { font-family: var(--font-sans); font-size: var(--text-base); line-height: 
 }
 .context-name {
   flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  min-width: 0;
 }
 .context-group-label {
   font-size: var(--text-xs);
@@ -882,8 +883,8 @@ body { font-family: var(--font-sans); font-size: var(--text-base); line-height: 
 .editor { flex: 1; overflow: hidden; }
 .editor .cm-editor { height: 100%; background: var(--editor-bg); }
 .editor .cm-editor.cm-focused { outline: none; }
-.editor .cm-scroller { font-family: inherit; line-height: 1.8; padding: 20px 40px; }
-.editor .cm-content { max-width: 800px; margin: 0 auto; caret-color: var(--accent); }
+.editor .cm-scroller { font-family: inherit; line-height: 1.8; padding: 20px 40px; overflow-x: hidden; }
+.editor .cm-content { max-width: 800px; margin: 0 auto; caret-color: var(--accent); word-wrap: break-word; }
 .editor .cm-focused { outline: none !important; }
 .editor .cm-line { padding: 0 4px; }
 .editor .cm-gutters { background: var(--surface) !important; color: var(--cool-gray) !important; border-right: 1px solid var(--border-gray) !important; }
@@ -929,7 +930,7 @@ body { font-family: var(--font-sans); font-size: var(--text-base); line-height: 
    ============================================ */
 
 .editor .cm-editor { height: 100%; background: var(--editor-bg); }
-.editor .cm-scroller { font-family: inherit; line-height: 1.8; padding: 40px 60px; }
+.editor .cm-scroller { font-family: inherit; line-height: 1.8; padding: 40px 60px; overflow-x: hidden; }
 .editor .cm-content { max-width: 800px; margin: 0 auto; caret-color: var(--accent); }
 .editor .cm-line { padding: 3px 0; color: var(--text); font-size: 16px; line-height: 1.7; }
 .editor .cm-cursor { border-left-color: var(--accent) !important; }
@@ -1425,8 +1426,10 @@ color: var(--accent);
 }
 .detail-key-input:focus { outline: none; border-color: var(--accent); }
 .detail-value-input {
-  flex: 1; padding: 4px 8px; background: var(--white); border: 1px solid var(--border-gray);
+  flex: 1; min-width: 0; padding: 4px 8px; background: var(--white); border: 1px solid var(--border-gray);
   border-radius: 4px; font-size: 12px; color: var(--near-black); font-family: inherit; transition: border-color 0.2s;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 .detail-value-input:focus { outline: none; border-color: var(--accent); }
 .form-group { margin-bottom: var(--space-4); }
@@ -1487,6 +1490,7 @@ color: var(--accent);
 .wiki-sidebar-item {
   padding: 6px 10px; font-size: 13px; border-radius: 6px; cursor: pointer; color: var(--cool-gray);
   display: flex; align-items: center; gap: 6px; transition: all 0.15s; margin-bottom: 2px;
+  overflow-wrap: break-word; word-break: break-word;
 }
 .wiki-sidebar-item:hover { background: var(--surface); color: var(--near-black); }
 .wiki-sidebar-item.active { background: var(--purple-subtle); color: var(--purple); }
@@ -1495,9 +1499,9 @@ color: var(--accent);
 .wiki-entry-icon { font-size: 28px; }
 .wiki-entry-name { font-size: 20px; font-weight: 700; color: var(--near-black); }
 .wiki-entry-type { font-size: 11px; color: var(--cool-gray); text-transform: uppercase; letter-spacing: 0.5px; margin-left: auto; }
-.wiki-detail-grid { display: grid; grid-template-columns: 120px 1fr; gap: 8px 12px; margin-bottom: 16px; }
+.wiki-detail-grid { display: grid; grid-template-columns: 120px 1fr; gap: 8px 12px; margin-bottom: 16px; min-width: 0; }
 .wiki-detail-key { font-size: 12px; font-weight: 600; color: var(--cool-gray); padding-top: 4px; }
-.wiki-detail-value { font-size: 13px; color: var(--near-black); line-height: 1.5; }
+.wiki-detail-value { font-size: 13px; color: var(--near-black); line-height: 1.5; overflow-wrap: break-word; word-break: break-word; }
 .wiki-cross-refs { margin-top: 16px; border-top: 1px solid var(--border-gray); padding-top: 16px; }
 .wiki-cross-refs h4 { font-size: 12px; font-weight: 600; color: var(--cool-gray); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
 .wiki-ref-item { padding: 6px 10px; font-size: 13px; border-radius: 6px; cursor: pointer; color: var(--accent); background: var(--surface); display: inline-flex; align-items: center; gap: 6px; margin: 0 4px 4px 0; transition: all 0.15s; }
@@ -1525,7 +1529,7 @@ color: var(--accent);
 .mindmap-node.dragging { border-color: var(--accent); box-shadow: 0 6px 24px var(--glow-accent); transform: scale(1.05); z-index: 100; }
 .mindmap-node.center-node { background: var(--accent); color: white; border-color: var(--accent); font-weight: 700; }
 .mindmap-node-icon { font-size: 16px; }
-.mindmap-node-name { font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mindmap-node-name { font-size: 13px; font-weight: 500; overflow-wrap: break-word; word-break: break-word; white-space: normal; max-width: 100px; }
 .mindmap-node-relations {
   display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px;
   background: var(--accent); color: white; border-radius: 50%; font-size: 10px; font-weight: 700; margin-left: auto;

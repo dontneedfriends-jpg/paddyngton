@@ -2294,6 +2294,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                         extensions={[
                           ...(settings.showLineNumbers ? [lineNumbers()] : []),
                           ...editorExtensions,
+                          EditorView.lineWrapping,
                         ]}
                         style={{ fontSize: `${settings.fontSize}px`, fontFamily: fontCss }}
                       />

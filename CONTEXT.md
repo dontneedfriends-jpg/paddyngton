@@ -102,6 +102,14 @@ paddyngton/
   - format, status, versions, timeline, notes, world, kanban
   - dialogs, toast, export, relations
 
+### About Panel
+- Modern gradient design with version display
+- Shows current version from built app
+- Checks for updates on startup
+- Displays "You're up to date" or update button
+- Tech stack badges with hover effects
+- Keyboard shortcuts grid
+
 ## Data Format
 
 ### .book.json
@@ -163,8 +171,11 @@ paddyngton/
 cd paddyngton
 npm install
 npm run tauri build    # Production build
-npm run tauri dev      # Development mode
+npm run tauri dev      # Development mode (live reload)
 ```
+
+**Note:** Don't rebuild automatically when using `npm run tauri dev` - changes reload automatically.
+Use `npm run tauri build` only when needed for production.
 
 ## Development Notes
 
@@ -183,10 +194,26 @@ Required fs permissions for file operations:
 ## Tauri Commands (src-tauri/src/lib.rs)
 - `minimize_window`, `maximize_window`, `close_window`, `is_maximized`
 - `set_always_on_top` - for keeping dialogs on top
+- `get_version` - returns current app version
 - `get_system_fonts`
 - `save_version_snapshot`, `list_version_snapshots`, `restore_version_snapshot`
 - `open_bear`, `save_bear`
 - `create_test_book` - creates temp book for testing with `--test` flag
+
+## Tauri Updater (Auto-Update)
+- Built-in updater plugin checks GitHub Releases for new versions
+- Pubkey configured in `tauri.conf.json`
+- Endpoint: `https://github.com/dontneedfriends-jpg/paddyngton/releases/latest/download/latest.json`
+- UI shows update available / "You're up to date" in About panel
+- Users can download and install update with one click
+
+## CI / GitHub Actions
+- Auto-builds on push to main branch
+- Signs release with `TAURI_SIGNING_PRIVATE_KEY`
+- Creates GitHub Release automatically
+- Secrets required:
+  - `TAURI_SIGNING_PRIVATE_KEY` - private key content
+  - `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` - key password
 
 ## Test Mode
 Run app with `--test` flag to auto-create temporary book:

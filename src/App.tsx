@@ -1125,13 +1125,53 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
                 <div className="setting-section"><p style={{ color: 'var(--cool-gray)', fontSize: '13px' }}>{t('settings.noBookOpen')}</p></div>
               )}
               {state.settingsTab === 2 && (
-                <div className="setting-section">
-                  <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                    <div style={{ fontSize: '48px', marginBottom: '12px' }}>📖</div>
-                    <div style={{ fontSize: '22px', fontWeight: '700', color: 'var(--near-black)', marginBottom: '4px' }}>{t('settings.aboutTitle')}</div>
-                    <div style={{ fontSize: '13px', color: 'var(--cool-gray)', marginBottom: '16px' }}>{t('settings.aboutVersion')}</div>
-                    <div style={{ fontSize: '13px', color: 'var(--cool-gray)', lineHeight: '1.6', marginBottom: '20px' }}>{t('settings.aboutDesc')}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--cool-gray)' }}>{t('settings.aboutBuilt')}</div>
+                <div className="setting-about-section">
+                  <div className="about-header">
+                    <div className="about-logo">📖</div>
+                    <div className="about-app-name">Paddyngton</div>
+                    <div className="about-version">{state.currentVersion}</div>
+                  </div>
+                  
+                  {state.updateLoading && (
+                    <div className="about-update-checking">{t('about.checkingUpdate')}</div>
+                  )}
+                  
+                  {state.updateAvailable && !state.updateLoading && (
+                    <div className="about-update-box">
+                      <span className="about-update-label">🎉 {t('about.updateAvailable').replace('{version}', state.updateAvailable)}</span>
+                      <button className="about-update-btn" onClick={async () => {
+                        try {
+                          const update = await check()
+                          if (update) await update.downloadAndInstall()
+                        } catch {}
+                      }}>{t('about.updateNow')}</button>
+                    </div>
+                  )}
+
+                  {!state.updateAvailable && !state.updateLoading && (
+                    <div className="about-up-to-date">✓ {t('about.upToDate')}</div>
+                  )}
+                  
+                  <div className="about-tagline">{t('about.tagline')}</div>
+                  
+                  <div className="about-tech-stack">
+                    <div className="about-tech-item">Tauri 2.0</div>
+                    <div className="about-tech-item">React 19</div>
+                    <div className="about-tech-item">CodeMirror 6</div>
+                  </div>
+                  
+                  <div className="about-shortcuts">
+                    <div className="about-shortcuts-title">{t('about.shortcuts')}</div>
+                    <div className="about-shortcuts-grid">
+                      <div className="about-shortcut"><kbd>Ctrl+K</kbd><span>{t('about.commands')}</span></div>
+                      <div className="about-shortcut"><kbd>Ctrl+N</kbd><span>{t('about.newChapter')}</span></div>
+                      <div className="about-shortcut"><kbd>Ctrl+O</kbd><span>{t('about.openBook')}</span></div>
+                      <div className="about-shortcut"><kbd>Ctrl+S</kbd><span>{t('about.save')}</span></div>
+                      <div className="about-shortcut"><kbd>Ctrl+B</kbd><span>{t('about.sidebar')}</span></div>
+                      <div className="about-shortcut"><kbd>Ctrl+T</kbd><span>{t('about.theme')}</span></div>
+                      <div className="about-shortcut"><kbd>Ctrl+,</kbd><span>{t('about.settings')}</span></div>
+                      <div className="about-shortcut"><kbd>Ctrl+Z/Y</kbd><span>{t('about.undoRedo')}</span></div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -1143,7 +1183,7 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
       {state.showAbout && (
         <div className="modal-overlay" onClick={() => setState(s => ({ ...s, showAbout: false }))}>
           <div className="about-panel" onClick={e => e.stopPropagation()}>
-            <div className="panel-header"><h2>{t('about.title')}</h2><button className="btn-icon" onClick={() => setState(s => ({ ...s, showAbout: false }))}>×</button></div>
+            <button className="about-close-btn" onClick={() => setState(s => ({ ...s, showAbout: false }))}>×</button>
             <div>
               <div className="about-header">
                 <div className="about-logo">📖</div>

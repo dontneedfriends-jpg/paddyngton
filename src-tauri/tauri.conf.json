@@ -31,7 +31,7 @@
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDk5NDIyMEU1NDIyQjNCMjQKUldRa095dEM1U0JDbWFVRzhqOHBqUVNGd1N5bXRkZjNPK1l3bkpXbzFHMjlzQ1Y3cXd0OER5U3oK",
       "endpoints": [
-        "https://github.com/dontneedfriends-jpg/paddyngton/releases/latest/download/latest.json"
+        "https://github.com/dontneedfriends-jpg/paddyngton/releases/download/v10/latest.json"
       ],
       "windows": {
         "installMode": "passive"

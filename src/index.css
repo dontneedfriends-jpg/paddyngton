@@ -822,6 +822,30 @@ body { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-se
   padding: 3px 7px; border-radius: 4px; border: 1px solid var(--border-gray);
   color: var(--accent); font-weight: 600;
 }
+
+.setting-about-section {
+  text-align: center; padding: 20px 16px;
+}
+.setting-about-section .about-header { padding: 0 0 16px; }
+.setting-about-section .about-logo { font-size: 48px; }
+.setting-about-section .about-app-name { font-size: 24px; font-weight: 700; color: var(--near-black); margin-bottom: 4px; }
+.setting-about-section .about-version { font-size: 14px; color: var(--accent); margin-bottom: 16px; }
+.setting-about-section .about-tagline { font-size: 14px; color: var(--cool-gray); font-style: italic; margin: 16px 0; }
+.setting-about-section .about-tech-stack { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
+.setting-about-section .about-tech-item { font-size: 11px; padding: 4px 10px; background: var(--surface); border: 1px solid var(--border-gray); border-radius: 20px; }
+.setting-about-section .about-shortcuts { text-align: left; }
+.setting-about-section .about-shortcuts-title { font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--cool-gray); text-transform: uppercase; }
+.setting-about-section .about-shortcuts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.setting-about-section .about-shortcut { font-size: 11px; }
+.setting-about-section .about-shortcut kbd { font-size: 10px; }
+.setting-about-section .about-up-to-date { font-size: 13px; color: #38a169; background: rgba(56,161,105,0.1); padding: 8px 12px; border-radius: 8px; margin: 12px 0; display: inline-block; }
+.setting-about-section .about-update-box { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; }
+.setting-about-section .about-update-btn { background: var(--accent); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; }
+.about-shortcut kbd {
+  font-size: 10px; font-family: monospace; background: var(--surface);
+  padding: 3px 7px; border-radius: 4px; border: 1px solid var(--border-gray);
+  color: var(--accent); font-weight: 600;
+}
 .about-shortcut span { font-size: 11px; color: var(--cool-gray); }
 
 .about-links { padding: 0 24px 24px; display: flex; flex-direction: column; gap: 8px; }

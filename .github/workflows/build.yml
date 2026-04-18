@@ -33,13 +33,36 @@ jobs:
 
       - name: Build and sign Tauri app
         uses: tauri-apps/tauri-action@v0
+        id: tauri
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          tagName: v${{ github.run_number }}
-          releaseName: 'Paddyngton Build #${{ github.run_number }}'
+          tagName: latest
+          releaseName: 'Paddyngton Latest'
           releaseBody: 'Auto-built from push to main branch.'
           releaseDraft: false
           prerelease: false
+
+      - name: Create latest.json
+        run: |
+          $json = @{
+            version = "0.1.0"
+            notes = "Auto-built from push to main branch."
+            pubkey = "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDk5NDIyMEU1NDIyQjNCMjQKUldRa095dEM1U0JDbWFVRzhqOHBqUVNGd1N5bXRkZjNPK1l3bkpXbzFHMjlzQ1Y3cXd0OER5U3oK"
+            url = "https://github.com/dontneedfriends-jpg/paddyngton/releases/download/latest/Paddyngton_0.1.0_x64-setup.exe"
+            signature = ""
+          } | ConvertTo-Json -Depth 3
+          $json | Out-File -FilePath latest.json -Encoding UTF8
+        shell: pwsh
+
+      - name: Upload latest.json
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.tauri.outputs.upload_url }}
+          asset_path: latest.json
+          asset_content_type: application/json
+          asset_name: latest.json

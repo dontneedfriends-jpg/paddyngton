@@ -57,24 +57,6 @@ jobs:
           $json | Out-File -FilePath latest.json -Encoding UTF8
         shell: pwsh
 
-      - name: Get Release Upload URL
-        id: release
-        run: |
-          $token = "${{ secrets.GITHUB_TOKEN }}"
-          $headers = @{Authorization = "Bearer $token"}
-          $rel = Invoke-RestMethod -Uri "https://api.github.com/repos/dontneedfriends-jpg/paddyngton/releases/tags/latest" -Headers $headers
-          $uploadUrl = $rel.upload_url -replace "\{.+", ""
-          "UPLOAD_URL=$uploadUrl" | Out-File -FilePath $env:GITHUB_ENV -Encoding UTF8 -Append
-        shell: pwsh
-
       - name: Upload latest.json
-        run: |
-          $token = "${{ secrets.GITHUB_TOKEN }}"
-          $json = Get-Content latest.json -Raw -Encoding UTF8
-          $headers = @{
-            Authorization = "Bearer $token"
-            Content-Type = "application/json"
-          }
-          $uri = "${{ env.UPLOAD_URL }}?name=latest.json"
-          Invoke-RestMethod -Method POST -Uri $uri -Headers $headers -Body $json | Out-Null
-        shell: pwsh
+        run: gh release upload latest latest.json --clobber
+        shell: bash

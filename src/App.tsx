@@ -385,7 +385,7 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
         if (entry) { setState(s => ({ ...s, tooltip: { ...entry, x: e.clientX, y: e.clientY } })); return }
       }
       setState(s => ({ ...s, tooltip: null }))
-    }, 400)
+    }, 800)
   }, [activeChapter, contextData])
 
   const handleMouseLeave = useCallback(() => {
@@ -2136,7 +2136,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
               )}
             </div>
             <div className="header-center">
-              {state.openBooks.length > 0 && (
+              {state.openBooks.length > 1 && (
                 <div className="book-tabs">
                   {state.openBooks.map(book => (
                     <div key={book.id} className={`book-tab ${book.id === state.activeBookId ? 'active' : ''}`}
@@ -2153,14 +2153,22 @@ const exportBook = async (format: 'docx' | 'pdf') => {
               )}
             </div>
             <div className="header-right">
-              <button className="btn btn-secondary" onClick={saveChapter}>💾</button>
-              <button className="btn btn-sm" onClick={() => setState(s => ({ ...s, showBookDialog: true, bookDialogMode: 'save' }))}>📦 .bear</button>
-              <button className="btn btn-sm" onClick={() => exportBook('docx')}>📄 DOCX</button>
-              <button className="btn btn-sm" onClick={() => exportBook('pdf')}>📑 PDF</button>
-              <button className="btn btn-icon" onClick={() => setState(s => ({ ...s, showNotes: !s.showNotes }))} title="Notes">📝</button>
-              <button className="btn btn-icon" onClick={() => setState(s => ({ ...s, showTimeline: !s.showTimeline }))} title="Timeline">📅</button>
-              <button className="btn btn-icon" onClick={() => setState(s => ({ ...s, showWorld: !s.showWorld }))} title="World">🌍</button>
-              <button className="btn btn-icon" onClick={() => setState(s => ({ ...s, showKanban: !s.showKanban }))} title="Kanban">📋</button>
+              <div className="toolbar-group">
+                <button className="btn btn-primary btn-sm" onClick={saveChapter} title={t('status.saved')}>💾 {t('header.save')}</button>
+                <div className="toolbar-dropdown">
+                  <button className="btn btn-sm" onClick={() => setState(s => ({ ...s, showBookDialog: true, bookDialogMode: 'save' }))}>📦 .bear</button>
+                  <div className="toolbar-dropdown-content">
+                    <button onClick={() => exportBook('docx')}>📄 DOCX</button>
+                    <button onClick={() => exportBook('pdf')}>📑 PDF</button>
+                  </div>
+                </div>
+              </div>
+              <div className="toolbar-divider" />
+              <button className={`btn btn-icon ${state.showNotes ? 'active' : ''}`} onClick={() => setState(s => ({ ...s, showNotes: !s.showNotes }))} title="Notes">📝</button>
+              <button className={`btn btn-icon ${state.showTimeline ? 'active' : ''}`} onClick={() => setState(s => ({ ...s, showTimeline: !s.showTimeline }))} title="Timeline">📅</button>
+              <button className={`btn btn-icon ${state.showWorld ? 'active' : ''}`} onClick={() => setState(s => ({ ...s, showWorld: !s.showWorld }))} title="World">🌍</button>
+              <button className={`btn btn-icon ${state.showKanban ? 'active' : ''}`} onClick={() => setState(s => ({ ...s, showKanban: !s.showKanban }))} title="Kanban">📋</button>
+              <div className="toolbar-divider" />
               <button className="btn btn-icon" onClick={() => { loadVersions(); setState(s => ({ ...s, showVersions: true })) }}>⏱️</button>
               <button className="btn btn-icon" onClick={() => setState(s => ({ ...s, showSearch: true }))}>🔍</button>
               <button className="btn btn-icon" onClick={() => setState(s => ({ ...s, showSettings: true }))}>⚙</button>
@@ -2195,6 +2203,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                     <div className="context-header">
                       {t('sidebar.context')}
                       <div className="context-header-right">
+                        <button className="btn btn-sm" onClick={() => { const newEntry = { name: '', type: 'character' as const, details: {}, relations: [], notes: '' }; updateActiveBook({ contextData: [...contextData, newEntry] }); setState(s => ({ ...s, showContextEditor: true })) }}>+</button>
                         <button className="btn btn-sm" onClick={() => setState(s => ({ ...s, showWiki: true }))}>📚</button>
                         <button className="btn btn-sm" onClick={() => setState(s => ({ ...s, showMindMap: true }))}>🕸️</button>
                       </div>

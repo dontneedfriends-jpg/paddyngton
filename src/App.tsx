@@ -422,7 +422,13 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
   }, [])
 
   useEffect(() => {
+    invoke<string>('get_version').then(v => setState(s => ({ ...s, currentVersion: v }))).catch(() => {})
+    invoke<string[]>('get_system_fonts').then(fonts => {
+      setSystemFonts(fonts.sort((a, b) => a.localeCompare(b)))
+    }).catch(() => {})
+    
     const checkForUpdates = async () => {
+      await new Promise(r => setTimeout(r, 5000))
       try {
         setState(s => ({ ...s, updateLoading: true }))
         const update = await check()
@@ -432,7 +438,6 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
           setState(s => ({ ...s, updateAvailable: null, updateLoading: false }))
         }
       } catch (e) {
-        console.log('Update check skipped:', e)
         setState(s => ({ ...s, updateAvailable: null, updateLoading: false }))
       }
     }
@@ -624,6 +629,61 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
     try {
       await invoke('save_bear', { bookDir: activeBook.dir, bearPath: `${selected}/${activeBook.title}.bear` })
     } catch (err) { console.error('Error saving as folder:', err) }
+  }
+
+const exportBook = async (format: 'docx' | 'pdf') => {
+    console.log('exportBook called:', format)
+    if (!activeBook || !activeBook.chapters) {
+      console.log('No active book or chapters')
+      return
+    }
+    console.log('Book title:', activeBook.title)
+    
+    if (format === 'docx') {
+      const { Document, Packer, Paragraph, TextRun, HeadingLevel } = await import('docx')
+      const paragraphs: Paragraph[] = []
+      
+      paragraphs.push(new Paragraph({ text: activeBook.title, heading: HeadingLevel.TITLE }))
+      paragraphs.push(new Paragraph({ text: 'Оглавление', heading: HeadingLevel.HEADING_1 }))
+      
+      for (const ch of activeBook.chapters) {
+        paragraphs.push(new Paragraph({ text: `${activeBook.chapters.indexOf(ch) + 1}. ${ch.name}` }))
+      }
+      
+      paragraphs.push(new Paragraph({ text: '' }))
+      
+      for (const ch of activeBook.chapters) {
+        paragraphs.push(new Paragraph({ text: ch.name, heading: HeadingLevel.HEADING_1 }))
+        if (ch.code) {
+          paragraphs.push(new Paragraph({ 
+            children: [new TextRun({ text: ch.code })] 
+          }))
+        }
+        paragraphs.push(new Paragraph({ text: '' }))
+      }
+      
+      const doc = new Document({ sections: [{ children: paragraphs }] })
+      const blob = await Packer.toBlob(doc)
+      
+      const path = await save({
+        filters: [{ name: 'DOCX', extensions: ['docx'] }],
+        defaultPath: `${activeBook.title.replace(/[^a-zA-Z0-9а-яА-ЯёЁ]/g, '_')}.docx`,
+      })
+      if (path) {
+        const arrayBuffer = await blob.arrayBuffer()
+        const uint8Array = new Uint8Array(arrayBuffer)
+        await invoke('save_binary_file', { path, data: Array.from(uint8Array) })
+      }
+    } else {
+      const path = await save({
+        filters: [{ name: 'PDF', extensions: ['pdf'] }],
+        defaultPath: `${activeBook.title.replace(/[^a-zA-Z0-9а-яА-ЯёЁ]/g, '_')}.pdf`,
+      })
+      if (!path) return
+      
+      const chaptersData = activeBook.chapters.map(ch => ({ name: ch.name, code: ch.code || '' }))
+      await invoke('generate_pdf', { path, title: activeBook.title, chaptersJson: JSON.stringify(chaptersData) })
+    }
   }
 
   const extractGroups = (data: ContextEntry[]): ContextGroup[] => {
@@ -2095,6 +2155,8 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
             <div className="header-right">
               <button className="btn btn-secondary" onClick={saveChapter}>💾</button>
               <button className="btn btn-sm" onClick={() => setState(s => ({ ...s, showBookDialog: true, bookDialogMode: 'save' }))}>📦 .bear</button>
+              <button className="btn btn-sm" onClick={() => exportBook('docx')}>📄 DOCX</button>
+              <button className="btn btn-sm" onClick={() => exportBook('pdf')}>📑 PDF</button>
               <button className="btn btn-icon" onClick={() => setState(s => ({ ...s, showNotes: !s.showNotes }))} title="Notes">📝</button>
               <button className="btn btn-icon" onClick={() => setState(s => ({ ...s, showTimeline: !s.showTimeline }))} title="Timeline">📅</button>
               <button className="btn btn-icon" onClick={() => setState(s => ({ ...s, showWorld: !s.showWorld }))} title="World">🌍</button>

@@ -34,3 +34,15 @@ yarn-debug.log*
 # Cache
 .cache/
 *.tsbuildinfo
+
+# Test
+test-results/
+.vs/Paddyngton.slnx/FileContentIndex/7bd6fa80-9c57-4df8-8b7c-c998b7569a60.vsidx
+.vs/Paddyngton.slnx/v18/.wsuo
+.vs/Paddyngton.slnx/v18/DocumentLayout.json
+.vs/ProjectSettings.json
+.vs/slnx.sqlite
+.vs/VSWorkspaceState.json
+tests/app.spec.js
+tests/mindmap.spec.js
+tests/README.md

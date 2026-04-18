@@ -1,16 +1,11 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { invoke } from '@tauri-apps/api/core'
-import { open, save } from '@tauri-apps/plugin-dialog'
-import { exists, readTextFile, mkdir, writeTextFile } from '@tauri-apps/plugin-fs'
 import Editor from '@uiw/react-codemirror'
-import { lineNumbers, EditorView, highlightActiveLine, ViewPlugin, Decoration } from '@codemirror/view'
-import { syntaxTree } from '@codemirror/language'
+import { lineNumbers, EditorView, highlightActiveLine } from '@codemirror/view'
 import { search } from '@codemirror/search'
+import { open, save } from '@tauri-apps/plugin-dialog'
+import { readTextFile, writeTextFile, exists } from '@tauri-apps/plugin-fs'
 import { undo, redo } from '@codemirror/commands'
-import { markdown } from '@codemirror/lang-markdown'
-import { marked } from 'marked'
-import katex from 'katex'
-import 'katex/dist/katex.min.css'
 import { useTranslation } from './i18n'
 import { Language, languages } from './i18n'
 import { Toast, ConfirmDialog, InputDialog } from './components/dialogs'
@@ -48,61 +43,9 @@ import {
 
 export const relationColors = RELATION_COLORS
 
-const markdownMarkerPlugin = ViewPlugin.fromClass(class {
-  constructor(view) {
-    this.decorations = this.buildDecorations(view)
-  }
-  update(update) {
-    if (update.docChanged || update.viewportChanged) {
-      this.decorations = this.buildDecorations(update.view)
-    }
-  }
-  buildDecorations(view) {
-    const widgets: any[] = []
-    try {
-      const tree = syntaxTree(view.state)
-      tree.iterate({
-        enter: (node) => {
-          const name = node.type.name
-          const from = node.from
-          const to = node.to
-          if (name === 'StrongEmphasis' && to - from > 4) {
-            widgets.push(Decoration.mark({ class: 'md-faded-marker' }).range(from, from + 2))
-            widgets.push(Decoration.mark({ class: 'md-faded-marker' }).range(to - 2, to))
-          } else if (name === 'Emphasis' && to - from > 2) {
-            widgets.push(Decoration.mark({ class: 'md-faded-marker' }).range(from, from + 1))
-            widgets.push(Decoration.mark({ class: 'md-faded-marker' }).range(to - 1, to))
-          } else if (name === 'ATXHeading1' || name === 'ATXHeading2' || name === 'ATXHeading3') {
-            const text = view.state.doc.sliceString(from, Math.min(to, from + 10))
-            const hashes = text.match(/^#+ /)?.[0]?.length || 0
-            if (hashes > 0) {
-              widgets.push(Decoration.mark({ class: 'md-faded-marker' }).range(from, from + hashes))
-            }
-          } else if (name === 'Link') {
-            const text = view.state.doc.sliceString(from, to)
-            const bracketMatch = text.match(/\[([^\]]*)\]/)
-            if (bracketMatch) {
-              const bracketStart = text.indexOf('[')
-              widgets.push(Decoration.mark({ class: 'md-faded-marker' }).range(from + bracketStart, from + bracketStart + 1))
-              const bracketEnd = text.lastIndexOf(']')
-              if (bracketEnd > bracketStart) {
-                widgets.push(Decoration.mark({ class: 'md-faded-marker' }).range(from + bracketEnd, from + bracketEnd + 1))
-              }
-            }
-          }
-        }
-      })
-    } catch (e) { console.warn('Markdown markers plugin error:', e) }
-    return Decoration.set(widgets)
-  }
-}, {
-  decorations: v => v.decorations
-})
-
 const editorExtensions = [
   highlightActiveLine(),
   search({ top: false }),
-  markdownMarkerPlugin,
 ]
 
 const defaultSettings = loadSettings()
@@ -116,7 +59,7 @@ function App() {
     showBookDialog: false, bookDialogMode: 'open',
     showAbout: false, showWiki: false, showMindMap: false, showSearch: false,
     showVersions: false, isMaximized: false, tooltip: null,
-showTimeline: false, showNotes: false, showWorld: false, showKanban: false, showPreview: false,
+    showTimeline: false, showNotes: false, showWorld: false, showKanban: false,
     mindMapZoom: 1,
     settingsTab: 0, wikiSelected: null, wikiEditMode: false, welcomeTab: 'create', showTemplateSelector: false, searchQuery: '',
     mindMapConnectFrom: null, mindMapEditEntry: null,
@@ -419,9 +362,6 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
         else if (e.code === 'Comma') { e.preventDefault(); setState(s => ({ ...s, showSettings: true })) }
         else if (e.code === 'KeyZ' && !e.shiftKey) { e.preventDefault(); if (editorViewRef.current) undo(editorViewRef.current) }
         else if (e.code === 'KeyY' || (e.code === 'KeyZ' && e.shiftKey)) { e.preventDefault(); if (editorViewRef.current) redo(editorViewRef.current) }
-        else if (e.code === 'KeyC' && !inInput) { e.preventDefault(); document.execCommand('copy') }
-        else if (e.code === 'KeyV' && !inInput) { e.preventDefault(); document.execCommand('paste') }
-        else if (e.code === 'KeyX' && !inInput) { e.preventDefault(); document.execCommand('cut') }
       }
       if (e.code === 'Escape') {
         setShowCommandPalette(false)
@@ -475,9 +415,7 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
   }, [activeBook, settings.autoSaveToast])
 
   const createNewBook = async () => {
-    console.log('createNewBook called')
     const selected = await open({ directory: true })
-    console.log('createNewBook: selected =', selected)
     if (!selected) return
     const bookDir = selected as string
     const contextPath = `${bookDir}/.context.json`
@@ -488,73 +426,34 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
     ]
     const bookConfig: BookConfig = { title: 'New Book', author: 'Author', genre: 'Novel', bookType: 'Novel', description: '', createdAt: new Date().toISOString(), chapters: [] }
     try {
-      console.log('createNewBook: writing files to', bookDir)
-      await mkdir(bookDir, { recursive: true })
       await writeTextFile(contextPath, JSON.stringify(defaultContext, null, 2))
       await writeTextFile(bookConfigPath, JSON.stringify(bookConfig, null, 2))
-      console.log('createNewBook: calling loadBook')
       loadBook(bookDir, defaultContext, [], bookConfig)
     } catch (err) { console.error('Error creating book:', err) }
   }
 
-  const createNewBearBook = async () => {
-    console.log('createNewBearBook called')
-    const path = await save({
-      filters: [{ name: 'Bear Book', extensions: ['bear'] }],
-      defaultPath: 'New Book.bear',
-    })
-    if (!path) return
-    console.log('createNewBearBook: path =', path)
-    try {
-      const tempDir = `${path}_temp`
-      await mkdir(tempDir, { recursive: true })
-      const contextPath = `${tempDir}/.context.json`
-      const bookConfigPath = `${tempDir}/.book.json`
-      const defaultContext: ContextEntry[] = [
-        { name: 'Main Character', type: 'character', details: { Age: '', Gender: '', Occupation: '', Personality: '', Status: 'Alive' }, relations: [], notes: '' },
-        { name: 'Setting', type: 'place', details: { Type: '', Location: '', Description: '', Atmosphere: '' }, notes: '' },
-      ]
-      const bookConfig: BookConfig = { title: 'New Book', author: 'Author', genre: 'Novel', bookType: 'Novel', description: '', createdAt: new Date().toISOString(), chapters: [] }
-      await writeTextFile(contextPath, JSON.stringify(defaultContext, null, 2))
-      await writeTextFile(bookConfigPath, JSON.stringify(bookConfig, null, 2))
-      await invoke('save_bear', { bookDir: tempDir, bearPath: path })
-      const extractedDir = await invoke<string>('open_bear', { bearPath: path })
-      let contextData: ContextEntry[] = []
-      let bookConfigLoaded: BookConfig | null = null
-      if (await exists(`${extractedDir}/.context.json`)) contextData = JSON.parse(await readTextFile(`${extractedDir}/.context.json`))
-      if (await exists(`${extractedDir}/.book.json`)) bookConfigLoaded = JSON.parse(await readTextFile(`${extractedDir}/.book.json`))
-      const groups = extractGroups(contextData)
-      loadBook(extractedDir, contextData, groups, bookConfigLoaded)
-    } catch (err) { console.error('Error creating bear book:', err) }
-  }
-
   const openBookFolder = async () => {
-    console.log('openBookFolder called')
+    const selected = await open({ directory: true })
+    if (!selected) return
     try {
-      const selected = await open({ directory: true })
-      console.log('selected:', selected, typeof selected)
-      if (!selected) return
-      const dir = Array.isArray(selected) ? selected[0] : selected
-      console.log('opening dir:', dir)
       let contextData: ContextEntry[] = []
       let bookConfig: BookConfig | null = null
-      const contextPath = `${dir}/.context.json`
-      const bookConfigPath = `${dir}/.book.json`
+      const contextPath = `${selected}/.context.json`
+      const bookConfigPath = `${selected}/.book.json`
       if (await exists(contextPath)) contextData = JSON.parse(await readTextFile(contextPath))
       if (await exists(bookConfigPath)) bookConfig = JSON.parse(await readTextFile(bookConfigPath))
       const groups = extractGroups(contextData)
-      loadBook(dir, contextData, groups, bookConfig)
+      loadBook(selected as string, contextData, groups, bookConfig)
     } catch (err) { console.error('Error opening book:', err) }
   }
 
   const openBearFile = async () => {
-    console.log('openBearFile called')
+    const selected = await open({
+      multiple: false,
+      filters: [{ name: 'Bear Book', extensions: ['bear'] }],
+    })
+    if (!selected) return
     try {
-      const selected = await open({
-        multiple: false,
-        filters: [{ name: 'Bear Book', extensions: ['bear'] }],
-      })
-      if (!selected) return
       const tempDir = await invoke<string>('open_bear', { bearPath: selected as string })
       let contextData: ContextEntry[] = []
       let bookConfig: BookConfig | null = null
@@ -824,7 +723,6 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
       const centerY = rect.height / 2
       const x = (e.clientX - rect.left - centerX - panX) / zoom + 420
       const y = (e.clientY - rect.top - centerY - panY) / zoom + 230
-      if (!isFinite(x) || !isFinite(y)) return { x: 0, y: 0 }
       return { x, y }
     } catch {
       return { x: 0, y: 0 }
@@ -833,7 +731,6 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
 
   const handleMindMapMouseDown = (e: React.MouseEvent, entryName: string) => {
     e.stopPropagation()
-    if (e.button === 1) return // middle mouse - ignore
     if (state.mindMapConnectFrom) return
     const existing = contextData.find(c => c.name === entryName)
     const startX = existing?._x ?? 420
@@ -848,24 +745,18 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
 
   const handleMindMapCanvasMouseDown = (e: React.MouseEvent) => {
     if (state.mindMapConnectFrom) return
-    if (e.button === 1) return // middle mouse - ignore
-    if (mindMapDragRef.current) return // don't pan if dragging an entry
     mindMapDragRef.current = null
     mindMapDragCursorStart.current = null
     mindMapDragEntryStart.current = null
-    if (e.button === 0) { // left mouse - pan
-      mindMapPanStart.current = { panX: state.mindMapPanX, panY: state.mindMapPanY, cursorX: e.clientX, cursorY: e.clientY }
-      mindMapPanRef.current = 'panning'
-    }
+    mindMapPanStart.current = { panX: state.mindMapPanX, panY: state.mindMapPanY, cursorX: e.clientX, cursorY: e.clientY }
+    mindMapPanRef.current = 'panning'
   }
 
   const handleMindMapMouseMove = (e: React.MouseEvent) => {
-    if (!activeBook) return
     if (mindMapPanRef.current === 'panning' && mindMapPanStart.current) {
-      const start = mindMapPanStart.current
-      const dx = e.clientX - start.cursorX
-      const dy = e.clientY - start.cursorY
-      setState(s => ({ ...s, mindMapPanX: start.panX + dx, mindMapPanY: start.panY + dy }))
+      const dx = e.clientX - mindMapPanStart.current.cursorX
+      const dy = e.clientY - mindMapPanStart.current.cursorY
+      setState(s => ({ ...s, mindMapPanX: mindMapPanStart.current!.panX + dx, mindMapPanY: mindMapPanStart.current!.panY + dy }))
       return
     }
     if (!mindMapDragRef.current || !mindMapDragCursorStart.current || !mindMapDragEntryStart.current) return
@@ -874,31 +765,28 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
     const panX = start.panX
     const panY = start.panY
     const coords = getCanvasCoords(e, zoom, panX, panY)
-    if (isNaN(coords.x) || isNaN(coords.y)) return
     const dx = coords.x - start.x
     const dy = coords.y - start.y
     if (Math.abs(dx) < 2 && Math.abs(dy) < 2) return
     const entryName = mindMapDragRef.current
-    const currentPos = mindMapDragEntryStart.current
-    let newX = currentPos.x + dx
-    let newY = currentPos.y + dy
-    if (isNaN(newX) || isNaN(newY)) return
-    newX = Math.max(0, Math.min(840, newX))
-    newY = Math.max(0, Math.min(460, newY))
-    const d = activeBook.contextData.map(c => c.name === entryName ? { ...c, _x: Math.round(newX), _y: Math.round(newY) } : c)
+    const entry = contextData.find(c => c.name === entryName)
+    if (!entry) return
+    const newX = entry._x! + dx
+    const newY = entry._y! + dy
+    const d = contextData.map(c => c.name === entryName ? { ...c, _x: Math.round(newX), _y: Math.round(newY) } : c)
     updateActiveBook({ contextData: d })
     mindMapDragCursorStart.current = { x: coords.x, y: coords.y, zoom, panX, panY }
     mindMapDragEntryStart.current = { x: newX, y: newY }
   }
 
   const handleMindMapMouseUp = () => {
-    if (!activeBook) return
-    const wasDraggingCharacter = mindMapDragRef.current !== null
-    if (wasDraggingCharacter && mindMapDragEntryStart.current) {
+    if (mindMapDragRef.current && mindMapDragEntryStart.current) {
       const entryName = mindMapDragRef.current
-      const currentPos = mindMapDragEntryStart.current
-      if (!isNaN(currentPos.x) && !isNaN(currentPos.y)) {
-        const d = activeBook.contextData.map(c => c.name === entryName ? { ...c, _x: Math.round(currentPos.x), _y: Math.round(currentPos.y) } : c)
+      const entry = contextData.find(c => c.name === entryName)
+      if (entry) {
+        const newX = mindMapDragEntryStart.current.x
+        const newY = mindMapDragEntryStart.current.y
+        const d = contextData.map(c => c.name === entryName ? { ...c, _x: Math.round(newX), _y: Math.round(newY) } : c)
         updateActiveBook({ contextData: d })
       }
     }
@@ -908,14 +796,6 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
     mindMapPanRef.current = null
     mindMapPanStart.current = null
     setState(s => ({ ...s, mindMapDrag: null }))
-  }
-
-  const handleMindMapMouseLeave = () => {
-    mindMapDragRef.current = null
-    mindMapDragCursorStart.current = null
-    mindMapDragEntryStart.current = null
-    mindMapPanRef.current = null
-    mindMapPanStart.current = null
   }
 
   const zoomTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -938,21 +818,6 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
   const handleClose = () => invoke('close_window')
 
   const fontCss = settings.fontFamily ? `'${settings.fontFamily}', sans-serif` : "'IBM Plex Sans', sans-serif"
-
-  const renderMarkdown = (text: string): string => {
-    try {
-      let html = marked.parse(text, { gfm: true, breaks: true }) as string
-      html = html.replace(/\$\$((?:[^$]|\$(?!\$))+)\$\$/g, (_, tex) => {
-        try { return katex.renderToString(tex.trim(), { displayMode: true, throwOnError: false }) }
-        catch { return `<code class="katex-error">$$${tex}$$</code>` }
-      })
-      html = html.replace(/\$((?:[a-zA-Z0-9^\\()_{}[\]]|\s)+)\$/g, (_, tex) => {
-        try { return katex.renderToString(tex.trim(), { displayMode: false, throwOnError: false }) }
-        catch { return `<code class="katex-error">$${tex}$</code>` }
-      })
-      return html
-    } catch { return text }
-  }
 
   const searchResults = useCallback(() => {
     if (!state.searchQuery.trim() || state.searchQuery.length < 2) return { entries: [], chapters: [] }
@@ -1108,34 +973,10 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
             <div className="panel-header"><h2>{t('about.title')}</h2><button className="btn-icon" onClick={() => setState(s => ({ ...s, showAbout: false }))}>×</button></div>
             <div>
               <div className="about-logo">📖</div>
-              <div className="about-title">Paddyngton</div>
+              <div className="about-title">{t('about.title')}</div>
               <div className="about-version">{t('about.version')}</div>
-              <div className="about-ironic">
-                <p>🎯 <strong>{t('about.ironic1')}</strong></p>
-                <p>{t('about.ironic2')}</p>
-                <p>{t('about.ironic3')}</p>
-                <p>💡 {t('about.ironic4')}</p>
-              </div>
-              <div className="about-tech">
-                <span className="about-tech-badge">Tauri 2.0</span>
-                <span className="about-tech-badge">React 19</span>
-                <span className="about-tech-badge">CodeMirror 6</span>
-              </div>
-              <div className="about-shortcuts">
-                <div className="about-shortcuts-title">⌨️ {t('about.shortcuts')}</div>
-                <div className="about-shortcuts-grid">
-                  <div className="about-shortcut"><kbd>Ctrl+K</kbd><span>{t('about.commands')}</span></div>
-                  <div className="about-shortcut"><kbd>Ctrl+N</kbd><span>{t('about.newChapter')}</span></div>
-                  <div className="about-shortcut"><kbd>Ctrl+O</kbd><span>{t('about.openBook')}</span></div>
-                  <div className="about-shortcut"><kbd>Ctrl+S</kbd><span>{t('about.save')}</span></div>
-                  <div className="about-shortcut"><kbd>Ctrl+B</kbd><span>{t('about.sidebar')}</span></div>
-                  <div className="about-shortcut"><kbd>Ctrl+T</kbd><span>{t('about.theme')}</span></div>
-                  <div className="about-shortcut"><kbd>Ctrl+Shift+F</kbd><span>{t('about.search')}</span></div>
-                  <div className="about-shortcut"><kbd>Ctrl+,</kbd><span>{t('about.settings')}</span></div>
-                  <div className="about-shortcut"><kbd>Ctrl+Z/Y</kbd><span>{t('about.undoRedo')}</span></div>
-                  <div className="about-shortcut"><kbd>Ctrl+C/V/X</kbd><span>{t('about.copyPaste')}</span></div>
-                </div>
-              </div>
+              <div className="about-desc">{t('about.desc')}</div>
+              <div className="about-links"><span className="about-link">{t('about.built')}</span></div>
             </div>
           </div>
         </div>
@@ -1580,8 +1421,8 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
             </div>
             <div className="mindmap-canvas" ref={mindMapCanvasRef}
               style={{ position: 'relative', minHeight: '450px', overflow: 'hidden', cursor: mindMapPanRef.current === 'panning' ? 'grabbing' : 'default' }}
-              onMouseMove={handleMindMapMouseMove} onMouseLeave={handleMindMapMouseUp}
-              onMouseDown={handleMindMapCanvasMouseDown} onMouseUp={handleMindMapMouseUp} onWheel={handleMindMapWheel}>
+              onMouseMove={handleMindMapMouseMove} onMouseUp={handleMindMapMouseUp} onMouseLeave={handleMindMapMouseUp}
+              onMouseDown={handleMindMapCanvasMouseDown} onWheel={handleMindMapWheel}>
               <div className="mindmap-canvas-inner"
                 style={{ transform: `translate(${state.mindMapPanX}px, ${state.mindMapPanY}px) scale(${state.mindMapZoom})`, transformOrigin: 'center', transition: mindMapPanRef.current ? 'none' : 'transform 0.15s ease', position: 'absolute', left: '50%', top: '50%', marginLeft: '-420px', marginTop: '-230px' }}>
               <div style={{ width: '840px', height: '460px', position: 'relative' }}>
@@ -1925,7 +1766,7 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
                       <div className="welcome-option-desc">Create a new book in a folder on your computer</div>
                     </div>
                   </button>
-                  <button className="welcome-option" onClick={createNewBearBook}>
+                  <button className="welcome-option" onClick={() => { createNewBook(); }}>
                     <span className="welcome-option-icon">📦</span>
                     <div>
                       <div className="welcome-option-title">New Book (.bear)</div>
@@ -2062,12 +1903,10 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
                   <div className="format-toolbar">
                     <input ref={colorInputRef} type="color" style={{ display: 'none' }}
                       value={selectedColor}
-                      onChange={e => setSelectedColor(e.target.value)}
-                      onBlur={e => applyColor(e.target.value, false)} />
+                      onChange={e => { setSelectedColor(e.target.value); applyColor(e.target.value, false) }} />
                     <input ref={bgColorInputRef} type="color" style={{ display: 'none' }}
                       value={selectedBgColor}
-                      onChange={e => setSelectedBgColor(e.target.value)}
-                      onBlur={e => applyColor(e.target.value, true)} />
+                      onChange={e => { setSelectedBgColor(e.target.value); applyColor(e.target.value, true) }} />
                     {FORMAT_BUTTONS.map(btn => {
                       if (btn.type === 'sep') return <span key={btn.id} className="format-sep" />
                       const style: React.CSSProperties = {}
@@ -2102,31 +1941,20 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
                         </button>
                       )
                     })}
-                    <span className="format-sep" />
-                    <button className={`format-btn format-btn-preview ${state.showPreview ? 'active' : ''}`}
-                      title="Toggle Preview Mode" onClick={() => setState(s => ({ ...s, showPreview: !s.showPreview }))}>
-                      👁️
-                    </button>
                   </div>
-                  <div className="editor" style={{ flex: state.showPreview ? 1 : 2, display: 'flex', flexDirection: 'column' }}>
-                    {state.showPreview ? (
-                      <div className="editor-preview" style={{ flex: 1, overflow: 'auto', padding: '20px 40px' }}>
-                        <div className="preview-content" dangerouslySetInnerHTML={{ __html: renderMarkdown(activeChapter.code) }} />
-                      </div>
-                    ) : (
-                      <Editor
-                        value={activeChapter.code}
-                        height="100%"
-                        onChange={handleEditorChange}
-                        onCreateEditor={handleEditorCreate}
-                        basicSetup={{ lineNumbers: false, highlightActiveLine: true, history: true, defaultKeymap: true, historyKeymap: true }}
-                        extensions={[
-                          ...(settings.showLineNumbers ? [lineNumbers()] : []),
-                          ...editorExtensions,
-                        ]}
-                        style={{ fontSize: `${settings.fontSize}px`, fontFamily: fontCss }}
-                      />
-                    )}
+                  <div className="editor">
+                    <Editor
+                      value={activeChapter.code}
+                      height="100%"
+                      onChange={handleEditorChange}
+                      onCreateEditor={handleEditorCreate}
+                      basicSetup={{ lineNumbers: false, highlightActiveLine: true, history: true, defaultKeymap: true, historyKeymap: true }}
+                      extensions={[
+                        ...(settings.showLineNumbers ? [lineNumbers()] : []),
+                        ...editorExtensions,
+                      ]}
+                      style={{ fontSize: `${settings.fontSize}px`, fontFamily: fontCss }}
+                    />
                   </div>
                 </>
               ) : (

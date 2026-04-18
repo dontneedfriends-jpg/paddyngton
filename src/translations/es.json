@@ -147,7 +147,22 @@
     "title": "Acerca de",
     "version": "Versión 1.0.0",
     "desc": "Editor multiplataforma para escribir libros. 7 temas, contexto de personajes, wiki, mapa de interacciones.",
-    "built": "Tauri + React + CodeMirror 6"
+    "built": "Tauri + React + CodeMirror 6",
+    "ironic1": "Paddyngton — porque hasta los pandas necesitan un hogar.",
+    "ironic2": "Hecho con 40% cafeína, 30% existencialismo y 30% hooks de React.",
+    "ironic3": "Esta app no escribirá tu novela por ti. Pero se verá genial mientras no lo haces.",
+    "ironic4": "Efectos secundarios: construcción obsesiva del mundo, fichas de personajes nadie pidió y línea temporal excesiva.",
+    "shortcuts": "Atajos",
+    "commands": "Comandos",
+    "newChapter": "Nuevo Capítulo",
+    "openBook": "Abrir Libro",
+    "save": "Guardar",
+    "sidebar": "Barra Lateral",
+    "theme": "Tema",
+    "search": "Buscar",
+    "settings": "Configuración",
+    "undoRedo": "Deshacer/Rehacer",
+    "copyPaste": "Copiar/Pegar/Cortar"
   },
   "format": {
     "bold": "Negrita",

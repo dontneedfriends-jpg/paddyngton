@@ -148,7 +148,22 @@
     "title": "About",
     "version": "Version 1.0.0",
     "desc": "Cross-platform book writing editor. 7 themes, character context, wiki, interaction map.",
-    "built": "Tauri + React + CodeMirror 6"
+    "built": "Tauri + React + CodeMirror 6",
+    "ironic1": "Paddyngton — because even pandas need a home.",
+    "ironic2": "Written with 40% caffeine, 30% existential dread, and 30% React hooks.",
+    "ironic3": "This app won't write your novel for you. But it will look cool while you don't.",
+    "ironic4": "Side effects may include: obsessive world-building, character sheets nobody asked for, and excessive timeline tweaking.",
+    "shortcuts": "Shortcuts",
+    "commands": "Commands",
+    "newChapter": "New Chapter",
+    "openBook": "Open Book",
+    "save": "Save",
+    "sidebar": "Sidebar",
+    "theme": "Theme",
+    "search": "Search",
+    "settings": "Settings",
+    "undoRedo": "Undo/Redo",
+    "copyPaste": "Copy/Paste/Cut"
   },
   "format": {
     "bold": "Bold",

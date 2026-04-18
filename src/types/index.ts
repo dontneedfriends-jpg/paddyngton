@@ -157,6 +157,7 @@ export interface AppState {
   showTimeline: boolean
   showNotes: boolean
   showWorld: boolean
+  showPreview: boolean
   showKanban: boolean
   mindMapZoom: number
 }
@@ -223,7 +224,7 @@ export const RELATION_COLORS: Record<RelationType, string> = {
 export const RELATION_KEYS: RelationType[] = ['ally', 'enemy', 'family', 'neutral', 'romantic', 'rival']
 
 export const DEFAULT_SETTINGS: AppSettings = {
-  theme: 'galaxy',
+  theme: 'monochrome',
   fontSize: 16,
   fontFamily: 'IBM Plex Sans',
   showLineNumbers: true,

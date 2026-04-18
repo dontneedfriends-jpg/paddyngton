@@ -29,6 +29,7 @@
     "@uiw/react-codemirror": "^4.23.10",
     "codemirror": "^6.0.1",
     "jspdf": "^4.2.1",
+    "katex": "^0.16.45",
     "marked": "^18.0.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
@@ -44,6 +45,15 @@
     "postcss": "^8.5.10",
     "tailwindcss": "^4.2.2",
     "typescript": "^6.0.2",
-    "vite": "^8.0.8"
+    "vite": "^8.0.8",
+    "@playwright/test": "^1.42.1"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed"
   }
 }

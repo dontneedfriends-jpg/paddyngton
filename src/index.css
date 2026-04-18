@@ -423,22 +423,114 @@ body { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-se
 .editor .cm-selectionBackground, .editor ::selection { background: var(--accent-light) !important; }
 .editor .cm-cursor { border-left-color: var(--accent) !important; }
 
-/* WYSIWYG Markdown Styling */
-.editor .cm-content .cm-line:has(.tok-strong) { font-weight: 700; }
-.editor .cm-content .cm-line:has(.tok-emphasis) { font-style: italic; }
-.editor .cm-content .cm-line:has(.tok-strikethrough) { text-decoration: line-through; }
-.editor .cm-content .cm-line:has(.tok-monospace) { font-family: monospace; background: var(--accent-light); border-radius: 3px; padding: 0 4px; }
-.editor .cm-content .tok-strong { font-weight: 700; color: var(--near-black); }
-.editor .cm-content .tok-emphasis { font-style: italic; }
-.editor .cm-content .tok-strikethrough { text-decoration: line-through; }
-.editor .cm-content .tok-monospace { font-family: monospace; background: var(--accent-light); border-radius: 3px; padding: 0 3px; color: var(--accent); }
-.editor .cm-content .tok-link { color: var(--accent); text-decoration: underline; }
-.editor .cm-content .tok-url { color: var(--accent); }
-.editor .cm-content .tok-heading { font-weight: 700; color: var(--accent); }
-.editor .cm-content .tok-heading[level="1"] { font-size: 1.4em; }
-.editor .cm-content .tok-heading[level="2"] { font-size: 1.2em; }
-.editor .cm-content .tok-heading[level="3"] { font-size: 1.1em; }
-.editor .cm-content .tok-quote { font-style: italic; color: var(--cool-gray); border-left: 3px solid var(--accent); padding-left: 8px; }
+/* Preview Panel */
+.editor-preview { background: var(--surface); }
+.editor-preview .preview-content { max-width: 800px; margin: 0 auto; color: var(--text); font-size: 16px; line-height: 1.7; }
+.editor-preview .preview-content h1 { font-size: 2em; font-weight: 700; margin: 1em 0 0.5em; color: var(--near-black); }
+.editor-preview .preview-content h2 { font-size: 1.5em; font-weight: 700; margin: 0.8em 0 0.4em; color: var(--near-black); }
+.editor-preview .preview-content h3 { font-size: 1.25em; font-weight: 600; margin: 0.6em 0 0.3em; color: var(--near-black); }
+.editor-preview .preview-content p { margin: 0.8em 0; }
+.editor-preview .preview-content strong { font-weight: 700; }
+.editor-preview .preview-content em { font-style: italic; }
+.editor-preview .preview-content code { background: rgba(49,130,206,0.12); color: #3182ce; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+.editor-preview .preview-content pre { background: #1e1e1e; color: #d4d4d4; padding: 16px; border-radius: 8px; overflow-x: auto; }
+.editor-preview .preview-content pre code { background: none; color: inherit; padding: 0; }
+.editor-preview .preview-content blockquote { border-left: 4px solid var(--accent); padding-left: 16px; color: var(--text-secondary); font-style: italic; margin: 1em 0; }
+.editor-preview .preview-content ul, .editor-preview .preview-content ol { padding-left: 24px; margin: 0.5em 0; }
+.editor-preview .preview-content li { margin: 0.3em 0; }
+.editor-preview .preview-content a { color: var(--accent); text-decoration: underline; }
+.editor-preview .preview-content hr { border: none; border-top: 2px solid var(--border-gray); margin: 1em 0; }
+.editor-preview .preview-content img { max-width: 100%; border-radius: 8px; }
+
+/* KaTeX */
+.editor-preview .katex { font-size: 1.1em; color: #805ad5; }
+.editor-preview .katex-display { display: block; margin: 1em auto; text-align: center; overflow-x: auto; }
+.editor-preview .katex-error { color: #e53e3e; background: #fed7d7; padding: 2px 6px; border-radius: 4px; }
+
+/* KaTeX CSS from CDN fallback */
+.editor-preview .katex .base { display: inline-block; }
+.editor-preview .katex .mord { color: inherit; }
+.editor-preview .katex .mop { color: inherit; }
+.editor-preview .katex .mbin { color: inherit; }
+.editor-preview .katex .mbin::before,
+.editor-preview .katex .mbin::after { content: none; }
+
+/* ============================================
+   True WYSIWYG Editor - hide all markup
+   ============================================ */
+
+.editor .cm-editor { height: 100%; background: var(--editor-bg); }
+.editor .cm-scroller { font-family: inherit; line-height: 1.8; padding: 40px 60px; }
+.editor .cm-content { max-width: 800px; margin: 0 auto; caret-color: var(--accent); }
+.editor .cm-line { padding: 3px 0; color: var(--text); font-size: 16px; line-height: 1.7; }
+.editor .cm-cursor { border-left-color: var(--accent) !important; }
+.editor .cm-selectionBackground, .editor ::selection { background: var(--accent-light) !important; }
+.editor .cm-gutters { display: none; }
+.editor.cm-focused { outline: none !important; }
+
+/* Headers - visual appearance */
+.editor .cm-content .tok-heading[level="1"],
+.editor .cm-content .cm-header-h1 { font-size: 2em; font-weight: 700; color: #1a1a1a; margin: 1em 0 0.5em 0; padding-bottom: 0.3em; border-bottom: 1px solid #e0e0e0; display: block; width: 100%; }
+.editor .cm-content .tok-heading[level="2"],
+.editor .cm-content .cm-header-h2 { font-size: 1.5em; font-weight: 700; color: #1a1a1a; margin: 0.8em 0 0.4em 0; display: block; }
+.editor .cm-content .tok-heading[level="3"],
+.editor .cm-content .cm-header-h3 { font-size: 1.25em; font-weight: 600; color: #333; margin: 0.6em 0 0.3em 0; display: block; }
+.editor .cm-content .tok-heading[level="4"],
+.editor .cm-content .tok-heading[level="5"],
+.editor .cm-content .tok-heading[level="6"] { font-size: 1em; font-weight: 600; color: #555; display: block; }
+
+/* Bold */
+.editor .cm-content .tok-strong,
+.editor .cm-content strong { font-weight: 700; color: #222; }
+
+/* Italic */
+.editor .cm-content .tok-emphasis,
+.editor .cm-content em { font-style: italic; }
+
+/* Bold+Italic combo */
+.editor .cm-content .tok-strong .tok-emphasis,
+.editor .cm-content strong em { font-weight: 700; font-style: italic; }
+
+/* Strikethrough */
+.editor .cm-content .tok-strikethrough { text-decoration: line-through; color: #777; }
+
+/* Inline code */
+.editor .cm-content .tok-monospace,
+.editor .cm-content code { 
+  font-family: 'Fira Code', 'Consolas', monospace; 
+  background: #edf2f7; 
+  color: #3182ce;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.9em;
+}
+
+/* Links */
+.editor .cm-content .tok-link { color: #3182ce; text-decoration: underline; cursor: pointer; }
+
+/* KaTeX in editor */
+.editor .cm-content .tok-katex { color: #805ad5; }
+.editor .cm-content .tok-katex-display { color: #805ad5; display: block; margin: 8px 0; }
+
+/* Block quotes */
+.editor .cm-content .tok-quote { 
+  color: #666; 
+  font-style: italic; 
+  border-left: 4px solid #3182ce; 
+  padding-left: 16px; 
+  margin: 0.8em 0;
+  display: block;
+}
+
+/* Hide all markdown markers completely */
+.editor .md-faded-marker { opacity: 0 !important; display: none !important; }
+
+/* Hide Markdown Markers completely */
+.editor .md-faded-marker { opacity: 0 !important; transition: opacity 0.15s ease; pointer-events: auto; cursor: text; }
+.editor .cm-content:hover .md-faded-marker { opacity: 0.4 !important; }
+.editor .md-faded-marker:hover { opacity: 0.8 !important; }
+.editor .cm-line > .md-faded-marker { position: absolute; pointer-events: none; }
+.editor .cm-line:hover > .md-faded-marker { pointer-events: auto; }
 .empty-editor { flex: 1; display: flex; align-items: center; justify-content: center; color: var(--cool-gray); font-size: 14px; }
 
 /* ============================================
@@ -452,7 +544,7 @@ body { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-se
   background: var(--surface);
   border-bottom: 1px solid var(--border-gray);
   flex-shrink: 0;
-  overflow-x: auto;
+  flex-wrap: wrap;
 }
 .format-toolbar::-webkit-scrollbar { height: 0; }
 
@@ -482,6 +574,9 @@ body { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-se
   background: var(--accent-light);
   color: var(--accent);
 }
+
+.format-btn-preview { font-size: 16px; }
+.format-btn-preview.active { background: var(--accent); color: white; }
 
 .format-sep {
   width: 1px;
@@ -649,13 +744,46 @@ body { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-se
 
 /* About Panel */
 .about-panel {
-  background: var(--white); border-radius: 12px; width: 380px; overflow: hidden;
+  background: var(--white); border-radius: 12px; width: 420px; overflow: hidden;
   box-shadow: 0 16px 48px rgba(0,0,0,0.3); border: 1px solid var(--border-gray); text-align: center;
 }
-.about-logo { font-size: 56px; margin: 24px 0 16px; }
+.about-logo { font-size: 56px; margin: 20px 0 12px; }
 .about-title { font-size: 24px; font-weight: 700; color: var(--near-black); margin-bottom: 4px; letter-spacing: -0.02em; }
 .about-version { font-size: 13px; color: var(--cool-gray); margin-bottom: 16px; }
-.about-desc { font-size: 13px; color: var(--cool-gray); line-height: 1.6; margin: 0 24px 20px; padding: 0 16px; }
+.about-ironic {
+  font-size: 13px; color: var(--cool-gray); line-height: 1.7; margin: 0 24px 20px; padding: 16px;
+  background: var(--surface); border-radius: 12px; border: 1px solid var(--border-gray);
+  text-align: left;
+}
+.about-ironic p { margin: 0 0 10px; }
+.about-ironic p:last-child { margin-bottom: 0; }
+.about-tech {
+  display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; padding: 0 24px;
+}
+.about-tech-badge {
+  font-size: 11px; padding: 4px 10px; background: var(--surface); border: 1px solid var(--border-gray);
+  border-radius: 20px; color: var(--cool-gray);
+}
+.about-shortcuts {
+  padding: 0 24px 20px;
+}
+.about-shortcuts-title {
+  font-size: 14px; font-weight: 600; color: var(--near-black); margin-bottom: 12px; text-align: center;
+}
+.about-shortcuts-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+.about-shortcut {
+  display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--surface);
+  border-radius: 6px; border: 1px solid var(--border-gray);
+}
+.about-shortcut kbd {
+  font-size: 11px; font-family: monospace; background: var(--bg-primary); padding: 2px 6px;
+  border-radius: 4px; border: 1px solid var(--border-gray); color: var(--accent);
+}
+.about-shortcut span {
+  font-size: 11px; color: var(--cool-gray);
+}
 .about-links { padding: 0 24px 24px; display: flex; flex-direction: column; gap: 8px; }
 .about-link {
   font-size: 12px; color: var(--accent); text-decoration: none; padding: 8px; border-radius: 8px;

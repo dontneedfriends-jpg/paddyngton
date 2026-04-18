@@ -16,6 +16,7 @@
     "fs:allow-create",
     "fs:allow-remove",
     "updater:default",
+    "shell:allow-open",
     {
       "identifier": "fs:scope",
       "allow": [

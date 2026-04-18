@@ -428,12 +428,19 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
     }).catch(() => {})
     
     const checkForUpdates = async () => {
-      await new Promise(r => setTimeout(r, 5000))
+      await new Promise(r => setTimeout(r, 2000))
       try {
         setState(s => ({ ...s, updateLoading: true }))
-        const update = await check()
-        if (update) {
-          setState(s => ({ ...s, updateAvailable: update.version, updateLoading: false }))
+        const resp = await fetch('https://raw.githubusercontent.com/dontneedfriends-jpg/paddyngton/main/latest.json')
+        if (resp.ok) {
+          const data = await resp.json()
+          const remoteVersion = data.version
+          const localVersion = state.currentVersion
+          if (remoteVersion !== localVersion) {
+            setState(s => ({ ...s, updateAvailable: remoteVersion, updateLoading: false }))
+          } else {
+            setState(s => ({ ...s, updateAvailable: null, updateLoading: false }))
+          }
         } else {
           setState(s => ({ ...s, updateAvailable: null, updateLoading: false }))
         }
@@ -1201,9 +1208,15 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                       <span className="about-update-label">🎉 {t('about.updateAvailable').replace('{version}', state.updateAvailable)}</span>
                       <button className="about-update-btn" onClick={async () => {
                         try {
-                          const update = await check()
-                          if (update) await update.downloadAndInstall()
-                        } catch {}
+                          const resp = await fetch('https://raw.githubusercontent.com/dontneedfriends-jpg/paddyngton/main/latest.json')
+                          const data = await resp.json()
+                          const downloadUrl = data.url
+                          alert('Открытие: ' + downloadUrl)
+                          const { open } = await import('@tauri-apps/plugin-shell')
+                          await open(downloadUrl)
+                        } catch (e) {
+                          alert('Ошибка: ' + e)
+                        }
                       }}>{t('about.updateNow')}</button>
                     </div>
                   )}
@@ -1262,9 +1275,14 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                   </div>
                   <button className="about-update-btn" onClick={async () => {
                     try {
-                      const update = await check()
-                      if (update) await update.downloadAndInstall()
-                    } catch {}
+                      const resp = await fetch('https://raw.githubusercontent.com/dontneedfriends-jpg/paddyngton/main/latest.json')
+                      const data = await resp.json()
+                      const downloadUrl = data.url
+                      const { open } = await import('@tauri-apps/plugin-shell')
+                      await open(downloadUrl)
+                    } catch (e) {
+                      alert('Ошибка: ' + e)
+                    }
                   }}>
                     🔄 {t('about.updateNow')}
                   </button>

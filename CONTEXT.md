@@ -104,15 +104,14 @@ paddyngton/
 
 ### About Panel
 - Modern gradient design with version display
-- Shows current version from built app
 - Checks for updates on startup
-- Displays "You're up to date" or update button
+- Displays "You're up to date" or download button
 - Tech stack badges with hover effects
 - Keyboard shortcuts grid
 
 ### Export
 - **DOCX**: Uses `docx` library + native save dialog + Rust command
-- **PDF**: Uses Rust `printpdf` crate for generation (no JS callbacks issues)
+- **PDF**: Uses Rust `printpdf` crate for generation
 
 ## Data Format
 
@@ -207,16 +206,16 @@ Required fs permissions for file operations:
 - `create_test_book` - creates temp book for testing with `--test` flag
 
 ## Tauri Updater (Auto-Update)
-- Built-in updater plugin checks GitHub Releases for new versions
-- Pubkey configured in `tauri.conf.json`
+- Custom fetch from GitHub Releases instead of Tauri updater plugin
 - Endpoint: `https://github.com/dontneedfriends-jpg/paddyngton/releases/latest/download/latest.json`
+- Uses `shell:allow-open` to launch download URL
 - UI shows update available / "You're up to date" in About panel
-- Users can download and install update with one click
 
 ## CI / GitHub Actions
 - Auto-builds on push to main branch
 - Signs release with `TAURI_SIGNING_PRIVATE_KEY`
 - Creates GitHub Release automatically
+- Uses dynamic version: `0.1.{GITHUB_RUN_NUMBER}`
 - Secrets required:
   - `TAURI_SIGNING_PRIVATE_KEY` - private key content
   - `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` - key password
@@ -233,8 +232,31 @@ app.exe --test
 3. **SVG z-index**: Mind map nodes (z-index: 2) must be above SVG lines (z-index: 1)
 4. **State-based relation selector**: Don't use inputDialog for selecting relation type - use inline dropdown
 5. **Translation keys**: All UI text should use `t('key')` - no hardcoded strings
-6. **relationLabels removed**: Use `t('relations.' + type)` instead
+6. **pdfmake callbacks**: Don't work in Tauri WebView - use Rust printpdf crate instead
 7. **mkdir required**: Always use `mkdir(dir, { recursive: true })` before writing files to new directories
+8. **Button colors**: Use CSS variables (e.g. var(--near-white)) instead of hardcoded white
+
+## Design System: Flat 2.0
+
+### Principles
+- Clean, flat design with subtle shadows
+- Consistent spacing and typography
+- Theme-aware colors via CSS variables
+
+### Components
+- Flat buttons with hover states
+- Input fields with focus rings
+- Panels with subtle borders and shadows
+- Smooth transitions (150ms ease)
+
+### Colors
+- Primary: var(--primary)
+- Secondary: var(--secondary)
+- Background: var(--bg)
+- Surface: var(--surface)
+- Text: var(--text)
+- Border: var(--border)
+- Near-white: var(--near-white) for button text
 
 ## File Templates
 - `context-template.json`: Template for `.context.json`

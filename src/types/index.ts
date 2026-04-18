@@ -160,6 +160,9 @@ export interface AppState {
   showPreview: boolean
   showKanban: boolean
   mindMapZoom: number
+  updateAvailable: string | null
+  updateLoading: boolean
+  currentVersion: string
 }
 
 export interface VersionSnapshot {

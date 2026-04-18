@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::io::{Read, Write};
 use std::path::Path;
+use tauri::Manager;
 
 #[derive(Serialize, Deserialize)]
 pub struct VersionSnapshot {
@@ -41,6 +42,11 @@ fn is_maximized(window: tauri::Window) -> bool {
 #[tauri::command]
 fn set_always_on_top(window: tauri::Window, value: bool) -> Result<(), String> {
     window.set_always_on_top(value).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn get_version() -> String {
+    env!("CARGO_PKG_VERSION").to_string()
 }
 
 #[tauri::command]
@@ -317,6 +323,23 @@ fn save_bear(book_dir: String, bear_path: String) -> Result<(), String> {
 }
 
 #[tauri::command]
+fn create_test_book() -> Result<String, String> {
+    let temp_dir = std::env::temp_dir().join(format!("paddyngton_test_{}", rand_id()));
+    fs::create_dir_all(&temp_dir).map_err(|e| e.to_string())?;
+
+    let book_config = r#"{"title":"Test Book","author":"Test Author","genre":"Novel","bookType":"Novel","description":"","createdAt":"2024-01-01T00:00:00.000Z","chapters":[]}"#;
+    let context = r#"[
+        {"name":"Main Character","type":"character","details":{"Age":"","Gender":"","Occupation":"","Personality":"","Status":"Alive"},"relations":[],"notes":""},
+        {"name":"Setting","type":"place","details":{"Type":"","Location":"","Description":"","Atmosphere":""},"notes":""}
+    ]"#;
+
+    fs::write(temp_dir.join(".book.json"), book_config).map_err(|e| e.to_string())?;
+    fs::write(temp_dir.join(".context.json"), context).map_err(|e| e.to_string())?;
+
+    Ok(temp_dir.to_string_lossy().to_string())
+}
+
+#[tauri::command]
 fn delete_file(path: String) -> Result<(), String> {
     let p = Path::new(&path);
     if p.exists() {
@@ -365,15 +388,25 @@ pub fn run() {
             close_window,
             is_maximized,
             set_always_on_top,
+            get_version,
             get_system_fonts,
             save_version_snapshot,
             list_version_snapshots,
             restore_version_snapshot,
             open_bear,
             save_bear,
+            create_test_book,
             delete_file
         ])
         .setup(|app| {
+            let args: Vec<String> = std::env::args().collect();
+            let test_mode = args.iter().any(|a| a == "--test");
+            if test_mode {
+                if let Some(window) = app.get_webview_window("main") {
+                    let _: Result<(), _> = window.eval("window.__TAURI_INTERNALS__ = window.__TAURI_INTERNALS__ || {}; window.__TAURI_INTERNALS__.testMode = true;");
+                }
+            }
+
             if cfg!(debug_assertions) {
                 let _ = app.handle().plugin(
                     tauri_plugin_log::Builder::default()
@@ -381,6 +414,10 @@ pub fn run() {
                         .build(),
                 );
             }
+
+            let _ = app.handle().plugin(
+                tauri_plugin_updater::Builder::default().build()
+            );
             Ok(())
         })
         .run(tauri::generate_context!())

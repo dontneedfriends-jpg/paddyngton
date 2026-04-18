@@ -166,12 +166,33 @@ npm run tauri build    # Production build
 npm run tauri dev      # Development mode
 ```
 
+## Development Notes
+
+### Running Dev Mode
+1. Run `npm run dev` in one terminal (this starts Vite on port 1420)
+2. In a separate terminal, run `npm run tauri dev` to launch the app
+
+### Permissions (capabilities/default.json)
+Required fs permissions for file operations:
+- `fs:allow-mkdir`
+- `fs:allow-create`
+- `fs:allow-exists`
+- `fs:allow-remove`
+- `$TEMP/**` in fs:scope
+
 ## Tauri Commands (src-tauri/src/lib.rs)
 - `minimize_window`, `maximize_window`, `close_window`, `is_maximized`
 - `set_always_on_top` - for keeping dialogs on top
 - `get_system_fonts`
 - `save_version_snapshot`, `list_version_snapshots`, `restore_version_snapshot`
 - `open_bear`, `save_bear`
+- `create_test_book` - creates temp book for testing with `--test` flag
+
+## Test Mode
+Run app with `--test` flag to auto-create temporary book:
+```bash
+app.exe --test
+```
 
 ## Known Issues / Gotchas
 1. **Modal z-index**: `inputDialog` and `confirmDialog` must be rendered after panels in JSX
@@ -180,6 +201,7 @@ npm run tauri dev      # Development mode
 4. **State-based relation selector**: Don't use inputDialog for selecting relation type - use inline dropdown
 5. **Translation keys**: All UI text should use `t('key')` - no hardcoded strings
 6. **relationLabels removed**: Use `t('relations.' + type)` instead
+7. **mkdir required**: Always use `mkdir(dir, { recursive: true })` before writing files to new directories
 
 ## File Templates
 - `context-template.json`: Template for `.context.json`

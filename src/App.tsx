@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { invoke } from '@tauri-apps/api/core'
+import { check } from '@tauri-apps/plugin-updater'
 import { open, save } from '@tauri-apps/plugin-dialog'
 import { exists, readTextFile, mkdir, writeTextFile } from '@tauri-apps/plugin-fs'
 import Editor from '@uiw/react-codemirror'
@@ -123,6 +124,7 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
     showLinkModal: false, showColorPicker: false, colorPickerType: 'color',
     mindMapConnectGroupFrom: null, mindMapSelectedGroup: null, mindMapDrag: null,
     mindMapPanX: 0, mindMapPanY: 0,
+    updateAvailable: null, updateLoading: false, currentVersion: '0.0.0',
   })
   const [versions, setVersions] = useState<VersionSnapshot[]>([])
   const [snapshotLabel, setSnapshotLabel] = useState('')
@@ -396,9 +398,45 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
   }, [])
 
   useEffect(() => {
+    if (window.__TAURI_INTERNALS__?.testMode) {
+      const initTestBook = async () => {
+        try {
+          const testDir = await invoke<string>('create_test_book')
+          const contextPath = `${testDir}/.context.json`
+          const bookConfigPath = `${testDir}/.book.json`
+          const contextData: ContextEntry[] = JSON.parse(await readTextFile(contextPath))
+          const bookConfig: BookConfig | null = JSON.parse(await readTextFile(bookConfigPath))
+          const groups = extractGroups(contextData)
+          loadBook(testDir, contextData, groups, bookConfig)
+        } catch {}
+      }
+      initTestBook()
+    }
+  }, [])
+
+  useEffect(() => {
+    invoke<string>('get_version').then(v => setState(s => ({ ...s, currentVersion: v }))).catch(() => {})
     invoke<string[]>('get_system_fonts').then(fonts => {
       setSystemFonts(fonts.sort((a, b) => a.localeCompare(b)))
     }).catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    const checkForUpdates = async () => {
+      try {
+        setState(s => ({ ...s, updateLoading: true }))
+        const update = await check()
+        if (update) {
+          setState(s => ({ ...s, updateAvailable: update.version, updateLoading: false }))
+        } else {
+          setState(s => ({ ...s, updateAvailable: null, updateLoading: false }))
+        }
+      } catch (e) {
+        console.log('Update check skipped:', e)
+        setState(s => ({ ...s, updateAvailable: null, updateLoading: false }))
+      }
+    }
+    checkForUpdates()
   }, [])
 
   useEffect(() => {
@@ -1107,22 +1145,46 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
           <div className="about-panel" onClick={e => e.stopPropagation()}>
             <div className="panel-header"><h2>{t('about.title')}</h2><button className="btn-icon" onClick={() => setState(s => ({ ...s, showAbout: false }))}>×</button></div>
             <div>
-              <div className="about-logo">📖</div>
-              <div className="about-title">Paddyngton</div>
-              <div className="about-version">{t('about.version')}</div>
-              <div className="about-ironic">
-                <p>🎯 <strong>{t('about.ironic1')}</strong></p>
-                <p>{t('about.ironic2')}</p>
-                <p>{t('about.ironic3')}</p>
-                <p>💡 {t('about.ironic4')}</p>
+              <div className="about-header">
+                <div className="about-logo">📖</div>
+                <div className="about-app-name">Paddyngton</div>
+                <div className="about-version">{state.currentVersion}</div>
               </div>
-              <div className="about-tech">
-                <span className="about-tech-badge">Tauri 2.0</span>
-                <span className="about-tech-badge">React 19</span>
-                <span className="about-tech-badge">CodeMirror 6</span>
+              
+              {state.updateLoading && (
+                <div className="about-update-checking">{t('about.checkingUpdate')}</div>
+              )}
+              
+              {state.updateAvailable && !state.updateLoading && (
+                <div className="about-update-box">
+                  <div className="about-update-info">
+                    <span className="about-update-label">🎉 {t('about.updateAvailable').replace('{version}', state.updateAvailable)}</span>
+                  </div>
+                  <button className="about-update-btn" onClick={async () => {
+                    try {
+                      const update = await check()
+                      if (update) await update.downloadAndInstall()
+                    } catch {}
+                  }}>
+                    🔄 {t('about.updateNow')}
+                  </button>
+                </div>
+              )}
+
+              {!state.updateAvailable && !state.updateLoading && (
+                <div className="about-up-to-date">✓ {t('about.upToDate')}</div>
+              )}
+              
+              <div className="about-tagline">{t('about.tagline')}</div>
+              
+              <div className="about-tech-stack">
+                <div className="about-tech-item">Tauri 2.0</div>
+                <div className="about-tech-item">React 19</div>
+                <div className="about-tech-item">CodeMirror 6</div>
               </div>
+              
               <div className="about-shortcuts">
-                <div className="about-shortcuts-title">⌨️ {t('about.shortcuts')}</div>
+                <div className="about-shortcuts-title">{t('about.shortcuts')}</div>
                 <div className="about-shortcuts-grid">
                   <div className="about-shortcut"><kbd>Ctrl+K</kbd><span>{t('about.commands')}</span></div>
                   <div className="about-shortcut"><kbd>Ctrl+N</kbd><span>{t('about.newChapter')}</span></div>
@@ -1130,10 +1192,8 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
                   <div className="about-shortcut"><kbd>Ctrl+S</kbd><span>{t('about.save')}</span></div>
                   <div className="about-shortcut"><kbd>Ctrl+B</kbd><span>{t('about.sidebar')}</span></div>
                   <div className="about-shortcut"><kbd>Ctrl+T</kbd><span>{t('about.theme')}</span></div>
-                  <div className="about-shortcut"><kbd>Ctrl+Shift+F</kbd><span>{t('about.search')}</span></div>
                   <div className="about-shortcut"><kbd>Ctrl+,</kbd><span>{t('about.settings')}</span></div>
                   <div className="about-shortcut"><kbd>Ctrl+Z/Y</kbd><span>{t('about.undoRedo')}</span></div>
-                  <div className="about-shortcut"><kbd>Ctrl+C/V/X</kbd><span>{t('about.copyPaste')}</span></div>
                 </div>
               </div>
             </div>

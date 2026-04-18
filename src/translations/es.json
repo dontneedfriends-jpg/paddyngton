@@ -162,7 +162,12 @@
     "search": "Buscar",
     "settings": "Configuración",
     "undoRedo": "Deshacer/Rehacer",
-    "copyPaste": "Copiar/Pegar/Cortar"
+    "copyPaste": "Copiar/Pegar/Cortar",
+    "checkingUpdate": "Buscando actualizaciones...",
+    "updateAvailable": "Versión {version} disponible",
+    "updateNow": "Actualizar",
+    "upToDate": "¡Tienes la última versión!",
+    "tagline": "Porque incluso los pandas necesitan un hogar."
   },
   "format": {
     "bold": "Negrita",

@@ -744,46 +744,86 @@ body { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-se
 
 /* About Panel */
 .about-panel {
-  background: var(--white); border-radius: 12px; width: 420px; overflow: hidden;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.3); border: 1px solid var(--border-gray); text-align: center;
+  background: linear-gradient(135deg, var(--surface) 0%, var(--bg-primary) 100%);
+  border-radius: 16px; width: 400px; overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.25); border: 1px solid var(--border-gray);
+  text-align: center;
 }
-.about-logo { font-size: 56px; margin: 20px 0 12px; }
-.about-title { font-size: 24px; font-weight: 700; color: var(--near-black); margin-bottom: 4px; letter-spacing: -0.02em; }
-.about-version { font-size: 13px; color: var(--cool-gray); margin-bottom: 16px; }
-.about-ironic {
-  font-size: 13px; color: var(--cool-gray); line-height: 1.7; margin: 0 24px 20px; padding: 16px;
-  background: var(--surface); border-radius: 12px; border: 1px solid var(--border-gray);
-  text-align: left;
+.about-header { padding: 28px 24px 16px; }
+.about-logo { font-size: 64px; margin-bottom: 8px; }
+.about-app-name {
+  font-size: 28px; font-weight: 800; color: var(--near-black);
+  letter-spacing: -0.03em; margin-bottom: 4px;
 }
-.about-ironic p { margin: 0 0 10px; }
-.about-ironic p:last-child { margin-bottom: 0; }
-.about-tech {
-  display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; padding: 0 24px;
+.about-version {
+  font-size: 14px; font-weight: 500; color: var(--accent);
+  background: var(--accent); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
-.about-tech-badge {
-  font-size: 11px; padding: 4px 10px; background: var(--surface); border: 1px solid var(--border-gray);
+
+.about-update-checking {
+  font-size: 12px; color: var(--cool-gray); padding: 8px 16px;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+.about-update-box {
+  background: var(--white); border: 1px solid var(--accent);
+  border-radius: 12px; margin: 0 24px 16px; padding: 12px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.about-update-info { display: flex; align-items: center; gap: 8px; }
+.about-update-label { font-size: 13px; font-weight: 600; color: var(--accent); }
+.about-update-btn {
+  background: var(--accent); color: white; border: none; padding: 8px 16px;
+  border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;
+  transition: all 0.15s;
+}
+.about-update-btn:hover { filter: brightness(1.1); transform: scale(1.02); }
+
+.about-up-to-date {
+  font-size: 13px; color: #38a169; margin: 0 24px 16px;
+  background: rgba(56, 161, 105, 0.1); padding: 10px 16px;
+  border-radius: 8px; display: inline-block;
+}
+
+.about-tagline {
+  font-size: 15px; color: var(--cool-gray); margin: 0 24px 20px;
+  font-style: italic;
+}
+
+.about-tech-stack {
+  display: flex; justify-content: center; gap: 12px; margin-bottom: 24px; padding: 0 24px;
+}
+.about-tech-item {
+  font-size: 11px; font-weight: 600; padding: 6px 14px;
+  background: var(--white); border: 1px solid var(--border-gray);
   border-radius: 20px; color: var(--cool-gray);
+  transition: all 0.2s;
 }
-.about-shortcuts {
-  padding: 0 24px 20px;
-}
+.about-tech-item:hover { border-color: var(--accent); color: var(--accent); }
+
+.about-shortcuts { padding: 0 24px 24px; }
 .about-shortcuts-title {
-  font-size: 14px; font-weight: 600; color: var(--near-black); margin-bottom: 12px; text-align: center;
+  font-size: 13px; font-weight: 600; color: var(--cool-gray);
+  margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;
 }
 .about-shortcuts-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
 }
 .about-shortcut {
-  display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--surface);
-  border-radius: 6px; border: 1px solid var(--border-gray);
+  display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+  background: var(--white); border-radius: 8px; border: 1px solid var(--border-gray);
+  transition: all 0.15s;
 }
+.about-shortcut:hover { border-color: var(--accent); }
 .about-shortcut kbd {
-  font-size: 11px; font-family: monospace; background: var(--bg-primary); padding: 2px 6px;
-  border-radius: 4px; border: 1px solid var(--border-gray); color: var(--accent);
+  font-size: 10px; font-family: monospace; background: var(--surface);
+  padding: 3px 7px; border-radius: 4px; border: 1px solid var(--border-gray);
+  color: var(--accent); font-weight: 600;
 }
-.about-shortcut span {
-  font-size: 11px; color: var(--cool-gray);
-}
+.about-shortcut span { font-size: 11px; color: var(--cool-gray); }
+
 .about-links { padding: 0 24px 24px; display: flex; flex-direction: column; gap: 8px; }
 .about-link {
   font-size: 12px; color: var(--accent); text-decoration: none; padding: 8px; border-radius: 8px;

@@ -163,7 +163,12 @@
     "search": "Search",
     "settings": "Settings",
     "undoRedo": "Undo/Redo",
-    "copyPaste": "Copy/Paste/Cut"
+    "copyPaste": "Copy/Paste/Cut",
+    "checkingUpdate": "Checking for updates...",
+    "updateAvailable": "Version {version} available",
+    "updateNow": "Update",
+    "upToDate": "You're up to date!",
+    "tagline": "Because even pandas need a home."
   },
   "format": {
     "bold": "Bold",

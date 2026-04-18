@@ -162,7 +162,12 @@
     "search": "Поиск",
     "settings": "Настройки",
     "undoRedo": "Отмена/Повтор",
-    "copyPaste": "Копировать/Вставить/Вырезать"
+    "copyPaste": "Копировать/Вставить/Вырезать",
+    "checkingUpdate": "Проверка обновлений...",
+    "updateAvailable": "Доступна версия {version}",
+    "updateNow": "Обновить",
+    "upToDate": "У вас latest версия!",
+    "tagline": "Потому что даже пандам нужен дом."
   },
   "format": {
     "bold": "Жирный",

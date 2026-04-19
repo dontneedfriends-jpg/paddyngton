@@ -204,12 +204,11 @@ export const TimelinePanel: React.FC<TimelinePanelProps> = ({
                     {groupedByDate[date][0].dateNote || date}
                     {groupedByDate[date][0].endDate && <div style={{ fontSize: '10px', fontWeight: 400, color: 'var(--cool-gray)' }}>→ {groupedByDate[date][0].endDate}</div>}
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'flex-start' }}>
                     {groupedByDate[date].map((entry, idx) => (
-                      <div key={entry.id} style={{ position: 'relative', display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+                      <div key={entry.id} style={{ position: 'relative', flex: '1 1 calc(50% - 6px)', minWidth: '200px', maxWidth: '400px' }}>
                         <div style={{ position: 'absolute', left: '-30px', top: '14px', width: '12px', height: '12px', borderRadius: '50%', background: entry.color, border: '3px solid var(--bg-primary)', zIndex: 1, boxShadow: '0 0 0 2px var(--border-gray)' }} />
                         <div className="timeline-card" style={{
-                          flex: 1,
                           borderLeftColor: entry.color || 'var(--accent)',
                           background: 'var(--bg-primary)',
                           border: '1px solid var(--border-gray)',

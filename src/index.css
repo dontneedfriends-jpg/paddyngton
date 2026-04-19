@@ -1480,7 +1480,7 @@ color: var(--accent);
 
 /* Wiki Panel */
 .wiki-panel {
-  background: var(--white); border-radius: 12px; width: 700px; max-height: 80vh; overflow: hidden;
+  background: var(--white); border-radius: 12px; width: 800px; max-height: 80vh; overflow: hidden;
   box-shadow: 0 16px 48px rgba(0,0,0,0.3); border: 1px solid var(--border-gray); display: flex; flex-direction: column;
 }
 .wiki-body { display: flex; flex: 1; overflow: hidden; }
@@ -1506,6 +1506,13 @@ color: var(--accent);
 .wiki-cross-refs h4 { font-size: 12px; font-weight: 600; color: var(--cool-gray); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
 .wiki-ref-item { padding: 6px 10px; font-size: 13px; border-radius: 6px; cursor: pointer; color: var(--accent); background: var(--surface); display: inline-flex; align-items: center; gap: 6px; margin: 0 4px 4px 0; transition: all 0.15s; }
 .wiki-ref-item:hover { background: var(--purple-subtle); }
+
+.wiki-accordion { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border-gray); border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; transition: all 0.15s; }
+.wiki-accordion:hover { background: var(--bg-secondary); border-color: var(--accent); }
+.wiki-accordion.open { background: var(--accent); color: var(--near-white); border-color: var(--accent); }
+.wiki-accordion-icon { font-size: 10px; width: 12px; }
+.wiki-accordion-content { padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border-gray); border-top: none; border-radius: 0 0 8px 8px; margin-bottom: 8px; }
+
 .wiki-edit-form { display: flex; flex-direction: column; gap: 12px; }
 .wiki-group-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-gray); margin-bottom: 8px; }
 .wiki-group-name { font-size: 14px; font-weight: 600; color: var(--near-black); }

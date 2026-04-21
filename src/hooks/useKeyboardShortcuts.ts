@@ -13,6 +13,9 @@ interface ShortcutActions {
 
 export function useKeyboardShortcuts(actions: ShortcutActions) {
   const inputRef = useRef<HTMLInputElement | null>(null)
+  const showCommandPalette = useUIStore((s) => s.showCommandPalette)
+  const actionsRef = useRef(actions)
+  actionsRef.current = actions
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -40,13 +43,13 @@ export function useKeyboardShortcuts(actions: ShortcutActions) {
           })
         } else if (e.code === 'KeyO' && e.shiftKey) {
           e.preventDefault()
-          actions.createNewBook()
+          actionsRef.current.createNewBook()
         } else if (e.code === 'KeyS') {
           e.preventDefault()
-          actions.saveChapter()
+          actionsRef.current.saveChapter()
         } else if (e.code === 'KeyN' && !e.shiftKey) {
           e.preventDefault()
-          actions.addChapter()
+          actionsRef.current.addChapter()
         } else if (e.code === 'KeyB') {
           e.preventDefault()
           useUIStore.getState().set({ sidebarOpen: !ui.sidebarOpen })
@@ -61,13 +64,13 @@ export function useKeyboardShortcuts(actions: ShortcutActions) {
           useUIStore.getState().set({ showSettings: true })
         } else if (e.code === 'KeyZ' && !e.shiftKey) {
           e.preventDefault()
-          if (actions.editorViewRef.current) undo(actions.editorViewRef.current)
+          if (actionsRef.current.editorViewRef.current) undo(actionsRef.current.editorViewRef.current)
         } else if (
           e.code === 'KeyY' ||
           (e.code === 'KeyZ' && e.shiftKey)
         ) {
           e.preventDefault()
-          if (actions.editorViewRef.current) redo(actions.editorViewRef.current)
+          if (actionsRef.current.editorViewRef.current) redo(actionsRef.current.editorViewRef.current)
         } else if (e.code === 'KeyC' && !inInput) {
           e.preventDefault()
           document.execCommand('copy')
@@ -86,12 +89,11 @@ export function useKeyboardShortcuts(actions: ShortcutActions) {
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [actions])
+  }, [])
 
   useEffect(() => {
-    const showCommandPalette = useUIStore.getState().showCommandPalette
     if (showCommandPalette && inputRef.current) inputRef.current.focus()
-  }, [useUIStore.getState().showCommandPalette])
+  }, [showCommandPalette])
 
   return { inputRef }
 }

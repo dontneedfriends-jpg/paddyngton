@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react'
+import { Calendar, Plus, User, Pencil, Trash2 } from 'lucide-react'
 import { TimelineEntry, ContextEntry } from '../../types'
 
 interface TimelinePanelProps {
@@ -104,9 +105,9 @@ export const TimelinePanel: React.FC<TimelinePanelProps> = ({
     <div className="modal-overlay" onClick={() => { onClose(); setTimelineForm(null) }}>
       <div className="timeline-panel" onClick={e => e.stopPropagation()} style={{ width: '95vw', maxWidth: '1200px' }}>
         <div className="panel-header">
-          <h2>📅 {t('timeline.title')}</h2>
+          <h2><Calendar size={16} /> {t('timeline.title')}</h2>
           <div className="panel-header-actions">
-            <button className="btn btn-sm" onClick={handleAddEvent}>➕ {t('timeline.addEvent')}</button>
+            <button className="btn btn-sm" onClick={handleAddEvent}><Plus size={14} /> {t('timeline.addEvent')}</button>
             <button className="btn-icon" onClick={() => { onClose(); setTimelineForm(null) }}>×</button>
           </div>
         </div>
@@ -160,7 +161,7 @@ export const TimelinePanel: React.FC<TimelinePanelProps> = ({
                               setContextSearch('')
                               setShowCharDropdown(false)
                             }}>
-                            <span>👤</span>
+                            <User size={12} />
                             <span>{c.name}</span>
                             {c.group && <span style={{ fontSize: '10px', color: 'var(--cool-gray)' }}>({c.group})</span>}
                           </div>
@@ -173,7 +174,7 @@ export const TimelinePanel: React.FC<TimelinePanelProps> = ({
                       {timelineForm.characterIds.map(id => (
                         <span key={id} style={{ padding: '2px 8px', background: '#3182ce20', color: '#3182ce', borderRadius: '12px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
                           onClick={() => onOpenWiki && onOpenWiki(contextData.find(c => c.name === id)!)}>
-                          👤 {id}
+                          <User size={10} /> {id}
                           <button style={{ background: 'none', border: 'none', color: '#3182ce', cursor: 'pointer', padding: 0, fontSize: '14px', lineHeight: 1 }} onClick={(e) => { e.stopPropagation(); setTimelineForm(f => f ? { ...f, characterIds: f.characterIds.filter(c => c !== id) } : null) }}>×</button>
                         </span>
                       ))}
@@ -225,7 +226,7 @@ export const TimelinePanel: React.FC<TimelinePanelProps> = ({
                                   return ctx ? (
                                     <span key={id} onClick={() => onOpenWiki && onOpenWiki(ctx)}
                                       style={{ padding: '2px 8px', background: '#3182ce20', color: '#3182ce', borderRadius: '12px', fontSize: '11px', cursor: 'pointer' }}>
-                                      👤 {ctx.name}
+                                      <User size={10} /> {ctx.name}
                                     </span>
                                   ) : null
                                 })}
@@ -234,8 +235,8 @@ export const TimelinePanel: React.FC<TimelinePanelProps> = ({
                           </div>
                           {entry.notes && <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '6px' }}>{entry.notes}</div>}
                           <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
-                            <button className="btn btn-sm" style={{ padding: '2px 8px', fontSize: '11px' }} onClick={() => handleEditEvent(entry)}>✏️</button>
-                            <button className="btn btn-sm" style={{ padding: '2px 8px', fontSize: '11px' }} onClick={() => handleDeleteEvent(entry.id)}>🗑️</button>
+                            <button className="btn btn-sm" style={{ padding: '2px 8px', fontSize: '11px' }} onClick={() => handleEditEvent(entry)}><Pencil size={12} /></button>
+                            <button className="btn btn-sm" style={{ padding: '2px 8px', fontSize: '11px' }} onClick={() => handleDeleteEvent(entry.id)}><Trash2 size={12} /></button>
                           </div>
                         </div>
                       </div>

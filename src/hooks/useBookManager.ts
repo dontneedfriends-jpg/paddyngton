@@ -346,7 +346,7 @@ export function useBookManager(t: (key: string) => string) {
     let path = activeChapter.path
     if (!path) path = `${dir}/${activeChapter.name}.md`
     try {
-      await saveChapterFile(dir, activeChapter, activeBook.bookConfig)
+      const newBookConfig = await saveChapterFile(dir, activeChapter, activeBook.bookConfig)
       const newChapters = chapters.map((c) =>
         c.id === activeChapter.id
           ? { ...c, path: path ?? null, isModified: false }
@@ -354,7 +354,7 @@ export function useBookManager(t: (key: string) => string) {
       )
       updateActiveBook({
         chapters: newChapters,
-        bookConfig: activeBook.bookConfig,
+        bookConfig: newBookConfig,
       })
     } catch (err) {
       console.error('Error saving chapter:', err)

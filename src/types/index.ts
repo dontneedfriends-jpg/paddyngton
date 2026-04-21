@@ -206,12 +206,12 @@ export const THEME_LABELS: Record<ThemeName, string> = {
 }
 
 export const THEME_ICONS: Record<ThemeName, string> = {
-  galaxy: '🌌',
-  aurora: '🌿',
-  forest: '🌲',
-  obsidian: '◼️',
-  neon: '💡',
-  retro: '📺',
+  galaxy: '✦',
+  aurora: '❋',
+  forest: 'T',
+  obsidian: '◼',
+  neon: '⚡',
+  retro: 'Tv',
   monochrome: '◑',
 }
 

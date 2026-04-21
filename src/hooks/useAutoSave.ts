@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { invoke } from '@tauri-apps/api/core'
 import { VersionSnapshot } from '../types'
 import { useBookStore } from '../store/useBookStore'
@@ -13,7 +13,6 @@ export function useAutoSave() {
   })
   const settings = useSettingsStore((s) => s.settings)
   const showToast = useUIStore((s) => s.showToast)
-  const setVersions = useBookStore((s) => s.updateActiveBook)
 
   useEffect(() => {
     if (!activeBook || settings.autoSnapshotMinutes <= 0) return
@@ -21,7 +20,7 @@ export function useAutoSave() {
       ;(async () => {
         await saveAllBookData(activeBook)
         try {
-          const snap = await invoke<VersionSnapshot>('save_version_snapshot', {
+          await invoke<VersionSnapshot>('save_version_snapshot', {
             bookDir: activeBook.dir,
             label: `Auto-save ${new Date().toLocaleString()}`,
           })

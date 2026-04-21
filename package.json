@@ -30,6 +30,7 @@
     "codemirror": "^6.0.1",
     "docx": "^9.6.1",
     "katex": "^0.16.45",
+    "lucide-react": "^1.8.0",
     "marked": "^18.0.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",

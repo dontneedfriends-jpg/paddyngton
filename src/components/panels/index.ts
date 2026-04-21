@@ -1,1 +1,7 @@
 export { TimelinePanel } from './TimelinePanel'
+export { SearchPanel } from './SearchPanel'
+export { NotesPanel } from './NotesPanel'
+export { WorldPanel } from './WorldPanel'
+export { KanbanPanel } from './KanbanPanel'
+export { SettingsPanel } from './SettingsPanel'
+export { ContextEditor } from './ContextEditor'

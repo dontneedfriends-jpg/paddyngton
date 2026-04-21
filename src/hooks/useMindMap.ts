@@ -1,7 +1,6 @@
 import { useCallback, useRef } from 'react'
 import { useBookStore } from '../store/useBookStore'
 import { useUIStore } from '../store/useUIStore'
-import { ContextEntry } from '../types'
 
 interface DragStart {
   x: number
@@ -32,12 +31,10 @@ export function useMindMap() {
     return s.openBooks.find((b) => b.id === id) || null
   })
   const updateActiveBook = useBookStore((s) => s.updateActiveBook)
-  const ui = useUIStore((s) => ({
-    mindMapZoom: s.mindMapZoom,
-    mindMapPanX: s.mindMapPanX,
-    mindMapPanY: s.mindMapPanY,
-    mindMapConnectFrom: s.mindMapConnectFrom,
-  }))
+  const mindMapZoom = useUIStore((s) => s.mindMapZoom)
+  const mindMapPanX = useUIStore((s) => s.mindMapPanX)
+  const mindMapPanY = useUIStore((s) => s.mindMapPanY)
+  const mindMapConnectFrom = useUIStore((s) => s.mindMapConnectFrom)
 
   const contextData = activeBook?.contextData || []
 
@@ -51,12 +48,12 @@ export function useMindMap() {
         const centerX = rect.width / 2
         const centerY = rect.height / 2
         const x =
-          (e.clientX - rect.left - centerX - ui.mindMapPanX) /
-            ui.mindMapZoom +
+          (e.clientX - rect.left - centerX - mindMapPanX) /
+            mindMapZoom +
           420
         const y =
-          (e.clientY - rect.top - centerY - ui.mindMapPanY) /
-            ui.mindMapZoom +
+          (e.clientY - rect.top - centerY - mindMapPanY) /
+            mindMapZoom +
           230
         if (!isFinite(x) || !isFinite(y)) return { x: 0, y: 0 }
         return { x, y }
@@ -64,14 +61,14 @@ export function useMindMap() {
         return { x: 0, y: 0 }
       }
     },
-    [ui.mindMapZoom, ui.mindMapPanX, ui.mindMapPanY]
+    [mindMapZoom, mindMapPanX, mindMapPanY]
   )
 
   const handleMindMapMouseDown = useCallback(
     (e: React.MouseEvent, entryName: string) => {
       e.stopPropagation()
       if (e.button === 1) return
-      if (ui.mindMapConnectFrom) return
+      if (mindMapConnectFrom) return
       const existing = contextData.find((c) => c.name === entryName)
       const startX = existing?._x ?? 420
       const startY = existing?._y ?? 230
@@ -80,20 +77,20 @@ export function useMindMap() {
       mindMapDragCursorStart.current = {
         x: coords.x,
         y: coords.y,
-        zoom: ui.mindMapZoom,
-        panX: ui.mindMapPanX,
-        panY: ui.mindMapPanY,
+        zoom: mindMapZoom,
+        panX: mindMapPanX,
+        panY: mindMapPanY,
       }
       mindMapDragRef.current = entryName
       mindMapPanRef.current = null
       useUIStore.getState().set({ mindMapDrag: entryName })
     },
-    [ui.mindMapConnectFrom, ui.mindMapZoom, ui.mindMapPanX, ui.mindMapPanY, contextData, getCanvasCoords]
+    [mindMapConnectFrom, mindMapZoom, mindMapPanX, mindMapPanY, contextData, getCanvasCoords]
   )
 
   const handleMindMapCanvasMouseDown = useCallback(
     (e: React.MouseEvent) => {
-      if (ui.mindMapConnectFrom) return
+      if (mindMapConnectFrom) return
       if (e.button === 1) return
       if (mindMapDragRef.current) return
       mindMapDragRef.current = null
@@ -101,15 +98,15 @@ export function useMindMap() {
       mindMapDragEntryStart.current = null
       if (e.button === 0) {
         mindMapPanStart.current = {
-          panX: ui.mindMapPanX,
-          panY: ui.mindMapPanY,
+          panX: mindMapPanX,
+          panY: mindMapPanY,
           cursorX: e.clientX,
           cursorY: e.clientY,
         }
         mindMapPanRef.current = 'panning'
       }
     },
-    [ui.mindMapConnectFrom, ui.mindMapPanX, ui.mindMapPanY]
+    [mindMapConnectFrom, mindMapPanX, mindMapPanY]
   )
 
   const handleMindMapMouseMove = useCallback(

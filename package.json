@@ -13,14 +13,10 @@
   },
   "dependencies": {
     "@codemirror/commands": "^6.10.3",
-    "@codemirror/lang-go": "^6.0.1",
     "@codemirror/lang-javascript": "^6.2.3",
-    "@codemirror/lang-python": "^6.2.1",
-    "@codemirror/lang-rust": "^6.0.1",
     "@codemirror/language": "^6.10.8",
     "@codemirror/search": "^6.5.10",
     "@codemirror/state": "^6.6.0",
-    "@codemirror/theme-one-dark": "^6.1.2",
     "@codemirror/view": "^6.41.0",
     "@lezer/highlight": "^1.2.1",
     "@lezer/markdown": "^1.6.3",
@@ -33,16 +29,11 @@
     "@uiw/react-codemirror": "^4.23.10",
     "codemirror": "^6.0.1",
     "docx": "^9.6.1",
-    "file-saver": "^2.0.5",
-    "jspdf": "^4.2.1",
     "katex": "^0.16.45",
     "marked": "^18.0.1",
-    "pdfkit": "^0.18.0",
-    "pdfmake": "^0.3.7",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
-    "react-markdown": "^10.1.0",
-    "remark-gfm": "^4.0.1"
+    "zustand": "^5.0.12"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.10.1",

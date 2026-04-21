@@ -18,6 +18,8 @@ import { Toast, ConfirmDialog, InputDialog } from './components/dialogs'
 import { TimelinePanel } from './components/panels'
 import { FORMAT_BUTTONS, MARKER_CLOSERS } from './constants'
 import { loadSettings, saveSettingsToStorage } from './hooks/useSettings'
+import { renderMarkdown } from './lib/markdownRender'
+import { extractGroups, findContextEntry, getWordAtPos } from './lib/contextHelpers'
 import {
   type ThemeName,
   type Chapter,
@@ -358,18 +360,6 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
     view.focus()
   }
 
-  const getWordAtPos = (doc: string, pos: number): string => {
-    let start = pos, end = pos
-    while (start > 0 && /[\w\u0400-\u04FF]/.test(doc[start - 1])) start--
-    while (end < doc.length && /[\w\u0400-\u04FF]/.test(doc[end])) end++
-    return doc.slice(start, end)
-  }
-
-  const findContextEntry = (word: string): ContextEntry | null => {
-    const lower = word.toLowerCase()
-    return contextData.find(c => c.name.toLowerCase() === lower) || null
-  }
-
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!activeChapter || contextData.length === 0 || !editorViewRef.current) return
     if (tooltipTimeout.current) { clearTimeout(tooltipTimeout.current); tooltipTimeout.current = null }
@@ -381,7 +371,7 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
       const doc = view.state.doc.toString()
       const word = getWordAtPos(doc, pos)
       if (word.length > 2) {
-        const entry = findContextEntry(word)
+        const entry = findContextEntry(word, contextData)
         if (entry) { setState(s => ({ ...s, tooltip: { ...entry, x: e.clientX, y: e.clientY } })); return }
       }
       setState(s => ({ ...s, tooltip: null }))
@@ -406,7 +396,7 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
           const bookConfigPath = `${testDir}/.book.json`
           const contextData: ContextEntry[] = JSON.parse(await readTextFile(contextPath))
           const bookConfig: BookConfig | null = JSON.parse(await readTextFile(bookConfigPath))
-          const groups = extractGroups(contextData)
+          const groups = extractGroupsFn(contextData)
           loadBook(testDir, contextData, groups, bookConfig)
         } catch {}
       }
@@ -414,11 +404,34 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
     }
   }, [])
 
-  useEffect(() => {
+useEffect(() => {
     invoke<string>('get_version').then(v => setState(s => ({ ...s, currentVersion: v }))).catch(() => {})
     invoke<string[]>('get_system_fonts').then(fonts => {
       setSystemFonts(fonts.sort((a, b) => a.localeCompare(b)))
     }).catch(() => {})
+
+    const checkForUpdates = async () => {
+      await new Promise(r => setTimeout(r, 2000))
+      try {
+        setState(s => ({ ...s, updateLoading: true }))
+        const resp = await fetch('https://raw.githubusercontent.com/dontneedfriends-jpg/paddyngton/main/latest.json')
+        if (resp.ok) {
+          const data = await resp.json()
+          const remoteVersion = data.version
+          const localVersion = state.currentVersion
+          if (remoteVersion !== localVersion) {
+            setState(s => ({ ...s, updateAvailable: remoteVersion, updateLoading: false }))
+          } else {
+            setState(s => ({ ...s, updateAvailable: null, updateLoading: false }))
+          }
+        } else {
+          setState(s => ({ ...s, updateAvailable: null, updateLoading: false }))
+        }
+      } catch {
+        setState(s => ({ ...s, updateAvailable: null, updateLoading: false }))
+      }
+    }
+    checkForUpdates()
   }, [])
 
   useEffect(() => {
@@ -573,7 +586,7 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
       let bookConfigLoaded: BookConfig | null = null
       if (await exists(`${extractedDir}/.context.json`)) contextData = JSON.parse(await readTextFile(`${extractedDir}/.context.json`))
       if (await exists(`${extractedDir}/.book.json`)) bookConfigLoaded = JSON.parse(await readTextFile(`${extractedDir}/.book.json`))
-      const groups = extractGroups(contextData)
+      const groups = extractGroupsFn(contextData)
       loadBook(extractedDir, contextData, groups, bookConfigLoaded)
     } catch (err) { console.error('Error creating bear book:', err) }
   }
@@ -592,7 +605,7 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
       const bookConfigPath = `${dir}/.book.json`
       if (await exists(contextPath)) contextData = JSON.parse(await readTextFile(contextPath))
       if (await exists(bookConfigPath)) bookConfig = JSON.parse(await readTextFile(bookConfigPath))
-      const groups = extractGroups(contextData)
+      const groups = extractGroupsFn(contextData)
       loadBook(dir, contextData, groups, bookConfig)
     } catch (err) { console.error('Error opening book:', err) }
   }
@@ -612,7 +625,7 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
       const bookConfigPath = `${tempDir}/.book.json`
       if (await exists(contextPath)) contextData = JSON.parse(await readTextFile(contextPath))
       if (await exists(bookConfigPath)) bookConfig = JSON.parse(await readTextFile(bookConfigPath))
-      const groups = extractGroups(contextData)
+      const groups = extractGroupsFn(contextData)
       loadBook(tempDir, contextData, groups, bookConfig)
     } catch (err) { console.error('Error opening .bear file:', err) }
   }
@@ -693,14 +706,8 @@ const exportBook = async (format: 'docx' | 'pdf') => {
     }
   }
 
-  const extractGroups = (data: ContextEntry[]): ContextGroup[] => {
-    const seen = new Set<string>()
-    const groups: ContextGroup[] = []
-    for (const entry of data) {
-      const g = entry.group || t('context.noGroup')
-      if (!seen.has(g)) { seen.add(g); groups.push({ name: g, type: entry.type }) }
-    }
-    return groups
+  const extractGroupsFn = (data: ContextEntry[]): ContextGroup[] => {
+    return extractGroups(data, t('context.noGroup'))
   }
 
   const loadBook = async (dir: string, contextData: ContextEntry[], groups: ContextGroup[], bookConfig: BookConfig | null) => {
@@ -815,7 +822,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
     if (!activeBook) return
     try {
       await writeTextFile(`${activeBook.dir}/.context.json`, JSON.stringify(contextData, null, 2))
-      updateActiveBook({ contextGroups: extractGroups(contextData) })
+      updateActiveBook({ contextGroups: extractGroupsFn(contextData) })
     } catch (err) { console.error('Error saving context:', err) }
   }
 
@@ -910,7 +917,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
         const bookConfigPath = `${bookDir}/.book.json`
         if (await exists(contextPath)) contextData = JSON.parse(await readTextFile(contextPath))
         if (await exists(bookConfigPath)) bookConfig = JSON.parse(await readTextFile(bookConfigPath))
-        const groups = extractGroups(contextData)
+        const groups = extractGroupsFn(contextData)
         loadBook(bookDir, contextData, groups, bookConfig)
         showToast('Version restored', 'success')
       } catch (err) { console.error('Error restoring snapshot:', err); showToast('Failed to restore version', 'error') }
@@ -1043,21 +1050,6 @@ const exportBook = async (format: 'docx' | 'pdf') => {
   const handleClose = () => invoke('close_window')
 
   const fontCss = settings.fontFamily ? `'${settings.fontFamily}', sans-serif` : "'IBM Plex Sans', sans-serif"
-
-  const renderMarkdown = (text: string): string => {
-    try {
-      let html = marked.parse(text, { gfm: true, breaks: true }) as string
-      html = html.replace(/\$\$((?:[^$]|\$(?!\$))+)\$\$/g, (_, tex) => {
-        try { return katex.renderToString(tex.trim(), { displayMode: true, throwOnError: false }) }
-        catch { return `<code class="katex-error">$$${tex}$$</code>` }
-      })
-      html = html.replace(/\$((?:[a-zA-Z0-9^\\()_{}[\]]|\s)+)\$/g, (_, tex) => {
-        try { return katex.renderToString(tex.trim(), { displayMode: false, throwOnError: false }) }
-        catch { return `<code class="katex-error">$${tex}$</code>` }
-      })
-      return html
-    } catch { return text }
-  }
 
   const searchResults = useCallback(() => {
     if (!state.searchQuery.trim() || state.searchQuery.length < 2) return { entries: [], chapters: [] }

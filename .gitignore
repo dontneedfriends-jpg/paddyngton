@@ -41,12 +41,28 @@ test-results/
 # Keys
 *.key
 paddyngton.pub
-.vs/Paddyngton.slnx/FileContentIndex/7bd6fa80-9c57-4df8-8b7c-c998b7569a60.vsidx
-.vs/Paddyngton.slnx/v18/.wsuo
-.vs/Paddyngton.slnx/v18/DocumentLayout.json
-.vs/ProjectSettings.json
-.vs/slnx.sqlite
-.vs/VSWorkspaceState.json
+
+# IDE
+.vs/
+
+# Temp / build scripts
+opencode.exe
+*.tsx.bak
+write.js
+write_lib.js
+write_lib.cjs
+write-postcss.cjs
+fix_lib.js
+fix_lib.ps1
+create_app.py
+write_app.py
+write.ps1
+f.name
+temp_original.tsx
+
+# Tests (Playwright, not yet)
 tests/app.spec.js
 tests/mindmap.spec.js
 tests/README.md
+REFACTORING.md
+IMPROVEMENT_PLAN.md

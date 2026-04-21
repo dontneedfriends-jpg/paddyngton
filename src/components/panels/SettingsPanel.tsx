@@ -1,4 +1,5 @@
 import React from 'react'
+import './SettingsPanel.css'
 import { Check, X, RefreshCw } from 'lucide-react'
 import { fetch } from '@tauri-apps/plugin-http'
 import { useTranslation, Language } from '../../i18n'

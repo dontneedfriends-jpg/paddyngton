@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react'
-import { Calendar, Plus, User, Pencil, Trash2 } from 'lucide-react'
+import './TimelinePanel.css'
+import { Calendar, Plus, User, Pencil, Trash2, ArrowRight, Clock, X } from 'lucide-react'
 import { TimelineEntry, ContextEntry } from '../../types'
 
 interface TimelinePanelProps {
@@ -87,7 +88,12 @@ export const TimelinePanel: React.FC<TimelinePanelProps> = ({
   }, [characters, contextSearch])
 
   const sortedTimeline = useMemo(() => {
-    return [...timelineData].sort((a, b) => a.date.localeCompare(b.date))
+    return [...timelineData].sort((a, b) => {
+      const numA = parseFloat(a.date)
+      const numB = parseFloat(b.date)
+      if (!isNaN(numA) && !isNaN(numB)) return numA - numB
+      return a.date.localeCompare(b.date)
+    })
   }, [timelineData])
 
   const groupedByDate = useMemo(() => {
@@ -99,61 +105,67 @@ export const TimelinePanel: React.FC<TimelinePanelProps> = ({
     return groups
   }, [sortedTimeline])
 
-  const dateKeys = Object.keys(groupedByDate).sort((a, b) => a.localeCompare(b))
+  const dateKeys = Object.keys(groupedByDate).sort((a, b) => {
+    const numA = parseFloat(a)
+    const numB = parseFloat(b)
+    if (!isNaN(numA) && !isNaN(numB)) return numA - numB
+    return a.localeCompare(b)
+  })
 
   return (
     <div className="modal-overlay" onClick={() => { onClose(); setTimelineForm(null) }}>
-      <div className="timeline-panel" onClick={e => e.stopPropagation()} style={{ width: '95vw', maxWidth: '1200px' }}>
+      <div className="timeline-panel" onClick={e => e.stopPropagation()}>
         <div className="panel-header">
-          <h2><Calendar size={16} /> {t('timeline.title')}</h2>
+          <h2><Calendar size={18} /> {t('timeline.title')}</h2>
           <div className="panel-header-actions">
             <button className="btn btn-sm" onClick={handleAddEvent}><Plus size={14} /> {t('timeline.addEvent')}</button>
-            <button className="btn-icon" onClick={() => { onClose(); setTimelineForm(null) }}>×</button>
+            <button className="btn-icon" onClick={() => { onClose(); setTimelineForm(null) }}><X size={16} /></button>
           </div>
         </div>
-        <div className="timeline-body" style={{ maxHeight: 'calc(85vh - 80px)', overflowY: 'auto' }}>
+        <div className="timeline-body">
           {timelineForm && (
-            <div className="timeline-form" style={{ background: 'var(--surface)', border: '2px solid var(--accent)', borderRadius: '12px', padding: '16px', marginBottom: '20px' }}>
-              <h3 style={{ margin: '0 0 12px 0', fontSize: '14px', color: 'var(--near-black)' }}>{t('timeline.newEvent')}</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '12px' }}>
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label style={{ fontSize: '11px', color: 'var(--cool-gray)' }}>{t('timeline.date')} *</label>
-                  <input type="text" className="form-input" style={{ fontSize: '13px' }} placeholder="Year 100, Day 1, 15th March" value={timelineForm.date} onChange={e => setTimelineForm(f => f ? { ...f, date: e.target.value } : null)} />
+            <div className="timeline-form-card">
+              <h3 className="timeline-form-title">{t('timeline.newEvent')}</h3>
+              <div className="timeline-form-grid">
+                <div className="timeline-form-group">
+                  <label className="required">{t('timeline.date')}</label>
+                  <input type="text" className="timeline-form-input" placeholder="Year 100, Day 1" value={timelineForm.date} onChange={e => setTimelineForm(f => f ? { ...f, date: e.target.value } : null)} />
                 </div>
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label style={{ fontSize: '11px', color: 'var(--cool-gray)' }}>End Date</label>
-                  <input type="text" className="form-input" style={{ fontSize: '13px' }} placeholder="Year 105 (optional)" value={timelineForm.endDate} onChange={e => setTimelineForm(f => f ? { ...f, endDate: e.target.value } : null)} />
+                <div className="timeline-form-group">
+                  <label>End Date</label>
+                  <input type="text" className="timeline-form-input" placeholder="Year 105 (optional)" value={timelineForm.endDate} onChange={e => setTimelineForm(f => f ? { ...f, endDate: e.target.value } : null)} />
                 </div>
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label style={{ fontSize: '11px', color: 'var(--cool-gray)' }}>Date Note</label>
-                  <input type="text" className="form-input" style={{ fontSize: '13px' }} placeholder="e.g., The Great War era" value={timelineForm.dateNote} onChange={e => setTimelineForm(f => f ? { ...f, dateNote: e.target.value } : null)} />
+                <div className="timeline-form-group">
+                  <label>Date Note</label>
+                  <input type="text" className="timeline-form-input" placeholder="e.g., The Great War era" value={timelineForm.dateNote} onChange={e => setTimelineForm(f => f ? { ...f, dateNote: e.target.value } : null)} />
                 </div>
               </div>
-              <div className="form-group" style={{ margin: '0 0 12px 0' }}>
-                <label style={{ fontSize: '11px', color: 'var(--cool-gray)' }}>{t('timeline.eventLabel')} *</label>
-                <input type="text" className="form-input" style={{ fontSize: '13px' }} placeholder="What happened?" value={timelineForm.label} onChange={e => setTimelineForm(f => f ? { ...f, label: e.target.value } : null)} />
+              <div className="timeline-form-group" style={{ marginBottom: '12px' }}>
+                <label className="required">{t('timeline.eventLabel')}</label>
+                <input type="text" className="timeline-form-input" placeholder="What happened?" value={timelineForm.label} onChange={e => setTimelineForm(f => f ? { ...f, label: e.target.value } : null)} />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label style={{ fontSize: '11px', color: 'var(--cool-gray)' }}>{t('timeline.color')}</label>
-                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <div className="timeline-form-grid-2">
+                <div className="timeline-form-group">
+                  <label>{t('timeline.color')}</label>
+                  <div className="timeline-color-grid">
                     {COLOR_PRESETS.map(color => (
                       <div key={color} onClick={() => setTimelineForm(f => f ? { ...f, color } : null)}
-                        style={{ width: '24px', height: '24px', borderRadius: '4px', background: color, cursor: 'pointer', border: timelineForm.color === color ? '2px solid var(--near-black)' : '2px solid transparent' }} />
+                        className={`timeline-color-swatch ${timelineForm.color === color ? 'active' : ''}`}
+                        style={{ background: color }} />
                     ))}
-                    <input type="color" value={timelineForm.color} onChange={e => setTimelineForm(f => f ? { ...f, color: e.target.value } : null)} style={{ width: '28px', height: '28px', border: 'none', borderRadius: '4px', cursor: 'pointer' }} />
+                    <input type="color" value={timelineForm.color} onChange={e => setTimelineForm(f => f ? { ...f, color: e.target.value } : null)} className="timeline-color-picker" />
                   </div>
                 </div>
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label style={{ fontSize: '11px', color: 'var(--cool-gray)' }}>{t('timeline.linkContext')}</label>
+                <div className="timeline-form-group">
+                  <label>{t('timeline.linkContext')}</label>
                   <div style={{ position: 'relative' }}>
-                    <input type="text" className="form-input" style={{ fontSize: '13px' }} placeholder="Search characters..." value={contextSearch}
+                    <input type="text" className="timeline-form-input" placeholder="Search characters..." value={contextSearch}
                       onChange={e => { setContextSearch(e.target.value); setShowCharDropdown(true) }}
                       onFocus={() => setShowCharDropdown(true)} />
                     {showCharDropdown && filteredCharacters.length > 0 && (
-                      <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'var(--white)', border: '1px solid var(--border-gray)', borderRadius: '8px', marginTop: '2px', maxHeight: '140px', overflowY: 'auto', zIndex: 10 }}>
+                      <div className="timeline-char-dropdown">
                         {filteredCharacters.map(c => (
-                          <div key={c.name} style={{ padding: '8px 12px', cursor: 'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '8px', background: timelineForm.characterIds.includes(c.name) ? 'var(--bg-secondary)' : 'transparent' }}
+                          <div key={c.name} className={`timeline-char-option ${timelineForm.characterIds.includes(c.name) ? 'selected' : ''}`}
                             onClick={() => {
                               if (timelineForm && !timelineForm.characterIds.includes(c.name)) {
                                 setTimelineForm(f => f ? { ...f, characterIds: [...f.characterIds, c.name] } : null)
@@ -170,75 +182,78 @@ export const TimelinePanel: React.FC<TimelinePanelProps> = ({
                     )}
                   </div>
                   {timelineForm.characterIds.length > 0 && (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '6px' }}>
+                    <div className="timeline-char-tags">
                       {timelineForm.characterIds.map(id => (
-                        <span key={id} style={{ padding: '2px 8px', background: '#3182ce20', color: '#3182ce', borderRadius: '12px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+                        <span key={id} className="timeline-char-tag"
                           onClick={() => onOpenWiki && onOpenWiki(contextData.find(c => c.name === id)!)}>
                           <User size={10} /> {id}
-                          <button style={{ background: 'none', border: 'none', color: '#3182ce', cursor: 'pointer', padding: 0, fontSize: '14px', lineHeight: 1 }} onClick={(e) => { e.stopPropagation(); setTimelineForm(f => f ? { ...f, characterIds: f.characterIds.filter(c => c !== id) } : null) }}>×</button>
+                          <button onClick={(e) => { e.stopPropagation(); setTimelineForm(f => f ? { ...f, characterIds: f.characterIds.filter(c => c !== id) } : null) }}>
+                            <X size={12} />
+                          </button>
                         </span>
                       ))}
                     </div>
                   )}
                 </div>
               </div>
-              <div className="form-group" style={{ margin: '0 0 12px 0' }}>
-                <label style={{ fontSize: '11px', color: 'var(--cool-gray)' }}>{t('timeline.notes')}</label>
-                <textarea className="form-textarea" style={{ fontSize: '13px', minHeight: '60px' }} placeholder="Additional details about this event..." value={timelineForm.notes} onChange={e => setTimelineForm(f => f ? { ...f, notes: e.target.value } : null)} />
+              <div className="timeline-form-group" style={{ marginBottom: '12px' }}>
+                <label>{t('timeline.notes')}</label>
+                <textarea className="timeline-form-textarea" placeholder="Additional details about this event..." value={timelineForm.notes} onChange={e => setTimelineForm(f => f ? { ...f, notes: e.target.value } : null)} />
               </div>
-              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+              <div className="timeline-form-actions">
                 <button className="btn btn-sm" onClick={() => { setTimelineForm(null); setContextSearch('') }}>{t('dialogs.cancel')}</button>
                 <button className="btn btn-primary btn-sm" onClick={handleSubmitEvent}>{t('timeline.addEvent')}</button>
               </div>
             </div>
           )}
           {timelineData.length === 0 && !timelineForm ? (
-            <div style={{ color: 'var(--cool-gray)', textAlign: 'center', padding: '40px', fontSize: '14px' }}>
+            <div className="timeline-empty">
               {t('timeline.noEvents')}
             </div>
           ) : (
-            <div style={{ position: 'relative', paddingLeft: '160px', minHeight: '200px' }}>
-              <div style={{ position: 'absolute', left: '130px', top: 0, bottom: 0, width: '2px', background: 'var(--border-gray)' }} />
+            <div className="timeline-track">
+              <div className="timeline-track-line" />
               {dateKeys.map(date => (
-                <div key={date} style={{ marginBottom: '24px' }}>
-                  <div style={{ position: 'absolute', left: '10px', width: '110px', textAlign: 'right', fontSize: '13px', fontWeight: 600, color: 'var(--accent)', background: 'var(--surface)', padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--border-gray)', marginRight: '10px' }}>
-                    {groupedByDate[date][0].dateNote || date}
-                    {groupedByDate[date][0].endDate && <div style={{ fontSize: '10px', fontWeight: 400, color: 'var(--cool-gray)' }}>→ {groupedByDate[date][0].endDate}</div>}
+                <div key={date} className="timeline-date-section">
+                  <div className="timeline-date-badge">
+                    <div className="timeline-date-main">
+                      {groupedByDate[date][0].dateNote || date}
+                    </div>
+                    {groupedByDate[date][0].endDate && (
+                      <div className="timeline-date-end">
+                        <ArrowRight size={10} style={{ display: 'inline', verticalAlign: '-1px' }} /> {groupedByDate[date][0].endDate}
+                      </div>
+                    )}
                   </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'flex-start' }}>
-                    {groupedByDate[date].map((entry, idx) => (
-                      <div key={entry.id} style={{ position: 'relative', flex: '1 1 calc(50% - 6px)', minWidth: '200px', maxWidth: '400px' }}>
-                        <div style={{ position: 'absolute', left: '-30px', top: '14px', width: '12px', height: '12px', borderRadius: '50%', background: entry.color, border: '3px solid var(--bg-primary)', zIndex: 1, boxShadow: '0 0 0 2px var(--border-gray)' }} />
-                        <div className="timeline-card" style={{
-                          borderLeftColor: entry.color || 'var(--accent)',
-                          background: 'var(--bg-primary)',
-                          border: '1px solid var(--border-gray)',
-                          borderRadius: '8px',
-                          padding: '12px 16px',
-                          marginLeft: '8px'
-                        }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                            <span style={{ fontSize: '12px', fontWeight: 600, color: entry.color }}>{entry.label}</span>
-                            {entry.characterIds.length > 0 && (
-                              <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                                {entry.characterIds.map(id => {
-                                  const ctx = contextData.find(c => c.name === id)
-                                  return ctx ? (
-                                    <span key={id} onClick={() => onOpenWiki && onOpenWiki(ctx)}
-                                      style={{ padding: '2px 8px', background: '#3182ce20', color: '#3182ce', borderRadius: '12px', fontSize: '11px', cursor: 'pointer' }}>
-                                      <User size={10} /> {ctx.name}
-                                    </span>
-                                  ) : null
-                                })}
-                              </div>
-                            )}
+                  <div className={`timeline-date-dot ${groupedByDate[date][0].endDate ? 'range' : ''}`} style={{ background: groupedByDate[date][0].color }} />
+                  <div className="timeline-events-row">
+                    {groupedByDate[date].map((entry) => (
+                      <div key={entry.id} className="timeline-card">
+                        {entry.endDate && (
+                          <div className="timeline-range-badge">
+                            <Clock size={10} /> {entry.date} — {entry.endDate}
                           </div>
-                          {entry.notes && <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '6px' }}>{entry.notes}</div>}
-                          <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
-                            <button className="btn btn-sm" style={{ padding: '2px 8px', fontSize: '11px' }} onClick={() => handleEditEvent(entry)}><Pencil size={12} /></button>
-                            <button className="btn btn-sm" style={{ padding: '2px 8px', fontSize: '11px' }} onClick={() => handleDeleteEvent(entry.id)}><Trash2 size={12} /></button>
+                        )}
+                        <div className="timeline-card-header">
+                          <span className="timeline-card-label" style={{ color: entry.color }}>{entry.label}</span>
+                          <div className="timeline-card-actions">
+                            <button className="timeline-card-btn" onClick={() => handleEditEvent(entry)}><Pencil size={12} /></button>
+                            <button className="timeline-card-btn" onClick={() => handleDeleteEvent(entry.id)}><Trash2 size={12} /></button>
                           </div>
                         </div>
+                        {entry.notes && <div className="timeline-card-note">{entry.notes}</div>}
+                        {entry.characterIds.length > 0 && (
+                          <div className="timeline-card-chars">
+                            {entry.characterIds.map(id => {
+                              const ctx = contextData.find(c => c.name === id)
+                              return ctx ? (
+                                <span key={id} className="timeline-card-char" onClick={() => onOpenWiki && onOpenWiki(ctx)}>
+                                  <User size={10} /> {ctx.name}
+                                </span>
+                              ) : null
+                            })}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

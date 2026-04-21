@@ -1,4 +1,5 @@
 import React from 'react'
+import './BookDialog.css'
 import { FolderOpen, Save, Package, X } from 'lucide-react'
 import { useUIStore } from '../../store/useUIStore'
 import { useBookManager } from '../../hooks/useBookManager'

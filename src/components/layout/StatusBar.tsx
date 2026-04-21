@@ -1,4 +1,5 @@
 import React from 'react'
+import './StatusBar.css'
 import { useTranslation } from '../../i18n'
 import { useSettingsStore } from '../../store/useSettingsStore'
 import { useBookStore } from '../../store/useBookStore'

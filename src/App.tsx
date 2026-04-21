@@ -6,6 +6,7 @@ import Editor from '@uiw/react-codemirror'
 import { lineNumbers, EditorView } from '@codemirror/view'
 
 import 'katex/dist/katex.min.css'
+import './components/editor/Editor.css'
 import { Check, X, Info } from 'lucide-react'
 import { useTranslation } from './i18n'
 import {

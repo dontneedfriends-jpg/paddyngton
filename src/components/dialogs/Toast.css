@@ -1,0 +1,5 @@
+/* Toast */
+.toast { position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; z-index: 10000; animation: slideIn 0.2s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.toast-info { background: var(--surface); color: var(--near-black); border: 1px solid var(--accent); }
+.toast-success { background: rgba(74, 222, 128, 0.12); color: var(--success); border: 1px solid var(--success); }
+.toast-error { background: rgba(248, 113, 113, 0.12); color: var(--danger); border: 1px solid var(--danger); }

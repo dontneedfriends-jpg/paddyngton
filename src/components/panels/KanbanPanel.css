@@ -1,0 +1,24 @@
+/* KanbanPanel */
+.kanban-panel {
+  background: var(--surface); border: 1px solid var(--border-gray); border-radius: 16px;
+  width: 80vw; max-width: 1100px; max-height: 85vh; display: flex;
+  flex-direction: column; overflow: hidden; box-shadow: 0 24px 80px var(--shadow);
+}
+.kanban-panel .panel-header {
+  padding: 20px 24px 16px; border-bottom: 1px solid var(--border-gray); flex-shrink: 0;
+  background: var(--bg);
+}
+.kanban-panel .panel-header h2 {
+  font-size: 18px; font-weight: 700; margin: 0; color: var(--near-black);
+}
+.kanban-body { flex: 1; overflow-y: auto; padding: 20px; background: var(--bg); overflow-x: auto; }
+.kanban-columns { display: flex; gap: 16px; min-width: min-content; height: 100%; }
+.kanban-column { width: 280px; min-width: 280px; background: var(--bg-secondary); border: 1px solid var(--border-gray); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; max-height: calc(85vh - 120px); }
+.kanban-col-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-gray); margin-bottom: 10px; font-size: 13px; font-weight: 600; color: var(--near-black); }
+.kanban-count { background: var(--accent); color: white; font-size: 11px; padding: 1px 7px; border-radius: 10px; font-weight: 700; }
+.kanban-cards { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; min-height: 40px; }
+.kanban-card { background: var(--surface); border: 1px solid var(--border-gray); border-radius: 8px; padding: 10px 12px; }
+.kanban-card-title { font-size: 13px; font-weight: 600; color: var(--near-black); margin-bottom: 4px; }
+.kanban-card-content { font-size: 12px; color: var(--cool-gray); line-height: 1.4; white-space: pre-wrap; }
+.kanban-card-actions { display: flex; gap: 4px; margin-top: 8px; align-items: center; }
+.kanban-move { border: 1px solid var(--border-gray); border-radius: 6px; background: var(--bg-primary); color: var(--text); font-size: 11px; padding: 2px 4px; cursor: pointer; }

@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react'
+import './InputDialog.css'
 
 interface InputDialogProps {
   inputDialog: {

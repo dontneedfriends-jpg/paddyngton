@@ -1,0 +1,30 @@
+/* TitleBar */
+.titlebar {
+  height: 38px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border-gray);
+  display: flex; align-items: center;
+  padding: 0 8px;
+  -webkit-app-region: drag;
+  user-select: none;
+}
+.titlebar-left { display: flex; align-items: center; }
+.titlebar-logo {
+  width: 24px; height: 24px;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 12px;
+  box-shadow: 0 2px 8px var(--glow-accent);
+}
+.titlebar-center { flex: 1; display: flex; justify-content: center; }
+.book-title { font-size: 13px; font-weight: 500; color: var(--cool-gray); }
+.titlebar-controls { display: flex; -webkit-app-region: no-drag; }
+.titlebar-btn {
+  width: 46px; height: 38px; border: none; background: transparent;
+  color: var(--cool-gray); font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.titlebar-btn:hover { background: var(--surface-hover); color: var(--near-black); }
+.titlebar-btn.close:hover { background: var(--danger); color: white; }

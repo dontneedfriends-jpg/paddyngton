@@ -1,4 +1,5 @@
 import React from 'react'
+import './WorldPanel.css'
 import { Plus, X } from 'lucide-react'
 import { useTranslation } from '../../i18n'
 import { useUIStore } from '../../store/useUIStore'

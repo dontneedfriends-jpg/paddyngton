@@ -1,0 +1,41 @@
+/* WelcomeScreen */
+.welcome-container { flex: 1; display: flex; align-items: center; justify-content: center; background: var(--bg); }
+.welcome-content {
+  text-align: center; max-width: 480px; padding: 40px;
+  background: var(--surface); border: 1px solid var(--border-gray); border-radius: 16px;
+}
+.welcome-logo { font-size: 72px; margin-bottom: 24px; }
+.welcome-title { font-size: 32px; font-weight: 700; color: var(--near-black); margin-bottom: 8px; letter-spacing: -0.02em; }
+.welcome-subtitle { font-size: 16px; color: var(--cool-gray); margin-bottom: 32px; }
+.welcome-actions { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+.welcome-hint { font-size: 13px; color: var(--silver-blue); }
+.welcome-hint p { margin-bottom: 4px; }
+
+.welcome-tabs { display: flex; gap: 8px; justify-content: center; margin: 24px 0 20px; }
+.welcome-tab {
+  padding: 10px 24px; border: 1px solid var(--border-gray); border-radius: 10px;
+  background: transparent; color: var(--cool-gray); font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s;
+}
+.welcome-tab:hover { border-color: var(--accent); color: var(--accent); }
+.welcome-tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+.welcome-panel { margin: 8px 0; }
+.welcome-section { display: flex; flex-direction: column; gap: 10px; }
+.welcome-option {
+  display: flex; align-items: center; gap: 16px; padding: 18px 22px;
+  border: 1px solid var(--border-gray); border-radius: 14px; background: var(--surface);
+  cursor: pointer; transition: all 0.2s; text-align: left;
+}
+.welcome-option:hover { border-color: var(--accent); box-shadow: 0 4px 20px var(--glow-accent); transform: translateY(-1px); }
+.welcome-option-icon { font-size: 32px; }
+.welcome-option-title { font-size: 15px; font-weight: 600; color: var(--near-black); margin-bottom: 4px; }
+.welcome-option-desc { font-size: 12px; color: var(--cool-gray); }
+
+.template-selector { background: var(--surface); border: 1px solid var(--border-gray); border-radius: 12px; padding: 14px; margin-top: 8px; }
+.template-types { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.template-type-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 10px;
+  border: 1px solid var(--border-gray); border-radius: 10px; background: var(--bg-primary);
+  cursor: pointer; transition: all 0.15s; font-size: 12px; font-weight: 500; color: var(--near-black);
+}
+.template-type-btn:hover { border-color: var(--accent); background: var(--surface); box-shadow: 0 4px 12px var(--glow-accent); }

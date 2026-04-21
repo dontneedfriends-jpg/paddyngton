@@ -1,0 +1,31 @@
+/* ContextEditor */
+.editor-panel {
+  background: var(--white); border-radius: 12px; width: 560px; max-height: 80vh; overflow: hidden;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.3); border: 1px solid var(--border-gray);
+}
+.editor-panel.context-panel { width: 640px; }
+.editor-panel.book-editor { width: 480px; }
+.context-list { max-height: 400px; overflow-y: auto; margin-bottom: 16px; }
+.context-card { background: var(--surface); border: 1px solid var(--border-gray); border-radius: 8px; padding: 12px; margin-bottom: 12px; transition: border-color 0.2s; }
+.context-card:hover { border-color: var(--cool-gray); }
+.context-card-header { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+.context-name-input {
+  flex: 1; padding: 6px 10px; background: var(--white); border: 1px solid var(--border-gray);
+  border-radius: 6px; font-size: 14px; font-weight: 500; color: var(--near-black); font-family: inherit; transition: border-color 0.2s;
+}
+.context-name-input:focus { outline: none; border-color: var(--accent); }
+.context-type-select { padding: 6px 10px; background: var(--white); border: 1px solid var(--border-gray); border-radius: 6px; font-size: 12px; color: var(--near-black); cursor: pointer; font-family: inherit; }
+.context-details { padding-left: 4px; }
+.detail-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+.detail-key-input {
+  width: 120px; padding: 4px 8px; background: var(--white); border: 1px solid var(--border-gray);
+  border-radius: 4px; font-size: 12px; color: var(--near-black); font-family: inherit; transition: border-color 0.2s;
+}
+.detail-key-input:focus { outline: none; border-color: var(--accent); }
+.detail-value-input {
+  flex: 1; min-width: 0; padding: 4px 8px; background: var(--white); border: 1px solid var(--border-gray);
+  border-radius: 4px; font-size: 12px; color: var(--near-black); font-family: inherit; transition: border-color 0.2s;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+.detail-value-input:focus { outline: none; border-color: var(--accent); }

@@ -1,4 +1,5 @@
 import React from 'react'
+import './KanbanPanel.css'
 import { Plus, Pencil, Trash2, X } from 'lucide-react'
 import { useTranslation } from '../../i18n'
 import { useUIStore } from '../../store/useUIStore'

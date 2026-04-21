@@ -1,4 +1,5 @@
 import React from 'react'
+import './WikiPanel.css'
 import { BookOpen, User, MapPin, CalendarDays, Box, Pencil, Eye, GitGraph, X } from 'lucide-react'
 import { useTranslation } from '../../i18n'
 import { useUIStore } from '../../store/useUIStore'
@@ -211,10 +212,10 @@ export const WikiPanel: React.FC = () => {
                     )}
                     {ui.wikiSelected && activeBook && (() => {
                       const charName = ui.wikiSelected.name
-                      const relatedEvents: { type: 'timeline' | 'world'; title: string; date?: string; content: string }[] = []
+                      const relatedEvents: { type: 'timeline' | 'world'; title: string; date?: string; endDate?: string; content: string }[] = []
                       activeBook.timelineData.forEach(t => {
                         if (t.characterIds.includes(charName)) {
-                          relatedEvents.push({ type: 'timeline', title: t.label, date: t.date, content: t.content })
+                          relatedEvents.push({ type: 'timeline', title: t.label, date: t.date, endDate: t.endDate, content: t.content })
                         }
                       })
                       activeBook.worldData.forEach(w => {
@@ -232,7 +233,7 @@ export const WikiPanel: React.FC = () => {
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                                     <span style={{ fontSize: '11px', fontWeight: 600 }}>{ev.type === 'timeline' ? '[D]' : '[W]'}</span>
                                     <span style={{ fontSize: '13px', fontWeight: 600 }}>{ev.title}</span>
-                                    {ev.date && <span style={{ fontSize: '11px', color: 'var(--cool-gray)' }}>{ev.date}</span>}
+                                    {ev.date && <span style={{ fontSize: '11px', color: 'var(--cool-gray)' }}>{ev.date}{ev.endDate ? ` — ${ev.endDate}` : ''}</span>}
                                   </div>
                                   {ev.content && <div style={{ fontSize: '12px', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.content}</div>}
                                 </div>

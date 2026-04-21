@@ -1,4 +1,5 @@
 import React from 'react'
+import './Sidebar.css'
 import { User, MapPin, CalendarDays, Box, BookOpen, GitGraph } from 'lucide-react'
 import { useTranslation } from '../../i18n'
 import { useUIStore } from '../../store/useUIStore'
@@ -102,6 +103,7 @@ export const Sidebar: React.FC = () => {
                     title={Object.entries(ctx.details)
                       .map(([k, v]) => `${k}: ${v}`)
                       .join('\n')}
+                    onDoubleClick={() => setUI({ showContextEditor: true, mindMapEditEntry: ctx })}
                   >
                     <span className="context-icon">
                       {ctx.type === 'character' ? (
@@ -115,6 +117,18 @@ export const Sidebar: React.FC = () => {
                       )}
                     </span>
                     <span className="context-name">{ctx.name}</span>
+                    <button
+                      className="context-delete"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        confirmAction(`Delete "${ctx.name}"?`, () => {
+                          const d = contextData.filter((c) => c.name !== ctx.name)
+                          updateActiveBook({ contextData: d })
+                        })
+                      }}
+                    >
+                      ×
+                    </button>
                   </div>
                 ))}
               </div>

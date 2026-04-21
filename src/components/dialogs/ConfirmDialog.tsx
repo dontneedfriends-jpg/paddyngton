@@ -1,4 +1,5 @@
 import React from 'react'
+import './ConfirmDialog.css'
 
 interface ConfirmDialogProps {
   confirmDialog: { message: string; onConfirm: () => void } | null

@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react'
+import './SearchPanel.css'
 import { User, MapPin, CalendarDays, Box, X } from 'lucide-react'
 import { useTranslation } from '../../i18n'
 import { useUIStore } from '../../store/useUIStore'

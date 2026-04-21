@@ -1,4 +1,5 @@
 import React from 'react'
+import './WelcomeScreen.css'
 import { BookMarked, FileText, FolderOpen, Package } from 'lucide-react'
 import { useTranslation } from '../../i18n'
 import { useUIStore } from '../../store/useUIStore'

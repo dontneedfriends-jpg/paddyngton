@@ -110,7 +110,7 @@ Ctrl+Shift+F — ищите по всем главам и контексту. Р
 ```
 paddyngton/
 ├── src/                       # React frontend
-│   ├── App.tsx                # ~1320 строк — композиция + оставшиеся панели
+│   ├── App.tsx                # ~331 строк — чистая композиция
 │   ├── index.css              # 1785 строк — темы и глобальные стили
 │   ├── i18n.tsx               # Интернационализация — 3 языка
 │   ├── main.tsx               # Точка входа
@@ -138,12 +138,29 @@ paddyngton/
 │   │   ├── formatEditor.ts
 │   │   └── bookIO.ts
 │   ├── components/            # Компоненты
-│   │   ├── dialogs/           # Toast, ConfirmDialog, InputDialog
-│   │   └── panels/            # TimelinePanel, SearchPanel, NotesPanel,
-│   │                          # WorldPanel, KanbanPanel, SettingsPanel, ContextEditor
+│   │   ├── dialogs/           # Toast, ConfirmDialog, InputDialog,
+│   │   │                      # CommandPalette, BookDialog
+│   │   ├── panels/            # TimelinePanel, SearchPanel, NotesPanel,
+│   │   │                      # WorldPanel, KanbanPanel, SettingsPanel,
+│   │   │                      # ContextEditor, WikiPanel, MindMapCanvas,
+│   │   │                      # VersionsPanel
+│   │   ├── layout/            # TitleBar, Header, Sidebar, StatusBar,
+│   │   │                      # WelcomeScreen
+│   │   └── editor/            # FormatToolbar
 │   └── translations/          # en.json, es.json, ru.json
 ├── src-tauri/                 # Rust backend
-│   └── src/lib.rs             # Tauri команды — PDF, DOCX, файлы
+│   ├── src/
+│   │   ├── lib.rs             # ~55 строк — регистрация плагинов
+│   │   ├── models.rs          # Структуры данных
+│   │   ├── utils.rs           # Утилиты (chrono_lite_now, rand_id)
+│   │   └── commands/          # Модули команд
+│   │       ├── window.rs
+│   │       ├── version.rs
+│   │       ├── fs.rs
+│   │       ├── snapshot.rs
+│   │       ├── bear.rs
+│   │       └── pdf.rs
+│   └── tauri.conf.json
 ├── package.json
 ├── context-template.json      # Шаблон контекста
 └── book-template.json         # Шаблон книги

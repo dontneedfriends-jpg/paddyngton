@@ -1,4 +1,5 @@
 import React from 'react'
+import './ContextEditor.css'
 import { User, X, BookOpen, Map } from 'lucide-react'
 import { useTranslation } from '../../i18n'
 import { useUIStore } from '../../store/useUIStore'

@@ -1,0 +1,97 @@
+/* FormatToolbar */
+.format-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-gray);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.format-toolbar::-webkit-scrollbar { height: 0; }
+
+.format-btn {
+  width: 30px;
+  height: 28px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--cool-gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.format-btn:hover {
+  background: var(--surface-hover);
+  color: var(--near-black);
+  border-color: var(--border-gray);
+}
+.format-btn:active {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.format-btn-preview { font-size: 16px; }
+.format-btn-preview.active { background: var(--accent); color: white; }
+
+.format-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--border-gray);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+.format-btn-color,
+.format-btn-bgcolor {
+  width: 36px !important;
+  position: relative;
+  padding: 0 !important;
+}
+.format-color-swatch {
+  display: block;
+  width: 18px;
+  height: 4px;
+  border-radius: 2px;
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 1px solid rgba(0,0,0,0.2);
+}
+.format-font-select {
+  height: 26px;
+  background: var(--surface);
+  border: 1px solid var(--border-gray);
+  border-radius: 6px;
+  color: var(--cool-gray);
+  font-size: 11px;
+  padding: 0 6px;
+  cursor: pointer;
+  font-family: inherit;
+  max-width: 120px;
+  outline: none;
+}
+.format-font-select:hover { border-color: var(--accent); color: var(--near-black); }
+.format-font-select option { background: var(--surface); color: var(--near-black); }
+.format-font-size-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 4px;
+}
+.format-font-size-label {
+  font-size: 12px;
+  color: var(--cool-gray);
+  font-weight: 700;
+}
+.format-font-size {
+  width: 60px;
+  height: 4px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}

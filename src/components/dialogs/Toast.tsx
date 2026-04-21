@@ -1,4 +1,5 @@
 import React from 'react'
+import './Toast.css'
 import { Check, X, Info } from 'lucide-react'
 
 interface ToastProps {

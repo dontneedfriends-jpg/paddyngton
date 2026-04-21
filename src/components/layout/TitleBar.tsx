@@ -1,4 +1,5 @@
 import React from 'react'
+import './TitleBar.css'
 import { Maximize2, Square, X } from 'lucide-react'
 import { useUIStore } from '../../store/useUIStore'
 import { useBookStore } from '../../store/useBookStore'

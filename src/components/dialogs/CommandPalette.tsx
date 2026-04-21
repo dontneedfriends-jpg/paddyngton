@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react'
+import './CommandPalette.css'
 import { useTranslation } from '../../i18n'
 import { useUIStore } from '../../store/useUIStore'
 import { useSettingsStore } from '../../store/useSettingsStore'

@@ -1,0 +1,5 @@
+/* ConfirmDialog */
+.confirm-dialog { background: var(--surface); border: 1px solid var(--border-gray); border-radius: 14px; padding: 24px; min-width: 320px; max-width: 400px; position: relative; z-index: 100; }
+.confirm-message { font-size: 15px; color: var(--near-black); margin-bottom: 20px; text-align: center; line-height: 1.5; }
+.confirm-actions { display: flex; gap: 12px; justify-content: center; }
+.confirm-actions .btn { min-width: 100px; }

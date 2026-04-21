@@ -20,6 +20,7 @@ import { renderMarkdown } from './lib/markdownRender'
 import { extractGroups, findContextEntry, getWordAtPos } from './lib/contextHelpers'
 import { useUIStore } from './store/useUIStore'
 import { useSettingsStore } from './store/useSettingsStore'
+import { useBookStore } from './store/useBookStore'
 import {
   type ThemeName,
   type Chapter,
@@ -35,7 +36,6 @@ import {
   type KanbanCard,
   type TimelineEntry,
   type Note,
-  type AppState,
   type VersionSnapshot,
   type FormatButton,
   RELATION_COLORS,
@@ -115,21 +115,12 @@ function App() {
   const setUI = useUIStore(s => s.set)
   const showToast = useUIStore(s => s.showToast)
   const confirmAction = useUIStore(s => s.confirmAction)
-  const [state, setState] = useState<AppState>({
-    openBooks: [], activeBookId: null, sidebarOpen: true,
-    showSettings: false, showContextEditor: false, showBookEditor: false,
-    showBookDialog: false, bookDialogMode: 'open',
-    showAbout: false, showWiki: false, showMindMap: false, showSearch: false,
-    showVersions: false, isMaximized: false, tooltip: null,
-showTimeline: false, showNotes: false, showWorld: false, showKanban: false, showPreview: false,
-    mindMapZoom: 1,
-    settingsTab: 0, wikiSelected: null, wikiEditMode: false, welcomeTab: 'create', showTemplateSelector: false, searchQuery: '',
-    mindMapConnectFrom: null, mindMapEditEntry: null,
-    showLinkModal: false, showColorPicker: false, colorPickerType: 'color',
-    mindMapConnectGroupFrom: null, mindMapSelectedGroup: null, mindMapDrag: null,
-    mindMapPanX: 0, mindMapPanY: 0,
-    updateAvailable: null, updateLoading: false, currentVersion: '0.0.0',
-  })
+  const openBooks = useBookStore(s => s.openBooks)
+  const activeBookId = useBookStore(s => s.activeBookId)
+  const updateActiveBookStore = useBookStore(s => s.updateActiveBook)
+  const updateChapterStore = useBookStore(s => s.updateChapter)
+  const addBookStore = useBookStore(s => s.addBook)
+  const setActiveBookId = useBookStore(s => s.setActiveBookId)
   const [versions, setVersions] = useState<VersionSnapshot[]>([])
   const [snapshotLabel, setSnapshotLabel] = useState('')
   const inputDialogRef = useRef<HTMLInputElement | null>(null)
@@ -144,7 +135,7 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
   const [pendingRelation, setPendingRelation] = useState<{ from: string; to: string } | null>(null)
   const [relationTypeSelect, setRelationTypeSelect] = useState<RelationType>('neutral')
 
-  const activeBook = state.openBooks.find(b => b.id === state.activeBookId) || null
+  const activeBook = openBooks.find(b => b.id === activeBookId) || null
   const chapters = activeBook?.chapters || []
   const activeChapterId = activeBook?.activeChapterId || null
   const activeChapter = chapters.find(c => c.id === activeChapterId) || null
@@ -153,20 +144,12 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
   const bookConfig = activeBook?.bookConfig || null
 
   const updateActiveBook = useCallback((patch: Partial<BookInstance>) => {
-    setState(s => {
-      if (!s.activeBookId) return s
-      return {
-        ...s,
-        openBooks: s.openBooks.map(b =>
-          b.id === s.activeBookId ? { ...b, ...patch } : b
-        )
-      }
-    })
-  }, [])
+    updateActiveBookStore(patch)
+  }, [updateActiveBookStore])
 
   const updateChapter = useCallback((chapterId: string, patch: Partial<Chapter>) => {
-    updateActiveBook({ chapters: chapters.map(c => c.id === chapterId ? { ...c, ...patch } : c) })
-  }, [chapters, updateActiveBook])
+    updateChapterStore(chapterId, patch)
+  }, [updateChapterStore])
 
   const [systemFonts, setSystemFonts] = useState<string[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
@@ -175,19 +158,19 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
 
   const commands = [
     { name: t('commands.newBook'), shortcut: 'Ctrl+N', action: () => createNewBook() },
-    { name: t('commands.openBook'), shortcut: 'Ctrl+O', action: () => setState(s => ({ ...s, showBookDialog: true, bookDialogMode: 'open' })) },
+    { name: t('commands.openBook'), shortcut: 'Ctrl+O', action: () => setUI({ showBookDialog: true, bookDialogMode: 'open' }) },
     { name: t('commands.saveChapter'), shortcut: 'Ctrl+S', action: () => saveChapter() },
-    { name: 'Save Book As...', shortcut: '', action: () => setState(s => ({ ...s, showBookDialog: true, bookDialogMode: 'save' })) },
+    { name: 'Save Book As...', shortcut: '', action: () => setUI({ showBookDialog: true, bookDialogMode: 'save' }) },
     { name: t('commands.newChapter'), shortcut: 'Ctrl+Shift+N', action: () => addChapter() },
-    { name: t('commands.toggleSidebar'), shortcut: 'Ctrl+B', action: () => setState(s => ({ ...s, sidebarOpen: !s.sidebarOpen })) },
+    { name: t('commands.toggleSidebar'), shortcut: 'Ctrl+B', action: () => setUI({ sidebarOpen: !ui.sidebarOpen }) },
     { name: t('commands.toggleTheme'), shortcut: 'Ctrl+T', action: () => cycleTheme() },
-    { name: t('commands.editBookInfo'), shortcut: '', action: () => { setState(s => ({ ...s, showSettings: true, settingsTab: 1 })) } },
-    { name: t('commands.editContext'), shortcut: '', action: () => setState(s => ({ ...s, showContextEditor: true })) },
-    { name: t('commands.wiki'), shortcut: '', action: () => setState(s => ({ ...s, showWiki: true })) },
-    { name: t('commands.mindMap'), shortcut: '', action: () => setState(s => ({ ...s, showMindMap: true })) },
-    { name: t('commands.search'), shortcut: 'Ctrl+Shift+F', action: () => setState(s => ({ ...s, showSearch: true, searchQuery: '' })) },
-    { name: 'Version History', shortcut: '', action: () => { loadVersions(); setState(s => ({ ...s, showVersions: true })) } },
-    { name: t('commands.settings'), shortcut: 'Ctrl+,', action: () => setState(s => ({ ...s, showSettings: true })) },
+    { name: t('commands.editBookInfo'), shortcut: '', action: () => { setUI({ showSettings: true, settingsTab: 1 }) } },
+    { name: t('commands.editContext'), shortcut: '', action: () => setUI({ showContextEditor: true }) },
+    { name: t('commands.wiki'), shortcut: '', action: () => setUI({ showWiki: true }) },
+    { name: t('commands.mindMap'), shortcut: '', action: () => setUI({ showMindMap: true }) },
+    { name: t('commands.search'), shortcut: 'Ctrl+Shift+F', action: () => setUI({ showSearch: true, searchQuery: '' }) },
+    { name: 'Version History', shortcut: '', action: () => { loadVersions(); setUI({ showVersions: true }) } },
+    { name: t('commands.settings'), shortcut: 'Ctrl+,', action: () => setUI({ showSettings: true }) },
   ]
 
   const filteredCommands = commands.filter(cmd => cmd.name.toLowerCase().includes(ui.commandQuery.toLowerCase()))
@@ -344,19 +327,19 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
       const word = getWordAtPos(doc, pos)
       if (word.length > 2) {
         const entry = findContextEntry(word, contextData)
-        if (entry) { setState(s => ({ ...s, tooltip: { ...entry, x: e.clientX, y: e.clientY } })); return }
+        if (entry) { setUI({ tooltip: { ...entry, x: e.clientX, y: e.clientY } }); return }
       }
-      setState(s => ({ ...s, tooltip: null }))
+      setUI({ tooltip: null })
     }, 800)
   }, [activeChapter, contextData])
 
   const handleMouseLeave = useCallback(() => {
     if (tooltipTimeout.current) { clearTimeout(tooltipTimeout.current); tooltipTimeout.current = null }
-    setState(s => ({ ...s, tooltip: null }))
+    setUI({ tooltip: null })
   }, [])
 
   useEffect(() => {
-    invoke<boolean>('is_maximized').then((res) => setState(s => ({ ...s, isMaximized: res })))
+    invoke<boolean>('is_maximized').then((res) => setUI({ isMaximized: res }))
   }, [])
 
   useEffect(() => {
@@ -377,7 +360,7 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
   }, [])
 
   useEffect(() => {
-    invoke<string>('get_version').then(v => setState(s => ({ ...s, currentVersion: v }))).catch(() => {})
+    invoke<string>('get_version').then(v => setUI({ currentVersion: v })).catch(() => {})
     invoke<string[]>('get_system_fonts').then(fonts => {
       setSystemFonts(fonts.sort((a, b) => a.localeCompare(b)))
     }).catch(() => {})
@@ -385,22 +368,22 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
     const checkForUpdates = async () => {
       await new Promise(r => setTimeout(r, 2000))
       try {
-        setState(s => ({ ...s, updateLoading: true }))
+        setUI({ updateLoading: true })
         const resp = await fetch('https://raw.githubusercontent.com/dontneedfriends-jpg/paddyngton/main/latest.json')
         if (resp.ok) {
           const data = await resp.json()
           const remoteVersion = data.version
-          const localVersion = state.currentVersion
+          const localVersion = ui.currentVersion
           if (remoteVersion !== localVersion) {
-            setState(s => ({ ...s, updateAvailable: remoteVersion, updateLoading: false }))
+            setUI({ updateAvailable: remoteVersion, updateLoading: false })
           } else {
-            setState(s => ({ ...s, updateAvailable: null, updateLoading: false }))
+            setUI({ updateAvailable: null, updateLoading: false })
           }
         } else {
-          setState(s => ({ ...s, updateAvailable: null, updateLoading: false }))
+          setUI({ updateAvailable: null, updateLoading: false })
         }
       } catch {
-        setState(s => ({ ...s, updateAvailable: null, updateLoading: false }))
+        setUI({ updateAvailable: null, updateLoading: false })
       }
     }
     checkForUpdates()
@@ -414,14 +397,14 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
 
       if (e.ctrlKey || e.metaKey) {
         if (e.code === 'KeyK') { e.preventDefault(); setUI({ showCommandPalette: true }); setUI({ commandQuery: '' }) }
-        else if (e.code === 'KeyO' && !e.shiftKey) { e.preventDefault(); setState(s => ({ ...s, showBookDialog: true, bookDialogMode: 'open' })) }
+        else if (e.code === 'KeyO' && !e.shiftKey) { e.preventDefault(); setUI({ showBookDialog: true, bookDialogMode: 'open' }) }
         else if (e.code === 'KeyO' && e.shiftKey) { e.preventDefault(); createNewBook() }
         else if (e.code === 'KeyS') { e.preventDefault(); saveChapter() }
         else if (e.code === 'KeyN' && !e.shiftKey) { e.preventDefault(); addChapter() }
-        else if (e.code === 'KeyB') { e.preventDefault(); setState(s => ({ ...s, sidebarOpen: !s.sidebarOpen })) }
+        else if (e.code === 'KeyB') { e.preventDefault(); setUI({ sidebarOpen: !ui.sidebarOpen }) }
         else if (e.code === 'KeyT') { e.preventDefault(); cycleTheme() }
-        else if (e.code === 'KeyF' && e.shiftKey) { e.preventDefault(); setState(s => ({ ...s, showSearch: true, searchQuery: '' })) }
-        else if (e.code === 'Comma') { e.preventDefault(); setState(s => ({ ...s, showSettings: true })) }
+        else if (e.code === 'KeyF' && e.shiftKey) { e.preventDefault(); setUI({ showSearch: true, searchQuery: '' }) }
+        else if (e.code === 'Comma') { e.preventDefault(); setUI({ showSettings: true }) }
         else if (e.code === 'KeyZ' && !e.shiftKey) { e.preventDefault(); if (editorViewRef.current) undo(editorViewRef.current) }
         else if (e.code === 'KeyY' || (e.code === 'KeyZ' && e.shiftKey)) { e.preventDefault(); if (editorViewRef.current) redo(editorViewRef.current) }
         else if (e.code === 'KeyC' && !inInput) { e.preventDefault(); document.execCommand('copy') }
@@ -430,7 +413,7 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
       }
       if (e.code === 'Escape') {
         setUI({ showCommandPalette: false })
-        setState(s => ({ ...s, showSettings: false, showContextEditor: false, showBookEditor: false, showAbout: false, showWiki: false, showMindMap: false, showSearch: false, showVersions: false, showTimeline: false, showNotes: false, showWorld: false, showKanban: false, mindMapConnectFrom: null }))
+        setUI({ showSettings: false, showContextEditor: false, showBookEditor: false, showAbout: false, showWiki: false, showMindMap: false, showSearch: false, showVersions: false, showTimeline: false, showNotes: false, showWorld: false, showKanban: false, mindMapConnectFrom: null })
       }
     }
     window.addEventListener('keydown', handleKeyDown)
@@ -673,12 +656,8 @@ const exportBook = async (format: 'docx' | 'pdf') => {
         contextData, contextGroups: groups, chapters, activeChapterId: firstId, isModified: false,
         worldData, kanbanData, notes, timelineData,
       }
-      setState(s => ({
-        ...s,
-        openBooks: [...s.openBooks.filter(b => b.dir !== dir), newBook],
-        activeBookId: bookId,
-        showWiki: false, wikiSelected: null
-      }))
+      addBookStore(newBook)
+      setUI({ showWiki: false, wikiSelected: null })
     })
   }
 
@@ -852,7 +831,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
       try {
         const bookDir = activeBook.dir
         await invoke('restore_version_snapshot', { bookDir, snapshotId })
-        setState(s => ({ ...s, openBooks: s.openBooks.filter(b => b.id !== activeBook.id), activeBookId: s.activeBookId === activeBook.id ? null : s.activeBookId }))
+        useBookStore.setState({ openBooks: openBooks.filter(b => b.id !== activeBook.id), activeBookId: activeBookId === activeBook.id ? null : activeBookId })
         let contextData: ContextEntry[] = []
         let bookConfig: BookConfig | null = null
         const contextPath = `${bookDir}/.context.json`
@@ -888,27 +867,27 @@ const exportBook = async (format: 'docx' | 'pdf') => {
   const handleMindMapMouseDown = (e: React.MouseEvent, entryName: string) => {
     e.stopPropagation()
     if (e.button === 1) return // middle mouse - ignore
-    if (state.mindMapConnectFrom) return
+    if (ui.mindMapConnectFrom) return
     const existing = contextData.find(c => c.name === entryName)
     const startX = existing?._x ?? 420
     const startY = existing?._y ?? 230
-    const coords = getCanvasCoords(e, state.mindMapZoom, state.mindMapPanX, state.mindMapPanY)
+    const coords = getCanvasCoords(e, ui.mindMapZoom, ui.mindMapPanX, ui.mindMapPanY)
     mindMapDragEntryStart.current = { x: startX, y: startY }
-    mindMapDragCursorStart.current = { x: coords.x, y: coords.y, zoom: state.mindMapZoom, panX: state.mindMapPanX, panY: state.mindMapPanY }
+    mindMapDragCursorStart.current = { x: coords.x, y: coords.y, zoom: ui.mindMapZoom, panX: ui.mindMapPanX, panY: ui.mindMapPanY }
     mindMapDragRef.current = entryName
     mindMapPanRef.current = null
-    setState(s => ({ ...s, mindMapDrag: entryName }))
+    setUI({ mindMapDrag: entryName })
   }
 
   const handleMindMapCanvasMouseDown = (e: React.MouseEvent) => {
-    if (state.mindMapConnectFrom) return
+    if (ui.mindMapConnectFrom) return
     if (e.button === 1) return // middle mouse - ignore
     if (mindMapDragRef.current) return // don't pan if dragging an entry
     mindMapDragRef.current = null
     mindMapDragCursorStart.current = null
     mindMapDragEntryStart.current = null
     if (e.button === 0) { // left mouse - pan
-      mindMapPanStart.current = { panX: state.mindMapPanX, panY: state.mindMapPanY, cursorX: e.clientX, cursorY: e.clientY }
+      mindMapPanStart.current = { panX: ui.mindMapPanX, panY: ui.mindMapPanY, cursorX: e.clientX, cursorY: e.clientY }
       mindMapPanRef.current = 'panning'
     }
   }
@@ -919,7 +898,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
       const start = mindMapPanStart.current
       const dx = e.clientX - start.cursorX
       const dy = e.clientY - start.cursorY
-      setState(s => ({ ...s, mindMapPanX: start.panX + dx, mindMapPanY: start.panY + dy }))
+      setUI({ mindMapPanX: start.panX + dx, mindMapPanY: start.panY + dy })
       return
     }
     if (!mindMapDragRef.current || !mindMapDragCursorStart.current || !mindMapDragEntryStart.current) return
@@ -961,7 +940,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
     mindMapDragEntryStart.current = null
     mindMapPanRef.current = null
     mindMapPanStart.current = null
-    setState(s => ({ ...s, mindMapDrag: null }))
+    setUI({ mindMapDrag: null })
   }
 
   const handleMindMapMouseLeave = () => {
@@ -980,29 +959,29 @@ const exportBook = async (format: 'docx' | 'pdf') => {
     zoomTimeoutRef.current = setTimeout(() => {
       zoomTimeoutRef.current = null
     }, 50)
-    setState(s => ({ ...s, mindMapZoom: Math.max(0.3, Math.min(2.5, s.mindMapZoom + delta)) }))
+    setUI({ mindMapZoom: Math.max(0.3, Math.min(2.5, ui.mindMapZoom + delta)) })
   }
 
 
   const handleMaximize = async () => {
     await invoke('maximize_window')
     const isMax = await invoke('is_maximized') as boolean
-    setState(s => ({ ...s, isMaximized: isMax }))
+    setUI({ isMaximized: isMax })
   }
   const handleClose = () => invoke('close_window')
 
   const fontCss = settings.fontFamily ? `'${settings.fontFamily}', sans-serif` : "'IBM Plex Sans', sans-serif"
 
   const searchResults = useCallback(() => {
-    if (!state.searchQuery.trim() || state.searchQuery.length < 2) return { entries: [], chapters: [] }
-    const q = state.searchQuery.toLowerCase()
+    if (!ui.searchQuery.trim() || ui.searchQuery.length < 2) return { entries: [], chapters: [] }
+    const q = ui.searchQuery.toLowerCase()
     const entries = contextData.filter(e => e.name.toLowerCase().includes(q))
     const chaptersWith: { chapter: Chapter; matches: number }[] = chapters.map(ch => ({
       chapter: ch,
       matches: (ch.code.toLowerCase().match(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length
     })).filter(c => c.matches > 0)
     return { entries, chapters: chaptersWith }
-  }, [state.searchQuery, contextData, chapters])
+  }, [ui.searchQuery, contextData, chapters])
 
   const { entries: searchEntries, chapters: searchChapters } = searchResults()
   const mindMapEntries = contextData.filter(e => e.type === 'character')
@@ -1011,16 +990,16 @@ const exportBook = async (format: 'docx' | 'pdf') => {
 
   return (
     <div className={`app ${settings.theme}`} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
-      {state.tooltip && (
-        <div className="context-tooltip" style={{ left: state.tooltip.x + 14, top: state.tooltip.y + 14 }}>
-          <div className="context-tooltip-name">{state.tooltip.name}</div>
+      {ui.tooltip && (
+        <div className="context-tooltip" style={{ left: ui.tooltip.x + 14, top: ui.tooltip.y + 14 }}>
+          <div className="context-tooltip-name">{ui.tooltip.name}</div>
           <div className="context-tooltip-type">
-            {state.tooltip.type === 'character' ? '👤 ' + t('context.types.character') :
-             state.tooltip.type === 'place' ? '📍 ' + t('context.types.place') :
-             state.tooltip.type === 'date' ? '📅 ' + t('context.types.date') : '📦 ' + t('context.types.item')}
+            {ui.tooltip.type === 'character' ? '👤 ' + t('context.types.character') :
+             ui.tooltip.type === 'place' ? '📍 ' + t('context.types.place') :
+             ui.tooltip.type === 'date' ? '📅 ' + t('context.types.date') : '📦 ' + t('context.types.item')}
           </div>
           <div className="context-tooltip-details">
-            {Object.entries(state.tooltip.details).filter(([, v]) => v).map(([k, v]) => (
+            {Object.entries(ui.tooltip.details).filter(([, v]) => v).map(([k, v]) => (
               <div key={k} className="context-tooltip-detail"><strong>{k}:</strong> {v}</div>
             ))}
           </div>
@@ -1046,20 +1025,20 @@ const exportBook = async (format: 'docx' | 'pdf') => {
         </div>
       )}
 
-      {state.showSettings && (
-        <div className="modal-overlay" onClick={() => setState(s => ({ ...s, showSettings: false }))}>
+      {ui.showSettings && (
+        <div className="modal-overlay" onClick={() => setUI({ showSettings: false })}>
           <div className="settings-panel" onClick={e => e.stopPropagation()}>
             <div className="panel-header">
               <h2>{t('settings.title')}</h2>
-              <button className="btn-icon" onClick={() => setState(s => ({ ...s, showSettings: false }))}>×</button>
+              <button className="btn-icon" onClick={() => setUI({ showSettings: false })}>×</button>
             </div>
             <div className="settings-tabs">
               {[t('settings.tabs.appearance'), t('settings.tabs.book'), t('settings.tabs.about')].map((tab, i) => (
-                <div key={i} className={`settings-tab ${state.settingsTab === i ? 'active' : ''}`} onClick={() => setState(s => ({ ...s, settingsTab: i }))}>{tab}</div>
+                <div key={i} className={`settings-tab ${ui.settingsTab === i ? 'active' : ''}`} onClick={() => setUI({ settingsTab: i })}>{tab}</div>
               ))}
             </div>
             <div className="settings-body">
-              {state.settingsTab === 0 && (
+              {ui.settingsTab === 0 && (
                 <>
                   <div className="setting-section">
                     <h3>{t('settings.themes')}</h3>
@@ -1094,7 +1073,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                   </div>
                 </>
               )}
-              {state.settingsTab === 1 && bookConfig && (
+              {ui.settingsTab === 1 && bookConfig && (
                 <div className="setting-section">
                   <h3>{t('settings.bookInfo')}</h3>
                   <div className="form-group"><label>{t('settings.bookTitle')}</label>
@@ -1122,24 +1101,24 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                   <button className="btn btn-primary" onClick={async () => { await saveBookConfig() }}>💾 {t('settings.bookSave')}</button>
                 </div>
               )}
-              {state.settingsTab === 1 && !bookConfig && (
+              {ui.settingsTab === 1 && !bookConfig && (
                 <div className="setting-section"><p style={{ color: 'var(--cool-gray)', fontSize: '13px' }}>{t('settings.noBookOpen')}</p></div>
               )}
-              {state.settingsTab === 2 && (
+              {ui.settingsTab === 2 && (
                 <div className="setting-about-section">
                   <div className="about-header">
                     <div className="about-logo">📖</div>
                     <div className="about-app-name">Paddyngton</div>
-                    <div className="about-version">{state.currentVersion}</div>
+                    <div className="about-version">{ui.currentVersion}</div>
                   </div>
                   
-                  {state.updateLoading && (
+                  {ui.updateLoading && (
                     <div className="about-update-checking">{t('about.checkingUpdate')}</div>
                   )}
                   
-                  {state.updateAvailable && !state.updateLoading && (
+                  {ui.updateAvailable && !ui.updateLoading && (
                     <div className="about-update-box">
-                      <span className="about-update-label">🎉 {t('about.updateAvailable').replace('{version}', state.updateAvailable)}</span>
+                      <span className="about-update-label">🎉 {t('about.updateAvailable').replace('{version}', ui.updateAvailable)}</span>
                       <button className="about-update-btn" onClick={async () => {
                         try {
                           const resp = await fetch('https://raw.githubusercontent.com/dontneedfriends-jpg/paddyngton/main/latest.json')
@@ -1155,7 +1134,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                     </div>
                   )}
 
-                  {!state.updateAvailable && !state.updateLoading && (
+                  {!ui.updateAvailable && !ui.updateLoading && (
                     <div className="about-up-to-date">✓ {t('about.upToDate')}</div>
                   )}
                   
@@ -1187,25 +1166,25 @@ const exportBook = async (format: 'docx' | 'pdf') => {
         </div>
       )}
 
-      {state.showAbout && (
-        <div className="modal-overlay" onClick={() => setState(s => ({ ...s, showAbout: false }))}>
+      {ui.showAbout && (
+        <div className="modal-overlay" onClick={() => setUI({ showAbout: false })}>
           <div className="about-panel" onClick={e => e.stopPropagation()}>
-            <button className="about-close-btn" onClick={() => setState(s => ({ ...s, showAbout: false }))}>×</button>
+            <button className="about-close-btn" onClick={() => setUI({ showAbout: false })}>×</button>
             <div>
               <div className="about-header">
                 <div className="about-logo">📖</div>
                 <div className="about-app-name">Paddyngton</div>
-                <div className="about-version">{state.currentVersion}</div>
+                <div className="about-version">{ui.currentVersion}</div>
               </div>
               
-              {state.updateLoading && (
+              {ui.updateLoading && (
                 <div className="about-update-checking">{t('about.checkingUpdate')}</div>
               )}
               
-              {state.updateAvailable && !state.updateLoading && (
+              {ui.updateAvailable && !ui.updateLoading && (
                 <div className="about-update-box">
                   <div className="about-update-info">
-                    <span className="about-update-label">🎉 {t('about.updateAvailable').replace('{version}', state.updateAvailable)}</span>
+                    <span className="about-update-label">🎉 {t('about.updateAvailable').replace('{version}', ui.updateAvailable)}</span>
                   </div>
                   <button className="about-update-btn" onClick={async () => {
                     try {
@@ -1223,7 +1202,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                 </div>
               )}
 
-              {!state.updateAvailable && !state.updateLoading && (
+              {!ui.updateAvailable && !ui.updateLoading && (
                 <div className="about-up-to-date">✓ {t('about.upToDate')}</div>
               )}
               
@@ -1253,33 +1232,33 @@ const exportBook = async (format: 'docx' | 'pdf') => {
         </div>
       )}
 
-      {state.showContextEditor && (
-        <div className="modal-overlay" onClick={() => setState(s => ({ ...s, showContextEditor: false, mindMapEditEntry: null }))}>
+      {ui.showContextEditor && (
+        <div className="modal-overlay" onClick={() => setUI({ showContextEditor: false, mindMapEditEntry: null })}>
           <div className="editor-panel context-panel" onClick={e => e.stopPropagation()}>
             <div className="panel-header">
               <h2>{t('context.title')}</h2>
               <div className="panel-header-actions">
-                {state.mindMapEditEntry && (
-                  <span style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 600 }}>👤 {state.mindMapEditEntry.name}</span>
+                {ui.mindMapEditEntry && (
+                  <span style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 600 }}>👤 {ui.mindMapEditEntry.name}</span>
                 )}
-                <button className="btn btn-sm" onClick={() => setState(s => ({ ...s, showWiki: true }))}>📚 Wiki</button>
-                <button className="btn btn-sm" onClick={() => setState(s => ({ ...s, showMindMap: true, mindMapEditEntry: null }))}>🕸️ Map</button>
-                <button className="btn-icon" onClick={() => setState(s => ({ ...s, showContextEditor: false, mindMapEditEntry: null }))}>×</button>
+                <button className="btn btn-sm" onClick={() => setUI({ showWiki: true })}>📚 Wiki</button>
+                <button className="btn btn-sm" onClick={() => setUI({ showMindMap: true, mindMapEditEntry: null })}>🕸️ Map</button>
+                <button className="btn-icon" onClick={() => setUI({ showContextEditor: false, mindMapEditEntry: null })}>×</button>
               </div>
             </div>
             <div className="panel-content">
-              {state.mindMapEditEntry && (
+              {ui.mindMapEditEntry && (
                 <div style={{ marginBottom: '12px', padding: '8px 12px', background: 'var(--accent)', color: 'var(--near-white)', borderRadius: '8px', fontSize: '13px' }}>
-                  Editing: <strong>{state.mindMapEditEntry.name}</strong>
-                  {state.mindMapEditEntry.relations && state.mindMapEditEntry.relations.length > 0 && (
+                  Editing: <strong>{ui.mindMapEditEntry.name}</strong>
+                  {ui.mindMapEditEntry.relations && ui.mindMapEditEntry.relations.length > 0 && (
                     <div style={{ marginTop: '4px', fontSize: '12px', opacity: 0.9 }}>
-                      Relations: {state.mindMapEditEntry.relations.map(r => `${r.name} (${t('relations.' + r.type)})`).join(', ')}
+                      Relations: {ui.mindMapEditEntry.relations.map(r => `${r.name} (${t('relations.' + r.type)})`).join(', ')}
                     </div>
                   )}
                 </div>
               )}
               <div className="context-list">
-                {(state.mindMapEditEntry ? [contextData.find(e => e.name === state.mindMapEditEntry!.name) || contextData[0]] : contextData).filter(Boolean).map((ctx, i) => (
+                {(ui.mindMapEditEntry ? [contextData.find(e => e.name === ui.mindMapEditEntry!.name) || contextData[0]] : contextData).filter(Boolean).map((ctx, i) => (
                   <div key={i} className="context-card">
                     <div className="context-card-header">
                       <input type="text" className="context-name-input" value={ctx!.name}
@@ -1293,7 +1272,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                       </select>
                       <input type="text" placeholder={t('context.group')} style={{ padding: '4px 8px', background: 'var(--white)', border: '1px solid var(--border-gray)', borderRadius: '6px', fontSize: '12px', width: '100px', color: 'var(--near-black)', fontFamily: 'inherit' }}
                         value={ctx!.group || ''} onChange={e => { const d = [...contextData]; const idx = d.findIndex(x => x.name === ctx!.name); if (idx >= 0) d[idx].group = e.target.value; updateActiveBook({ contextData: d }) }} />
-                      {!state.mindMapEditEntry && (
+                      {!ui.mindMapEditEntry && (
                         <button className="btn-icon" onClick={() => { const d = contextData.filter((_, idx) => idx !== i); updateActiveBook({ contextData: d }) }}>🗑️</button>
                       )}
                     </div>
@@ -1346,10 +1325,10 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                   </div>
                 ))}
               </div>
-              {!state.mindMapEditEntry && (
+              {!ui.mindMapEditEntry && (
                 <>
-                  {!state.showTemplateSelector ? (
-                    <button className="btn btn-primary" onClick={() => setState(s => ({ ...s, showTemplateSelector: true }))}>+ {t('context.add')}</button>
+                  {!ui.showTemplateSelector ? (
+                    <button className="btn btn-primary" onClick={() => setUI({ showTemplateSelector: true })}>+ {t('context.add')}</button>
                   ) : (
                     <div className="template-selector">
                       <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--cool-gray)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Choose type</div>
@@ -1364,7 +1343,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                                   Object.keys(CONTEXT_TEMPLATES[type]).forEach(k => { details[k] = '' })
                                   updateActiveBook({ contextData: [...contextData, { name: name.trim(), type, details, group: '', relations: [], notes: '' }] })
                                 }
-                                setState(s => ({ ...s, showTemplateSelector: false }))
+                                setUI({ showTemplateSelector: false })
                               }} })
                             }}>
                               <span style={{ fontSize: '24px' }}>{type === 'character' ? '👤' : type === 'place' ? '📍' : type === 'date' ? '📅' : '📦'}</span>
@@ -1373,23 +1352,23 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                           )
                         })}
                       </div>
-                      <button className="btn btn-sm" style={{ marginTop: '8px' }} onClick={() => setState(s => ({ ...s, showTemplateSelector: false }))}>Cancel</button>
+                      <button className="btn btn-sm" style={{ marginTop: '8px' }} onClick={() => setUI({ showTemplateSelector: false })}>Cancel</button>
                     </div>
                   )}
                 </>
               )}
               <div className="panel-actions">
-                <button className="btn btn-primary" onClick={async () => { await saveContext(); setState(s => ({ ...s, showContextEditor: false, mindMapEditEntry: null })) }}>{t('context.save')}</button>
+                <button className="btn btn-primary" onClick={async () => { await saveContext(); setUI({ showContextEditor: false, mindMapEditEntry: null }) }}>{t('context.save')}</button>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {state.showWiki && (
-        <div className="modal-overlay" onClick={() => setState(s => ({ ...s, showWiki: false }))}>
+      {ui.showWiki && (
+        <div className="modal-overlay" onClick={() => setUI({ showWiki: false })}>
           <div className="wiki-panel" onClick={e => e.stopPropagation()}>
-            <div className="panel-header"><h2>📚 {t('wiki.title')}</h2><button className="btn-icon" onClick={() => setState(s => ({ ...s, showWiki: false }))}>×</button></div>
+            <div className="panel-header"><h2>📚 {t('wiki.title')}</h2><button className="btn-icon" onClick={() => setUI({ showWiki: false })}>×</button></div>
             <div className="wiki-body">
               <div className="wiki-sidebar">
                 {contextGroups.map((g, gi) => {
@@ -1398,8 +1377,8 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                     <div key={gi} className="wiki-sidebar-section">
                       <div className="wiki-sidebar-title">{g.name}</div>
                       {items.map((item, i) => (
-                        <div key={i} className={`wiki-sidebar-item ${state.wikiSelected?.name === item.name ? 'active' : ''}`}
-                          onClick={() => setState(s => ({ ...s, wikiSelected: item }))}>
+                        <div key={i} className={`wiki-sidebar-item ${ui.wikiSelected?.name === item.name ? 'active' : ''}`}
+                          onClick={() => setUI({ wikiSelected: item })}>
                           <span>{item.type === 'character' ? '👤' : item.type === 'place' ? '📍' : item.type === 'date' ? '📅' : '📦'}</span>
                           {item.name}
                         </div>
@@ -1409,90 +1388,90 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                 })}
               </div>
               <div className="wiki-content">
-                {state.wikiSelected ? (
+                {ui.wikiSelected ? (
                   <>
                     <div className="wiki-entry-header">
                       <span className="wiki-entry-icon">
-                        {state.wikiSelected.type === 'character' ? '👤' : state.wikiSelected.type === 'place' ? '📍' : state.wikiSelected.type === 'date' ? '📅' : '📦'}
+                        {ui.wikiSelected.type === 'character' ? '👤' : ui.wikiSelected.type === 'place' ? '📍' : ui.wikiSelected.type === 'date' ? '📅' : '📦'}
                       </span>
-                      <span className="wiki-entry-name">{state.wikiSelected.name}</span>
+                      <span className="wiki-entry-name">{ui.wikiSelected.name}</span>
                       <span className="wiki-entry-type">
-                        {state.wikiSelected.type === 'character' ? t('context.types.character') :
-                         state.wikiSelected.type === 'place' ? t('context.types.place') :
-                         state.wikiSelected.type === 'date' ? t('context.types.date') : t('context.types.item')}
+                        {ui.wikiSelected.type === 'character' ? t('context.types.character') :
+                         ui.wikiSelected.type === 'place' ? t('context.types.place') :
+                         ui.wikiSelected.type === 'date' ? t('context.types.date') : t('context.types.item')}
                       </span>
                       <button className="btn btn-sm" style={{ marginLeft: 'auto' }}
-                        onClick={() => setState(s => ({ ...s, wikiEditMode: !s.wikiEditMode }))}>
-                        {state.wikiEditMode ? '👁 ' + t('context.view') : '✏️ ' + t('context.edit')}
+                        onClick={() => setUI({ wikiEditMode: !ui.wikiEditMode })}>
+                        {ui.wikiEditMode ? '👁 ' + t('context.view') : '✏️ ' + t('context.edit')}
                       </button>
                     </div>
-                    {state.wikiSelected.group && (
-                      <div style={{ fontSize: '12px', color: 'var(--cool-gray)', marginBottom: '12px' }}>{t('wiki.group')}: {state.wikiSelected.group}</div>
+                    {ui.wikiSelected.group && (
+                      <div style={{ fontSize: '12px', color: 'var(--cool-gray)', marginBottom: '12px' }}>{t('wiki.group')}: {ui.wikiSelected.group}</div>
                     )}
-                    {state.wikiEditMode ? (
+                    {ui.wikiEditMode ? (
                       <div className="wiki-edit-form">
                         <div className="form-group"><label>{t('context.name')}</label>
-                          <input type="text" className="form-input" value={state.wikiSelected.name}
+                          <input type="text" className="form-input" value={ui.wikiSelected.name}
                             onChange={e => {
-                              const d = contextData.map(c => c.name === state.wikiSelected!.name ? { ...c, name: e.target.value } : c)
+                              const d = contextData.map(c => c.name === ui.wikiSelected!.name ? { ...c, name: e.target.value } : c)
                               updateActiveBook({ contextData: d })
-                              setState(s => ({ ...s, wikiSelected: { ...s.wikiSelected!, name: e.target.value } }))
+                              setUI({ wikiSelected: { ...ui.wikiSelected!, name: e.target.value } })
                             }} />
                         </div>
                         <div className="form-group"><label>{t('context.group')}</label>
-                          <input type="text" className="form-input" value={state.wikiSelected.group || ''}
+                          <input type="text" className="form-input" value={ui.wikiSelected.group || ''}
                             onChange={e => {
-                              const d = contextData.map(c => c.name === state.wikiSelected!.name ? { ...c, group: e.target.value } : c)
+                              const d = contextData.map(c => c.name === ui.wikiSelected!.name ? { ...c, group: e.target.value } : c)
                               updateActiveBook({ contextData: d })
-                              setState(s => ({ ...s, wikiSelected: { ...s.wikiSelected!, group: e.target.value } }))
+                              setUI({ wikiSelected: { ...ui.wikiSelected!, group: e.target.value } })
                             }} />
                         </div>
                         <div className="form-group"><label>{t('context.notes') || 'Notes'}</label>
-                          <textarea className="form-textarea" rows={4} value={state.wikiSelected.notes || ''}
+                          <textarea className="form-textarea" rows={4} value={ui.wikiSelected.notes || ''}
                             placeholder={t('context.notesPlaceholder') || 'Personal notes, ideas, drafts...'}
                             onChange={e => {
-                              const d = contextData.map(c => c.name === state.wikiSelected!.name ? { ...c, notes: e.target.value } : c)
+                              const d = contextData.map(c => c.name === ui.wikiSelected!.name ? { ...c, notes: e.target.value } : c)
                               updateActiveBook({ contextData: d })
-                              setState(s => ({ ...s, wikiSelected: { ...s.wikiSelected!, notes: e.target.value } }))
+                              setUI({ wikiSelected: { ...ui.wikiSelected!, notes: e.target.value } })
                             }} />
                         </div>
                         <div className="form-group"><label>Properties</label>
-                          {Object.entries(state.wikiSelected.details).map(([k, v], i) => (
+                          {Object.entries(ui.wikiSelected.details).map(([k, v], i) => (
                             <div key={i} className="detail-row">
                               <input type="text" className="detail-key-input" value={k}
                                 onChange={e => {
                                   const nd: Record<string, string> = {}
-                                  Object.entries(state.wikiSelected!.details).forEach(([kk, vv], idx) => { nd[idx === i ? e.target.value : kk] = vv })
-                                  const d = contextData.map(c => c.name === state.wikiSelected!.name ? { ...c, details: nd } : c)
+                                  Object.entries(ui.wikiSelected!.details).forEach(([kk, vv], idx) => { nd[idx === i ? e.target.value : kk] = vv })
+                                  const d = contextData.map(c => c.name === ui.wikiSelected!.name ? { ...c, details: nd } : c)
                                   updateActiveBook({ contextData: d })
-                                  setState(s => ({ ...s, wikiSelected: { ...s.wikiSelected!, details: nd } }))
+                                  setUI({ wikiSelected: { ...ui.wikiSelected!, details: nd } })
                                 }} />
                               <input type="text" className="detail-value-input" value={v}
                                 onChange={e => {
                                   const nd = { ...state.wikiSelected!.details, [k]: e.target.value }
-                                  const d = contextData.map(c => c.name === state.wikiSelected!.name ? { ...c, details: nd } : c)
+                                  const d = contextData.map(c => c.name === ui.wikiSelected!.name ? { ...c, details: nd } : c)
                                   updateActiveBook({ contextData: d })
-                                  setState(s => ({ ...s, wikiSelected: { ...s.wikiSelected!, details: nd } }))
+                                  setUI({ wikiSelected: { ...ui.wikiSelected!, details: nd } })
                                 }} />
                               <button className="btn-icon" onClick={() => {
                                 const nd: Record<string, string> = {}
-                                Object.entries(state.wikiSelected!.details).forEach(([kk, vv], idx) => { if (idx !== i) nd[kk] = vv })
-                                const d = contextData.map(c => c.name === state.wikiSelected!.name ? { ...c, details: nd } : c)
+                                Object.entries(ui.wikiSelected!.details).forEach(([kk, vv], idx) => { if (idx !== i) nd[kk] = vv })
+                                const d = contextData.map(c => c.name === ui.wikiSelected!.name ? { ...c, details: nd } : c)
                                 updateActiveBook({ contextData: d })
-                                setState(s => ({ ...s, wikiSelected: { ...s.wikiSelected!, details: nd } }))
+                                setUI({ wikiSelected: { ...ui.wikiSelected!, details: nd } })
                               }}>×</button>
                             </div>
                           ))}
                           <button className="btn btn-sm" onClick={() => {
-                            const key = `prop${Object.keys(state.wikiSelected!.details).length + 1}`
+                            const key = `prop${Object.keys(ui.wikiSelected!.details).length + 1}`
                             const nd = { ...state.wikiSelected!.details, [key]: '' }
-                            const d = contextData.map(c => c.name === state.wikiSelected!.name ? { ...c, details: nd } : c)
+                            const d = contextData.map(c => c.name === ui.wikiSelected!.name ? { ...c, details: nd } : c)
                             updateActiveBook({ contextData: d })
-                            setState(s => ({ ...s, wikiSelected: { ...s.wikiSelected!, details: nd } }))
+                            setUI({ wikiSelected: { ...ui.wikiSelected!, details: nd } })
                           }}>+ Add property</button>
                         </div>
                         <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-                          <button className="btn btn-primary" onClick={async () => { await saveContext(); setState(s => ({ ...s, wikiEditMode: false })) }}>
+                          <button className="btn btn-primary" onClick={async () => { await saveContext(); setUI({ wikiEditMode: false }) }}>
                             💾 {t('context.save')}
                           </button>
                         </div>
@@ -1500,31 +1479,31 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                     ) : (
                       <>
                         <div className="wiki-detail-grid">
-                          {Object.entries(state.wikiSelected.details).filter(([, v]) => v).map(([k, v]) => (
+                          {Object.entries(ui.wikiSelected.details).filter(([, v]) => v).map(([k, v]) => (
                             <React.Fragment key={k}>
                               <div className="wiki-detail-key">{k}</div>
                               <div className="wiki-detail-value">{v}</div>
                             </React.Fragment>
                           ))}
                         </div>
-                        {state.wikiSelected.notes && (
+                        {ui.wikiSelected.notes && (
                           <div style={{ marginTop: '16px' }}>
                             <h4 style={{ fontSize: '12px', color: 'var(--cool-gray)', marginBottom: '8px' }}>NOTES</h4>
-                            <div style={{ fontSize: '13px', color: 'var(--text)', background: 'var(--bg-secondary)', borderRadius: '8px', padding: '12px', whiteSpace: 'pre-wrap' }}>{state.wikiSelected.notes}</div>
+                            <div style={{ fontSize: '13px', color: 'var(--text)', background: 'var(--bg-secondary)', borderRadius: '8px', padding: '12px', whiteSpace: 'pre-wrap' }}>{ui.wikiSelected.notes}</div>
                           </div>
                         )}
-                        {state.wikiSelected.type === 'character' && (
+                        {ui.wikiSelected.type === 'character' && (
                           <div style={{ marginTop: '16px' }}>
                             <h4 style={{ fontSize: '12px', color: 'var(--cool-gray)', marginBottom: '8px' }}>{t('wiki.relationships')}</h4>
-                            {state.wikiSelected.relations && state.wikiSelected.relations.length > 0 ? (
+                            {ui.wikiSelected.relations && ui.wikiSelected.relations.length > 0 ? (
                               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                {state.wikiSelected.relations.map((rel, i) => {
+                                {ui.wikiSelected.relations.map((rel, i) => {
                                   const relEntry = contextData.find(c => c.name === rel.name)
                                   return (
                                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-secondary)', borderRadius: '8px', padding: '8px 12px', borderLeft: `4px solid ${relationColors[rel.type]}` }}>
                                       <span style={{ fontSize: '12px' }}>{relEntry?.type === 'character' ? '👤' : relEntry?.type === 'place' ? '📍' : '📦'}</span>
                                       <span style={{ fontSize: '13px', fontWeight: 600, cursor: 'pointer', color: 'var(--accent)' }}
-                                        onClick={() => relEntry && setState(s => ({ ...s, wikiSelected: relEntry }))}>
+                                        onClick={() => relEntry && setUI({ wikiSelected: relEntry })}>
                                         {rel.name}
                                       </span>
                                       <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '10px', background: relationColors[rel.type] + '30', color: relationColors[rel.type], fontWeight: 600 }}>
@@ -1534,11 +1513,11 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                                         value={rel.type}
                                         onChange={e => {
                                           const newType = e.target.value as Relation['type']
-                                          const newD = contextData.map(c => c.name === state.wikiSelected!.name
+                                          const newD = contextData.map(c => c.name === ui.wikiSelected!.name
                                             ? { ...c, relations: c.relations?.map(r => r.name === rel.name ? { ...r, type: newType } : r) }
                                             : c)
                                           updateActiveBook({ contextData: newD })
-                                          setState(s => ({ ...s, wikiSelected: { ...s.wikiSelected!, relations: s.wikiSelected!.relations?.map(r => r.name === rel.name ? { ...r, type: newType } : r) } }))
+                                          setUI({ wikiSelected: { ...ui.wikiSelected!, relations: ui.wikiSelected!.relations?.map(r => r.name === rel.name ? { ...r, type: newType } : r) } })
                                         }}
                                         style={{ marginLeft: 'auto', padding: '2px 6px', borderRadius: '6px', border: '1px solid var(--border-gray)', fontSize: '11px', fontFamily: 'inherit', cursor: 'pointer' }}>
                                         <option value="ally">🤝 {t('relations.friendly')}</option>
@@ -1550,11 +1529,11 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                                       </select>
                                       <button className="btn-icon" style={{ fontSize: '11px', padding: '2px 6px' }}
                                         onClick={() => {
-                                          const newD = contextData.map(c => c.name === state.wikiSelected!.name
+                                          const newD = contextData.map(c => c.name === ui.wikiSelected!.name
                                             ? { ...c, relations: c.relations?.filter(r => r.name !== rel.name) }
                                             : c)
                                           updateActiveBook({ contextData: newD })
-                                          setState(s => ({ ...s, wikiSelected: { ...s.wikiSelected!, relations: s.wikiSelected!.relations?.filter(r => r.name !== rel.name) } }))
+                                          setUI({ wikiSelected: { ...ui.wikiSelected!, relations: ui.wikiSelected!.relations?.filter(r => r.name !== rel.name) } })
                                         }}>🗑️</button>
                                     </div>
                                   )
@@ -1566,14 +1545,14 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                               </div>
                             )}
                             <div style={{ marginTop: '8px' }}>
-                              <button className="btn btn-sm" onClick={() => setState(s => ({ ...s, showMindMap: true }))}>
+                              <button className="btn btn-sm" onClick={() => setUI({ showMindMap: true })}>
                                 🕸️ {t('wiki.openMindMap')}
                               </button>
                             </div>
                           </div>
                         )}
-                        {state.wikiSelected && activeBook && (() => {
-                          const charName = state.wikiSelected.name
+                        {ui.wikiSelected && activeBook && (() => {
+                          const charName = ui.wikiSelected.name
                           const relatedEvents: { type: 'timeline' | 'world'; title: string; date?: string; content: string }[] = []
                           activeBook.timelineData.forEach(t => {
                             if (t.characterIds.includes(charName)) {
@@ -1608,9 +1587,9 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                         })()}
                         <div className="wiki-cross-refs">
                           <h4>{t('wiki.related')}</h4>
-                          {contextData.filter(e => e.type === 'character' && e.name !== state.wikiSelected!.name).map((e, i) => (
+                          {contextData.filter(e => e.type === 'character' && e.name !== ui.wikiSelected!.name).map((e, i) => (
                             <button key={i} className="wiki-ref-item"
-                              onClick={() => setState(s => ({ ...s, wikiSelected: e }))}>
+                              onClick={() => setUI({ wikiSelected: e })}>
                               👤 {e.name}
                             </button>
                           ))}
@@ -1627,8 +1606,8 @@ const exportBook = async (format: 'docx' | 'pdf') => {
         </div>
       )}
 
-      {state.showMindMap && (
-        <div className="modal-overlay" onClick={() => setState(s => ({ ...s, showMindMap: false, mindMapConnectFrom: null, mindMapConnectGroupFrom: null }))}>
+      {ui.showMindMap && (
+        <div className="modal-overlay" onClick={() => setUI({ showMindMap: false, mindMapConnectFrom: null, mindMapConnectGroupFrom: null })}>
           <div className="mindmap-panel" onClick={e => e.stopPropagation()} style={{ maxWidth: '900px' }}>
             <div className="panel-header">
               <h2>🕸️ {t('mindmap.title')}</h2>
@@ -1642,12 +1621,12 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                     }
                   }} })
                 }}>➕ {t('mindmap.addCharacter')}</button>
-                {state.mindMapConnectFrom ? (
-                  <button className="btn btn-sm btn-warning" onClick={() => setState(s => ({ ...s, mindMapConnectFrom: null }))}>✕ {t('mindmap.disconnectMode')}</button>
+                {ui.mindMapConnectFrom ? (
+                  <button className="btn btn-sm btn-warning" onClick={() => setUI({ mindMapConnectFrom: null })}>✕ {t('mindmap.disconnectMode')}</button>
                 ) : (
-                  <button className="btn btn-sm btn-secondary" onClick={() => setState(s => ({ ...s, mindMapConnectFrom: '__start__' }))}>🔗 {t('mindmap.connectMode')}</button>
+                  <button className="btn btn-sm btn-secondary" onClick={() => setUI({ mindMapConnectFrom: '__start__' })}>🔗 {t('mindmap.connectMode')}</button>
                 )}
-                <button className="btn-icon" onClick={() => setState(s => ({ ...s, showMindMap: false, mindMapConnectFrom: null, mindMapConnectGroupFrom: null }))}>×</button>
+                <button className="btn-icon" onClick={() => setUI({ showMindMap: false, mindMapConnectFrom: null, mindMapConnectGroupFrom: null })}>×</button>
               </div>
             </div>
             {pendingRelation && (
@@ -1681,13 +1660,13 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                 const groups = [...new Set(mindMapEntries.map(e => e.group || t('context.noGroup')))]
                 return groups.length > 1 ? <span style={{ fontSize: '12px', color: 'var(--accent)' }}>{groups.length} groups</span> : null
               })()}
-              {state.mindMapConnectFrom && state.mindMapConnectFrom !== '__start__' && (
+              {ui.mindMapConnectFrom && ui.mindMapConnectFrom !== '__start__' && (
                 <span style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 600 }}>{t('mindmap.connectionFrom')}</span>
               )}
               <div style={{ marginLeft: 'auto', display: 'flex', gap: '4px', alignItems: 'center' }}>
-                <button className="btn btn-sm" style={{ padding: '4px 8px', fontSize: '12px' }} onClick={() => setState(s => ({ ...s, mindMapZoom: Math.max(0.3, s.mindMapZoom - 0.1) }))}>−</button>
-                <span style={{ fontSize: '11px', color: 'var(--cool-gray)', minWidth: '36px', textAlign: 'center' }}>{Math.round(state.mindMapZoom * 100)}%</span>
-                <button className="btn btn-sm" style={{ padding: '4px 8px', fontSize: '12px' }} onClick={() => setState(s => ({ ...s, mindMapZoom: Math.min(2.5, s.mindMapZoom + 0.1) }))}>+</button>
+                <button className="btn btn-sm" style={{ padding: '4px 8px', fontSize: '12px' }} onClick={() => setUI({ mindMapZoom: Math.max(0.3, ui.mindMapZoom - 0.1) })}>−</button>
+                <span style={{ fontSize: '11px', color: 'var(--cool-gray)', minWidth: '36px', textAlign: 'center' }}>{Math.round(ui.mindMapZoom * 100)}%</span>
+                <button className="btn btn-sm" style={{ padding: '4px 8px', fontSize: '12px' }} onClick={() => setUI({ mindMapZoom: Math.min(2.5, ui.mindMapZoom + 0.1) })}>+</button>
               </div>
             </div>
             <div className="mindmap-canvas" ref={mindMapCanvasRef}
@@ -1695,7 +1674,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
               onMouseMove={handleMindMapMouseMove} onMouseLeave={handleMindMapMouseUp}
               onMouseDown={handleMindMapCanvasMouseDown} onMouseUp={handleMindMapMouseUp} onWheel={handleMindMapWheel}>
               <div className="mindmap-canvas-inner"
-                style={{ transform: `translate(${state.mindMapPanX}px, ${state.mindMapPanY}px) scale(${state.mindMapZoom})`, transformOrigin: 'center', transition: mindMapPanRef.current ? 'none' : 'transform 0.15s ease', position: 'absolute', left: '50%', top: '50%', marginLeft: '-420px', marginTop: '-230px' }}>
+                style={{ transform: `translate(${ui.mindMapPanX}px, ${ui.mindMapPanY}px) scale(${ui.mindMapZoom})`, transformOrigin: 'center', transition: mindMapPanRef.current ? 'none' : 'transform 0.15s ease', position: 'absolute', left: '50%', top: '50%', marginLeft: '-420px', marginTop: '-230px' }}>
               <div style={{ width: '840px', height: '460px', position: 'relative' }}>
               {mindMapEntries.length === 0 && (
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--cool-gray)', fontSize: '14px', flexDirection: 'column', gap: '8px' }}>
@@ -1756,7 +1735,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                           const p2 = memberPositions[rel.name]
                           if (!p1 || !p2) return null
                           const sameGroup = (entry.group || t('context.noGroup')) === (mindMapEntries[j].group || t('context.noGroup'))
-                          const isActive = state.mindMapConnectFrom === entry.name || state.mindMapConnectFrom === rel.name
+                          const isActive = ui.mindMapConnectFrom === entry.name || ui.mindMapConnectFrom === rel.name
                           const color = isActive ? 'var(--accent)' : relationColors[rel.type]
                           return <line key={`${i}-${j}`} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y}
                             stroke={color}
@@ -1776,31 +1755,31 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                           </div>
                             {members.map((entry) => {
                             const mp = memberPositions[entry.name]
-                            const isConnectFrom = state.mindMapConnectFrom === entry.name
-                            const isConnectTarget = state.mindMapConnectFrom && state.mindMapConnectFrom !== '__start__' && state.mindMapConnectFrom !== entry.name
-                            const isDragging = state.mindMapDrag === entry.name
+                            const isConnectFrom = ui.mindMapConnectFrom === entry.name
+                            const isConnectTarget = ui.mindMapConnectFrom && ui.mindMapConnectFrom !== '__start__' && ui.mindMapConnectFrom !== entry.name
+                            const isDragging = ui.mindMapDrag === entry.name
                             return (
                               <div key={entry.name}
                                 className={`mindmap-node ${isConnectFrom ? 'connecting' : isConnectTarget ? 'target' : ''} ${isDragging ? 'dragging' : ''}`}
-                                style={{ left: mp.x - 60, top: mp.y - 20, cursor: state.mindMapDrag ? 'grabbing' : isDragging ? 'grabbing' : 'grab', zIndex: isDragging ? 100 : 2 }}
+                                style={{ left: mp.x - 60, top: mp.y - 20, cursor: ui.mindMapDrag ? 'grabbing' : isDragging ? 'grabbing' : 'grab', zIndex: isDragging ? 100 : 2 }}
                                 onMouseDown={(e) => { e.preventDefault(); handleMindMapMouseDown(e, entry.name) }}
                                 onClick={() => {
-                                  if (state.mindMapDrag) return
-                                  if (state.mindMapConnectFrom === '__start__') {
-                                    setState(s => ({ ...s, mindMapConnectFrom: entry.name }))
-                                  } else if (state.mindMapConnectFrom && state.mindMapConnectFrom !== entry.name) {
-                                    const fromName = state.mindMapConnectFrom
+                                  if (ui.mindMapDrag) return
+                                  if (ui.mindMapConnectFrom === '__start__') {
+                                    setUI({ mindMapConnectFrom: entry.name })
+                                  } else if (ui.mindMapConnectFrom && ui.mindMapConnectFrom !== entry.name) {
+                                    const fromName = ui.mindMapConnectFrom
                                     const fromEntry = contextData.find(e => e.name === fromName)
                                     const toEntry = contextData.find(e => e.name === entry.name)
                                     if (fromEntry && toEntry && !fromEntry.relations?.find(r => r.name === entry.name)) {
                                       setPendingRelation({ from: fromName, to: entry.name })
                                       setRelationTypeSelect('neutral')
                                     }
-                                    setState(s => ({ ...s, mindMapConnectFrom: null }))
+                                    setUI({ mindMapConnectFrom: null })
                                   }
                                 }}
                                 onDoubleClick={() => {
-                                  setState(s => ({ ...s, mindMapEditEntry: entry, showContextEditor: true, showMindMap: false }))
+                                  setUI({ mindMapEditEntry: entry, showContextEditor: true, showMindMap: false })
                                 }}
                               >
                                 <span className="mindmap-node-icon">👤</span>
@@ -1869,22 +1848,22 @@ const exportBook = async (format: 'docx' | 'pdf') => {
         </div>
       )}
 
-      {state.showSearch && (
-        <div className="modal-overlay" onClick={() => setState(s => ({ ...s, showSearch: false }))}>
+      {ui.showSearch && (
+        <div className="modal-overlay" onClick={() => setUI({ showSearch: false })}>
           <div className="search-panel" onClick={e => e.stopPropagation()}>
-            <div className="panel-header"><h2>🔍 {t('search.title')}</h2><button className="btn-icon" onClick={() => setState(s => ({ ...s, showSearch: false }))}>×</button></div>
+            <div className="panel-header"><h2>🔍 {t('search.title')}</h2><button className="btn-icon" onClick={() => setUI({ showSearch: false })}>×</button></div>
             <div className="search-input-wrapper">
-              <input type="text" className="search-input" placeholder={t('search.placeholder')} value={state.searchQuery}
-                onChange={e => setState(s => ({ ...s, searchQuery: e.target.value }))} autoFocus />
+              <input type="text" className="search-input" placeholder={t('search.placeholder')} value={ui.searchQuery}
+                onChange={e => setUI({ searchQuery: e.target.value })} autoFocus />
             </div>
             <div className="search-results">
-              {state.searchQuery.length >= 2 && (
+              {ui.searchQuery.length >= 2 && (
                 <>
                   {searchEntries.length > 0 && (
                     <>
                       <div className="search-section-title">{t('search.context')}</div>
                       {searchEntries.map((e, i) => (
-                        <div key={i} className="search-result-item" onClick={() => setState(s => ({ ...s, wikiSelected: e, showWiki: true, showSearch: false }))}>
+                        <div key={i} className="search-result-item" onClick={() => setUI({ wikiSelected: e, showWiki: true, showSearch: false })}>
                           <div className="search-result-entry">
                             <span className="search-result-entry-name">{e.name}</span>
                             <span className="search-result-type">{e.type === 'character' ? '👤' : e.type === 'place' ? '📍' : e.type === 'date' ? '📅' : '📦'} {e.type}</span>
@@ -1898,14 +1877,14 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                     <>
                       <div className="search-section-title">{t('search.chapters')} ({searchChapters.reduce((a, c) => a + c.matches, 0)} {t('search.matches')})</div>
                       {searchChapters.map((c, i) => (
-                        <div key={i} className="search-result-item" onClick={() => { updateActiveBook({ activeChapterId: c.chapter.id }); setState(s => ({ ...s, showSearch: false })) }}>
+                        <div key={i} className="search-result-item" onClick={() => { updateActiveBook({ activeChapterId: c.chapter.id }); setUI({ showSearch: false }) }}>
                           <div className="search-result-entry">
                             <span className="search-result-entry-name">{c.chapter.name}</span>
                             <span className="search-result-type">{c.matches} {t('search.occurrences')}</span>
                           </div>
                           <div className="search-result-chapters">
                             {(() => {
-                              const q = state.searchQuery.toLowerCase()
+                              const q = ui.searchQuery.toLowerCase()
                               const lines = c.chapter.code.split('\n')
                               const matches = lines.filter(l => l.toLowerCase().includes(q)).slice(0, 3)
                               return matches.map((line, li) => (
@@ -1924,7 +1903,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                   )}
                 </>
               )}
-              {state.searchQuery.length < 2 && (
+              {ui.searchQuery.length < 2 && (
                 <div style={{ textAlign: 'center', padding: '30px', color: 'var(--cool-gray)', fontSize: '14px' }}>{t('search.minChars')}</div>
               )}
             </div>
@@ -1932,10 +1911,10 @@ const exportBook = async (format: 'docx' | 'pdf') => {
         </div>
       )}
 
-      {state.showVersions && (
-        <div className="modal-overlay" onClick={() => setState(s => ({ ...s, showVersions: false }))}>
+      {ui.showVersions && (
+        <div className="modal-overlay" onClick={() => setUI({ showVersions: false })}>
           <div className="search-panel" onClick={e => e.stopPropagation()}>
-            <div className="panel-header"><h2>⏱️ Version History</h2><button className="btn-icon" onClick={() => setState(s => ({ ...s, showVersions: false }))}>×</button></div>
+            <div className="panel-header"><h2>⏱️ Version History</h2><button className="btn-icon" onClick={() => setUI({ showVersions: false })}>×</button></div>
             <div style={{ padding: '12px 14px', borderBottom: '1px solid var(--border-gray)', display: 'flex', gap: '8px', alignItems: 'center' }}>
               <input type="text" className="form-input" style={{ flex: 1 }} placeholder="Snapshot label (optional)"
                 value={snapshotLabel} onChange={e => setSnapshotLabel(e.target.value)}
@@ -1973,27 +1952,27 @@ const exportBook = async (format: 'docx' | 'pdf') => {
         <div className="titlebar-center">{bookConfig && <span className="book-title">{bookConfig.title}</span>}</div>
         <div className="titlebar-controls">
           <button className="titlebar-btn" onClick={handleMinimize}>─</button>
-          <button className="titlebar-btn" onClick={handleMaximize}>{state.isMaximized ? '❐' : '□'}</button>
+          <button className="titlebar-btn" onClick={handleMaximize}>{ui.isMaximized ? '❐' : '□'}</button>
           <button className="titlebar-btn close" onClick={handleClose}>×</button>
         </div>
       </div>
 
-      {state.showBookDialog && (
-        <div className="modal-overlay" onClick={() => setState(s => ({ ...s, showBookDialog: false }))}>
+      {ui.showBookDialog && (
+        <div className="modal-overlay" onClick={() => setUI({ showBookDialog: false })}>
           <div className="book-dialog" onClick={e => e.stopPropagation()}>
             <div className="panel-header">
-              <h2>{state.bookDialogMode === 'open' ? '📂 Open Book' : '💾 Save Book As'}</h2>
-              <button className="btn-icon" onClick={() => setState(s => ({ ...s, showBookDialog: false }))}>×</button>
+              <h2>{ui.bookDialogMode === 'open' ? '📂 Open Book' : '💾 Save Book As'}</h2>
+              <button className="btn-icon" onClick={() => setUI({ showBookDialog: false })}>×</button>
             </div>
             <div className="book-dialog-body">
-              {state.bookDialogMode === 'open' ? (
+              {ui.bookDialogMode === 'open' ? (
                 <>
-                  <button className="book-dialog-option" onClick={() => { setState(s => ({ ...s, showBookDialog: false })); openBookFolder() }}>
+                  <button className="book-dialog-option" onClick={() => { setUI({ showBookDialog: false }); openBookFolder() }}>
                     <span className="book-dialog-icon">📁</span>
                     <span className="book-dialog-label">Open Folder</span>
                     <span className="book-dialog-desc">Open a book from a folder on your computer</span>
                   </button>
-                  <button className="book-dialog-option" onClick={() => { setState(s => ({ ...s, showBookDialog: false })); openBearFile() }}>
+                  <button className="book-dialog-option" onClick={() => { setUI({ showBookDialog: false }); openBearFile() }}>
                     <span className="book-dialog-icon">📦</span>
                     <span className="book-dialog-label">Open .bear File</span>
                     <span className="book-dialog-desc">Open a .bear archive file</span>
@@ -2001,7 +1980,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                 </>
               ) : (
                 <>
-                  <button className="book-dialog-option" onClick={() => { setState(s => ({ ...s, showBookDialog: false })); saveAsBear() }}>
+                  <button className="book-dialog-option" onClick={() => { setUI({ showBookDialog: false }); saveAsBear() }}>
                     <span className="book-dialog-icon">📦</span>
                     <span className="book-dialog-label">Save as .bear</span>
                     <span className="book-dialog-desc">Save the current book as a .bear archive file</span>
@@ -2020,15 +1999,15 @@ const exportBook = async (format: 'docx' | 'pdf') => {
             <h1 className="welcome-title">{t('app.title')}</h1>
             <p className="welcome-subtitle">{t('app.subtitle')}</p>
             <div className="welcome-tabs">
-              <button className="welcome-tab active" onClick={() => setState(s => ({ ...s, welcomeTab: 'create' }))}>
+              <button className="welcome-tab active" onClick={() => setUI({ welcomeTab: 'create' })}>
                 📝 {t('app.welcome.newBook')}
               </button>
-              <button className="welcome-tab" onClick={() => setState(s => ({ ...s, welcomeTab: 'open' }))}>
+              <button className="welcome-tab" onClick={() => setUI({ welcomeTab: 'open' })}>
                 📂 {t('app.welcome.openBook')}
               </button>
             </div>
             <div className="welcome-panel">
-              {(!state.welcomeTab || state.welcomeTab === 'create') ? (
+              {(!ui.welcomeTab || ui.welcomeTab === 'create') ? (
                 <div className="welcome-section">
                   <button className="welcome-option" onClick={createNewBook}>
                     <span className="welcome-option-icon">📁</span>
@@ -2073,7 +2052,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
         <>
           <header className="header">
             <div className="header-left">
-              <button className="btn btn-icon" onClick={() => setState(s => ({ ...s, sidebarOpen: !s.sidebarOpen }))}>☰</button>
+              <button className="btn btn-icon" onClick={() => setUI({ sidebarOpen: !ui.sidebarOpen })}>☰</button>
               {bookConfig && (
                 <div className="book-info-inline">
                   <input type="text" className="book-info-title" value={bookConfig.title}
@@ -2088,16 +2067,16 @@ const exportBook = async (format: 'docx' | 'pdf') => {
               )}
             </div>
             <div className="header-center">
-              {state.openBooks.length > 1 && (
+              {openBooks.length > 1 && (
                 <div className="book-tabs">
-                  {state.openBooks.map(book => (
-                    <div key={book.id} className={`book-tab ${book.id === state.activeBookId ? 'active' : ''}`}
-                      onClick={() => setState(s => ({ ...s, activeBookId: book.id }))}>
+                  {openBooks.map(book => (
+                    <div key={book.id} className={`book-tab ${book.id === activeBookId ? 'active' : ''}`}
+                      onClick={() => setActiveBookId(book.id)}>
                       <span className="tab-name">{book.title}</span>
                       {book.isModified && <span className="modified-dot">•</span>}
                       <button className="tab-close" onClick={(e) => {
                         e.stopPropagation();
-                        setState(s => ({ ...s, openBooks: s.openBooks.filter(b => b.id !== book.id), activeBookId: s.activeBookId === book.id ? (s.openBooks.find(b => b.id !== book.id)?.id || null) : s.activeBookId }))
+                        useBookStore.setState({ openBooks: openBooks.filter(b => b.id !== book.id), activeBookId: activeBookId === book.id ? (openBooks.find(b => b.id !== book.id)?.id || null) : activeBookId })
                       }}>×</button>
                     </div>
                   ))}
@@ -2108,7 +2087,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
               <div className="toolbar-group">
                 <button className="btn btn-primary btn-sm" onClick={saveChapter} title={t('status.saved')}>💾 {t('header.save')}</button>
                 <div className="toolbar-dropdown">
-                  <button className="btn btn-sm" onClick={() => setState(s => ({ ...s, showBookDialog: true, bookDialogMode: 'save' }))}>📦 .bear</button>
+                  <button className="btn btn-sm" onClick={() => setUI({ showBookDialog: true, bookDialogMode: 'save' })}>📦 .bear</button>
                   <div className="toolbar-dropdown-content">
                     <button onClick={() => exportBook('docx')}>📄 DOCX</button>
                     <button onClick={() => exportBook('pdf')}>📑 PDF</button>
@@ -2116,19 +2095,19 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                 </div>
               </div>
               <div className="toolbar-divider" />
-              <button className={`btn btn-icon ${state.showNotes ? 'active' : ''}`} onClick={() => setState(s => ({ ...s, showNotes: !s.showNotes }))} title="Notes">📝</button>
-              <button className={`btn btn-icon ${state.showTimeline ? 'active' : ''}`} onClick={() => setState(s => ({ ...s, showTimeline: !s.showTimeline }))} title="Timeline">📅</button>
-              <button className={`btn btn-icon ${state.showWorld ? 'active' : ''}`} onClick={() => setState(s => ({ ...s, showWorld: !s.showWorld }))} title="World">🌍</button>
-              <button className={`btn btn-icon ${state.showKanban ? 'active' : ''}`} onClick={() => setState(s => ({ ...s, showKanban: !s.showKanban }))} title="Kanban">📋</button>
+              <button className={`btn btn-icon ${ui.showNotes ? 'active' : ''}`} onClick={() => setUI({ showNotes: !ui.showNotes })} title="Notes">📝</button>
+              <button className={`btn btn-icon ${ui.showTimeline ? 'active' : ''}`} onClick={() => setUI({ showTimeline: !ui.showTimeline })} title="Timeline">📅</button>
+              <button className={`btn btn-icon ${ui.showWorld ? 'active' : ''}`} onClick={() => setUI({ showWorld: !ui.showWorld })} title="World">🌍</button>
+              <button className={`btn btn-icon ${ui.showKanban ? 'active' : ''}`} onClick={() => setUI({ showKanban: !ui.showKanban })} title="Kanban">📋</button>
               <div className="toolbar-divider" />
-              <button className="btn btn-icon" onClick={() => { loadVersions(); setState(s => ({ ...s, showVersions: true })) }}>⏱️</button>
-              <button className="btn btn-icon" onClick={() => setState(s => ({ ...s, showSearch: true }))}>🔍</button>
-              <button className="btn btn-icon" onClick={() => setState(s => ({ ...s, showSettings: true }))}>⚙</button>
+              <button className="btn btn-icon" onClick={() => { loadVersions(); setUI({ showVersions: true }) }}>⏱️</button>
+              <button className="btn btn-icon" onClick={() => setUI({ showSearch: true })}>🔍</button>
+              <button className="btn btn-icon" onClick={() => setUI({ showSettings: true })}>⚙</button>
             </div>
           </header>
 
           <div className="main">
-            {state.sidebarOpen && (
+            {ui.sidebarOpen && (
               <aside className="sidebar">
                 <div className="sidebar-header"><span className="sidebar-title">{t('sidebar.chapters')}</span></div>
                 <div className="chapter-list">
@@ -2155,9 +2134,9 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                     <div className="context-header">
                       {t('sidebar.context')}
                       <div className="context-header-right">
-                        <button className="btn btn-sm" onClick={() => { const newEntry = { name: '', type: 'character' as const, details: {}, relations: [], notes: '' }; updateActiveBook({ contextData: [...contextData, newEntry] }); setState(s => ({ ...s, showContextEditor: true })) }}>+</button>
-                        <button className="btn btn-sm" onClick={() => setState(s => ({ ...s, showWiki: true }))}>📚</button>
-                        <button className="btn btn-sm" onClick={() => setState(s => ({ ...s, showMindMap: true }))}>🕸️</button>
+                        <button className="btn btn-sm" onClick={() => { const newEntry = { name: '', type: 'character' as const, details: {}, relations: [], notes: '' }; updateActiveBook({ contextData: [...contextData, newEntry] }); setUI({ showContextEditor: true }) }}>+</button>
+                        <button className="btn btn-sm" onClick={() => setUI({ showWiki: true })}>📚</button>
+                        <button className="btn btn-sm" onClick={() => setUI({ showMindMap: true })}>🕸️</button>
                       </div>
                     </div>
                     {contextGroups.map((g, gi) => {
@@ -2226,13 +2205,13 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                       )
                     })}
                     <span className="format-sep" />
-                    <button className={`format-btn format-btn-preview ${state.showPreview ? 'active' : ''}`}
-                      title="Toggle Preview Mode" onClick={() => setState(s => ({ ...s, showPreview: !s.showPreview }))}>
+                    <button className={`format-btn format-btn-preview ${ui.showPreview ? 'active' : ''}`}
+                      title="Toggle Preview Mode" onClick={() => setUI({ showPreview: !ui.showPreview })}>
                       👁️
                     </button>
                   </div>
-                  <div className="editor" style={{ flex: state.showPreview ? 1 : 2, display: 'flex', flexDirection: 'column' }}>
-                    {state.showPreview ? (
+                  <div className="editor" style={{ flex: ui.showPreview ? 1 : 2, display: 'flex', flexDirection: 'column' }}>
+                    {ui.showPreview ? (
                       <div className="editor-preview" style={{ flex: 1, overflow: 'auto', padding: '20px 40px' }}>
                         <div className="preview-content" dangerouslySetInnerHTML={{ __html: renderMarkdown(activeChapter.code) }} />
                       </div>
@@ -2261,20 +2240,20 @@ const exportBook = async (format: 'docx' | 'pdf') => {
         </>
       )}
 
-      {state.showTimeline && activeBook && (
+      {ui.showTimeline && activeBook && (
         <TimelinePanel
           timelineData={activeBook.timelineData}
           contextData={contextData}
           onUpdate={updateTimeline}
-          onClose={() => setState(s => ({ ...s, showTimeline: false }))}
+          onClose={() => setUI({ showTimeline: false })}
           t={t}
           confirmAction={confirmAction}
-          onOpenWiki={(entry) => setState(s => ({ ...s, showTimeline: false, wikiSelected: entry, showWiki: true }))}
+          onOpenWiki={(entry) => setUI({ showTimeline: false, wikiSelected: entry, showWiki: true })}
         />
       )}
 
-      {state.showNotes && activeBook && (
-        <div className="modal-overlay" onClick={() => setState(s => ({ ...s, showNotes: false }))}>
+      {ui.showNotes && activeBook && (
+        <div className="modal-overlay" onClick={() => setUI({ showNotes: false })}>
           <div className="notes-panel" onClick={e => e.stopPropagation()}>
             <div className="panel-header">
               <h2>📝 {t('notes.title')}</h2>
@@ -2286,7 +2265,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                     }
                   }} })
                 }}>➕ {t('notes.addNote')}</button>
-                <button className="btn-icon" onClick={() => setState(s => ({ ...s, showNotes: false }))}>×</button>
+                <button className="btn-icon" onClick={() => setUI({ showNotes: false })}>×</button>
               </div>
             </div>
             <div className="notes-body">
@@ -2318,8 +2297,8 @@ const exportBook = async (format: 'docx' | 'pdf') => {
         </div>
       )}
 
-      {state.showWorld && activeBook && (
-        <div className="modal-overlay" onClick={() => setState(s => ({ ...s, showWorld: false }))}>
+      {ui.showWorld && activeBook && (
+        <div className="modal-overlay" onClick={() => setUI({ showWorld: false })}>
           <div className="world-panel" onClick={e => e.stopPropagation()}>
             <div className="panel-header">
               <h2>🌍 {t('world.title')}</h2>
@@ -2333,7 +2312,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                     }
                   }}})
                 }}>➕ {t('world.addEntry')}</button>
-                <button className="btn-icon" onClick={() => setState(s => ({ ...s, showWorld: false }))}>×</button>
+                <button className="btn-icon" onClick={() => setUI({ showWorld: false })}>×</button>
               </div>
             </div>
             <div className="world-body">
@@ -2378,7 +2357,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                           const char = contextData.find(c => c.name === cid)
                           return char ? (
                             <span key={cid} style={{ fontSize: '10px', background: 'var(--accent)', color: 'var(--near-white)', padding: '2px 6px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-                              onClick={() => setState(s => ({ ...s, wikiSelected: char, showWiki: true }))}>
+                              onClick={() => setUI({ wikiSelected: char, showWiki: true })}>
                               👤 {char.name}
                               <button style={{ background: 'none', border: 'none', color: 'var(--near-white)', cursor: 'pointer', padding: 0, marginLeft: '2px', lineHeight: 1 }}
                                 onClick={(e) => { e.stopPropagation(); updateWorld(activeBook.worldData.map(w => w.id === entry.id ? { ...w, characterIds: w.characterIds.filter(id => id !== cid) } : w)) }}>×</button>
@@ -2399,8 +2378,8 @@ const exportBook = async (format: 'docx' | 'pdf') => {
         </div>
       )}
 
-      {state.showKanban && activeBook && (
-        <div className="modal-overlay" onClick={() => setState(s => ({ ...s, showKanban: false }))}>
+      {ui.showKanban && activeBook && (
+        <div className="modal-overlay" onClick={() => setUI({ showKanban: false })}>
           <div className="kanban-panel" onClick={e => e.stopPropagation()}>
             <div className="panel-header">
               <h2>📋 {t('kanban.title')}</h2>
@@ -2413,7 +2392,7 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                     }
                   }} })
                 }}>➕ {t('kanban.addColumn')}</button>
-                <button className="btn-icon" onClick={() => setState(s => ({ ...s, showKanban: false }))}>×</button>
+                <button className="btn-icon" onClick={() => setUI({ showKanban: false })}>×</button>
               </div>
             </div>
             <div className="kanban-body">

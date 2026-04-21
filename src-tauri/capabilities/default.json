@@ -17,6 +17,15 @@
     "fs:allow-remove",
     "updater:default",
     "shell:allow-open",
+    "http:default",
+    {
+      "identifier": "http:allow-fetch",
+      "allow": [
+        {
+          "url": "https://github.com/dontneedfriends-jpg/paddyngton/releases/latest/download/latest.json"
+        }
+      ]
+    },
     {
       "identifier": "fs:scope",
       "allow": [

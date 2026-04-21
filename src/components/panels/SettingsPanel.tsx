@@ -1,5 +1,6 @@
 import React from 'react'
 import { Check, X, RefreshCw } from 'lucide-react'
+import { fetch } from '@tauri-apps/plugin-http'
 import { useTranslation, Language } from '../../i18n'
 import { useUIStore } from '../../store/useUIStore'
 import { useSettingsStore } from '../../store/useSettingsStore'

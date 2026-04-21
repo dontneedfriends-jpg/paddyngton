@@ -1,3 +1,5 @@
 export { Toast } from './Toast'
 export { ConfirmDialog } from './ConfirmDialog'
 export { InputDialog } from './InputDialog'
+export { CommandPalette } from './CommandPalette'
+export { BookDialog } from './BookDialog'

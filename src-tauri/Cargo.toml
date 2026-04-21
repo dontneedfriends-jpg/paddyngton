@@ -24,6 +24,7 @@ tauri-plugin-dialog="2"
 tauri-plugin-fs="2"
 tauri-plugin-updater="2"
 tauri-plugin-shell="2"
+tauri-plugin-http="2"
 font-kit = "0.14"
 zip = { version = "2.2", default-features = false, features = ["deflate"] }
 printpdf = "0.7"

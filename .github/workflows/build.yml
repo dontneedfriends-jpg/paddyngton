@@ -35,7 +35,10 @@ jobs:
         run: |
           $runNum = $env:GITHUB_RUN_NUMBER
           $version = "0.1.$runNum"
+          # Update tauri.conf.json
           (Get-Content src-tauri/tauri.conf.json) -replace '"version": "[^"]+"', "`"version`": `"$version`"" | Set-Content src-tauri/tauri.conf.json
+          # Also update Cargo.toml so get_version() returns the correct value
+          (Get-Content src-tauri/Cargo.toml) -replace '^version = "[^"]+"', "version = `"$version`"" | Set-Content src-tauri/Cargo.toml
           Write-Host "Version set to $version"
         shell: pwsh
 

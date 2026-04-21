@@ -106,6 +106,22 @@ const editorExtensions = [
   markdownMarkerPlugin,
 ]
 
+function parseVersion(v: string): number[] {
+  return v.split('.').map(n => parseInt(n, 10) || 0)
+}
+
+function isNewerVersion(remote: string, local: string): boolean {
+  const r = parseVersion(remote)
+  const l = parseVersion(local)
+  for (let i = 0; i < Math.max(r.length, l.length); i++) {
+    const rv = r[i] || 0
+    const lv = l[i] || 0
+    if (rv > lv) return true
+    if (rv < lv) return false
+  }
+  return false
+}
+
 function App() {
   const { t, language, setLanguage } = useTranslation()
   const settings = useSettingsStore(s => s.settings)
@@ -360,21 +376,30 @@ function App() {
   }, [])
 
   useEffect(() => {
-    invoke<string>('get_version').then(v => setUI({ currentVersion: v })).catch(() => {})
     invoke<string[]>('get_system_fonts').then(fonts => {
       setSystemFonts(fonts.sort((a, b) => a.localeCompare(b)))
     }).catch(() => {})
 
     const checkForUpdates = async () => {
-      await new Promise(r => setTimeout(r, 2000))
+      // First get local version, then check against remote
+      let localVersion = '0.0.0'
+      try {
+        localVersion = await invoke<string>('get_version')
+        setUI({ currentVersion: localVersion })
+      } catch {
+        setUI({ currentVersion: localVersion })
+      }
+
+      await new Promise(r => setTimeout(r, 1500))
+
       try {
         setUI({ updateLoading: true })
-        const resp = await fetch('https://raw.githubusercontent.com/dontneedfriends-jpg/paddyngton/main/latest.json')
+        // Fetch from GitHub Release asset (not raw.githubusercontent.com)
+        const resp = await fetch('https://github.com/dontneedfriends-jpg/paddyngton/releases/latest/download/latest.json')
         if (resp.ok) {
           const data = await resp.json()
-          const remoteVersion = data.version
-          const localVersion = ui.currentVersion
-          if (remoteVersion !== localVersion) {
+          const remoteVersion = data.version as string
+          if (isNewerVersion(remoteVersion, localVersion)) {
             setUI({ updateAvailable: remoteVersion, updateLoading: false })
           } else {
             setUI({ updateAvailable: null, updateLoading: false })
@@ -1121,14 +1146,13 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                       <span className="about-update-label">🎉 {t('about.updateAvailable').replace('{version}', ui.updateAvailable)}</span>
                       <button className="about-update-btn" onClick={async () => {
                         try {
-                          const resp = await fetch('https://raw.githubusercontent.com/dontneedfriends-jpg/paddyngton/main/latest.json')
+                          const resp = await fetch('https://github.com/dontneedfriends-jpg/paddyngton/releases/latest/download/latest.json')
                           const data = await resp.json()
-                          const downloadUrl = data.url
-                          alert('Открытие: ' + downloadUrl)
+                          const downloadUrl = data.url as string
                           const { open } = await import('@tauri-apps/plugin-shell')
                           await open(downloadUrl)
                         } catch (e) {
-                          alert('Ошибка: ' + e)
+                          alert('Error: ' + e)
                         }
                       }}>{t('about.updateNow')}</button>
                     </div>
@@ -1188,13 +1212,13 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                   </div>
                   <button className="about-update-btn" onClick={async () => {
                     try {
-                      const resp = await fetch('https://raw.githubusercontent.com/dontneedfriends-jpg/paddyngton/main/latest.json')
+                      const resp = await fetch('https://github.com/dontneedfriends-jpg/paddyngton/releases/latest/download/latest.json')
                       const data = await resp.json()
-                      const downloadUrl = data.url
+                      const downloadUrl = data.url as string
                       const { open } = await import('@tauri-apps/plugin-shell')
                       await open(downloadUrl)
                     } catch (e) {
-                      alert('Ошибка: ' + e)
+                      alert('Error: ' + e)
                     }
                   }}>
                     🔄 {t('about.updateNow')}

@@ -47,7 +47,15 @@ fn set_always_on_top(window: tauri::Window, value: bool) -> Result<(), String> {
 
 #[tauri::command]
 fn get_version() -> String {
-    env!("CARGO_PKG_VERSION").to_string()
+    // Read version from tauri.conf.json at compile time so it matches
+    // the version that CI injects into tauri.conf.json before building.
+    let config = include_str!("../tauri.conf.json");
+    let parsed: serde_json::Value = serde_json::from_str(config).unwrap_or_default();
+    parsed
+        .get("version")
+        .and_then(|v| v.as_str())
+        .unwrap_or(env!("CARGO_PKG_VERSION"))
+        .to_string()
 }
 
 #[tauri::command]

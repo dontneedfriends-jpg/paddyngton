@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { invoke } from '@tauri-apps/api/core'
-import { check } from '@tauri-apps/plugin-updater'
 import { open, save } from '@tauri-apps/plugin-dialog'
 import { exists, readTextFile, mkdir, writeTextFile } from '@tauri-apps/plugin-fs'
 import Editor from '@uiw/react-codemirror'
@@ -17,9 +16,10 @@ import { Language, languages } from './i18n'
 import { Toast, ConfirmDialog, InputDialog } from './components/dialogs'
 import { TimelinePanel } from './components/panels'
 import { FORMAT_BUTTONS, MARKER_CLOSERS } from './constants'
-import { loadSettings, saveSettingsToStorage } from './hooks/useSettings'
 import { renderMarkdown } from './lib/markdownRender'
 import { extractGroups, findContextEntry, getWordAtPos } from './lib/contextHelpers'
+import { useUIStore } from './store/useUIStore'
+import { useSettingsStore } from './store/useSettingsStore'
 import {
   type ThemeName,
   type Chapter,
@@ -28,7 +28,6 @@ import {
   type RelationType,
   type ContextGroup,
   type BookConfig,
-  type AppSettings,
   type BookInstance,
   type WorldEntry,
   type KanbanBoard,
@@ -46,7 +45,6 @@ import {
   BOOK_TYPES,
   CONTEXT_TEMPLATES,
   TEMPLATE_NAMES,
-  DEFAULT_SETTINGS,
 } from './types'
 
 export const relationColors = RELATION_COLORS
@@ -108,11 +106,15 @@ const editorExtensions = [
   markdownMarkerPlugin,
 ]
 
-const defaultSettings = loadSettings()
-
 function App() {
   const { t, language, setLanguage } = useTranslation()
-  const [settings, setSettings] = useState<AppSettings>(defaultSettings)
+  const settings = useSettingsStore(s => s.settings)
+  const updateSettings = useSettingsStore(s => s.updateSettings)
+  const cycleTheme = useSettingsStore(s => s.cycleTheme)
+  const ui = useUIStore()
+  const setUI = useUIStore(s => s.set)
+  const showToast = useUIStore(s => s.showToast)
+  const confirmAction = useUIStore(s => s.confirmAction)
   const [state, setState] = useState<AppState>({
     openBooks: [], activeBookId: null, sidebarOpen: true,
     showSettings: false, showContextEditor: false, showBookEditor: false,
@@ -130,13 +132,7 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
   })
   const [versions, setVersions] = useState<VersionSnapshot[]>([])
   const [snapshotLabel, setSnapshotLabel] = useState('')
-  const [toast, setToast] = useState<{ message: string; type: 'info' | 'success' | 'error' } | null>(null)
-  const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null)
-  const [inputDialog, setInputDialog] = useState<{ title: string; label: string; defaultValue: string; multiline?: boolean; onSubmit: (value: string) => void } | null>(null)
   const inputDialogRef = useRef<HTMLInputElement | null>(null)
-  const [selectedColor, setSelectedColor] = useState('#e53e3e')
-  const [selectedBgColor, setSelectedBgColor] = useState('#faf089')
-  const [linkUrl, setLinkUrl] = useState('')
   const colorInputRef = useRef<HTMLInputElement>(null)
   const bgColorInputRef = useRef<HTMLInputElement>(null)
   const mindMapDragRef = useRef<string | null>(null)
@@ -172,20 +168,10 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
     updateActiveBook({ chapters: chapters.map(c => c.id === chapterId ? { ...c, ...patch } : c) })
   }, [chapters, updateActiveBook])
 
-  const [commandQuery, setCommandQuery] = useState('')
-  const [showCommandPalette, setShowCommandPalette] = useState(false)
   const [systemFonts, setSystemFonts] = useState<string[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
   const editorViewRef = useRef<EditorView | null>(null)
   const tooltipTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const updateSettings = useCallback((patch: Partial<AppSettings>) => {
-    setSettings(prev => {
-      const next = { ...prev, ...patch }
-      saveSettingsToStorage(next)
-      return next
-    })
-  }, [])
 
   const commands = [
     { name: t('commands.newBook'), shortcut: 'Ctrl+N', action: () => createNewBook() },
@@ -204,7 +190,7 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
     { name: t('commands.settings'), shortcut: 'Ctrl+,', action: () => setState(s => ({ ...s, showSettings: true })) },
   ]
 
-  const filteredCommands = commands.filter(cmd => cmd.name.toLowerCase().includes(commandQuery.toLowerCase()))
+  const filteredCommands = commands.filter(cmd => cmd.name.toLowerCase().includes(ui.commandQuery.toLowerCase()))
 
   const getCloseMarker = (marker: string): string => {
     return MARKER_CLOSERS[marker] || marker
@@ -231,20 +217,6 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
       })
     }
     view.focus()
-  }
-
-  const cycleTheme = () => {
-    const idx = THEME_ORDER.indexOf(settings.theme)
-    updateSettings({ theme: THEME_ORDER[(idx + 1) % THEME_ORDER.length] })
-  }
-
-  const showToast = (message: string, type: 'info' | 'success' | 'error' = 'info') => {
-    setToast({ message, type })
-    setTimeout(() => setToast(null), 3000)
-  }
-
-  const confirmAction = (message: string, onConfirm: () => void) => {
-    setConfirmDialog({ message, onConfirm })
   }
 
   const applyFormat = (fmt: FormatButton) => {
@@ -344,7 +316,7 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
       }
 
       case 'link': {
-        setInputDialog({ title: 'Insert Link', label: 'Enter URL:', defaultValue: selected ? '' : 'https://', onSubmit: (url) => {
+        setUI({ inputDialog: { title: 'Insert Link', label: 'Enter URL:', defaultValue: selected ? '' : 'https://', onSubmit: (url) => {
           const view = editorViewRef.current
           if (!view || !url) return
           const { from, to } = view.state.selection.main
@@ -353,7 +325,7 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
             changes: { from, to, insert: `[${text}](${url})` },
             selection: { anchor: from, head: from + text.length + url.length + 4 }
           })
-        }})
+        }} })
         break
       }
     }
@@ -404,7 +376,7 @@ showTimeline: false, showNotes: false, showWorld: false, showKanban: false, show
     }
   }, [])
 
-useEffect(() => {
+  useEffect(() => {
     invoke<string>('get_version').then(v => setState(s => ({ ...s, currentVersion: v }))).catch(() => {})
     invoke<string[]>('get_system_fonts').then(fonts => {
       setSystemFonts(fonts.sort((a, b) => a.localeCompare(b)))
@@ -435,43 +407,13 @@ useEffect(() => {
   }, [])
 
   useEffect(() => {
-    invoke<string>('get_version').then(v => setState(s => ({ ...s, currentVersion: v }))).catch(() => {})
-    invoke<string[]>('get_system_fonts').then(fonts => {
-      setSystemFonts(fonts.sort((a, b) => a.localeCompare(b)))
-    }).catch(() => {})
-    
-    const checkForUpdates = async () => {
-      await new Promise(r => setTimeout(r, 2000))
-      try {
-        setState(s => ({ ...s, updateLoading: true }))
-        const resp = await fetch('https://raw.githubusercontent.com/dontneedfriends-jpg/paddyngton/main/latest.json')
-        if (resp.ok) {
-          const data = await resp.json()
-          const remoteVersion = data.version
-          const localVersion = state.currentVersion
-          if (remoteVersion !== localVersion) {
-            setState(s => ({ ...s, updateAvailable: remoteVersion, updateLoading: false }))
-          } else {
-            setState(s => ({ ...s, updateAvailable: null, updateLoading: false }))
-          }
-        } else {
-          setState(s => ({ ...s, updateAvailable: null, updateLoading: false }))
-        }
-      } catch (e) {
-        setState(s => ({ ...s, updateAvailable: null, updateLoading: false }))
-      }
-    }
-    checkForUpdates()
-  }, [])
-
-  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement
       const inInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable
       if (inInput && !e.ctrlKey && !e.metaKey) return
 
       if (e.ctrlKey || e.metaKey) {
-        if (e.code === 'KeyK') { e.preventDefault(); setShowCommandPalette(true); setCommandQuery('') }
+        if (e.code === 'KeyK') { e.preventDefault(); setUI({ showCommandPalette: true }); setUI({ commandQuery: '' }) }
         else if (e.code === 'KeyO' && !e.shiftKey) { e.preventDefault(); setState(s => ({ ...s, showBookDialog: true, bookDialogMode: 'open' })) }
         else if (e.code === 'KeyO' && e.shiftKey) { e.preventDefault(); createNewBook() }
         else if (e.code === 'KeyS') { e.preventDefault(); saveChapter() }
@@ -487,7 +429,7 @@ useEffect(() => {
         else if (e.code === 'KeyX' && !inInput) { e.preventDefault(); document.execCommand('cut') }
       }
       if (e.code === 'Escape') {
-        setShowCommandPalette(false)
+        setUI({ showCommandPalette: false })
         setState(s => ({ ...s, showSettings: false, showContextEditor: false, showBookEditor: false, showAbout: false, showWiki: false, showMindMap: false, showSearch: false, showVersions: false, showTimeline: false, showNotes: false, showWorld: false, showKanban: false, mindMapConnectFrom: null }))
       }
     }
@@ -496,21 +438,21 @@ useEffect(() => {
   }, [])
 
   useEffect(() => {
-    if (showCommandPalette && inputRef.current) inputRef.current.focus()
-  }, [showCommandPalette])
+    if (ui.showCommandPalette && inputRef.current) inputRef.current.focus()
+  }, [ui.showCommandPalette])
 
   useEffect(() => {
     return () => { if (tooltipTimeout.current) clearTimeout(tooltipTimeout.current) }
   }, [])
 
   useEffect(() => {
-    if (inputDialog || confirmDialog) {
+    if (ui.inputDialog || ui.confirmDialog) {
       invoke('set_always_on_top', { value: true }).catch(() => {})
     }
     return () => {
       invoke('set_always_on_top', { value: false }).catch(() => {})
     }
-  }, [inputDialog, confirmDialog])
+  }, [ui.inputDialog, ui.confirmDialog])
 
   useEffect(() => {
     if (!activeBook || settings.autoSnapshotMinutes <= 0) return
@@ -1085,15 +1027,15 @@ const exportBook = async (format: 'docx' | 'pdf') => {
         </div>
       )}
 
-      {showCommandPalette && (
-        <div className="modal-overlay" onClick={() => setShowCommandPalette(false)}>
+      {ui.showCommandPalette && (
+        <div className="modal-overlay" onClick={() => setUI({ showCommandPalette: false })}>
           <div className="command-palette" onClick={e => e.stopPropagation()}>
             <div className="command-input-wrapper">
-              <input ref={inputRef} type="text" className="command-input" placeholder={t('commands.title') + '...'} value={commandQuery} onChange={e => setCommandQuery(e.target.value)} />
+              <input ref={inputRef} type="text" className="command-input" placeholder={t('commands.title') + '...'} value={ui.commandQuery} onChange={e => setUI({ commandQuery: e.target.value })} />
             </div>
             <div className="command-list">
               {filteredCommands.map((cmd, i) => (
-                <div key={i} className="command-item" onClick={() => { cmd.action(); setShowCommandPalette(false) }}>
+                <div key={i} className="command-item" onClick={() => { cmd.action(); setUI({ showCommandPalette: false }) }}>
                   <div className="command-icon">{cmd.name[0]}</div>
                   <span>{cmd.name}</span>
                   {cmd.shortcut && <span className="command-shortcut">{cmd.shortcut}</span>}
@@ -1371,10 +1313,10 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                             </span>
                           ))}
                           <button className="btn btn-sm" style={{ fontSize: '11px', padding: '2px 8px' }} onClick={() => {
-                            setInputDialog({ title: 'Add Relation', label: 'Character name:', defaultValue: '', onSubmit: (name) => {
+                            setUI({ inputDialog: { title: 'Add Relation', label: 'Character name:', defaultValue: '', onSubmit: (name) => {
                               if (name && name.trim()) {
                                 const relTypes: Relation['type'][] = ['ally', 'enemy', 'family', 'neutral', 'romantic', 'rival']
-                                setInputDialog({ title: 'Relation Type', label: 'Select relation type:', defaultValue: 'ally', onSubmit: (type) => {
+                                setUI({ inputDialog: { title: 'Relation Type', label: 'Select relation type:', defaultValue: 'ally', onSubmit: (type) => {
                                   const relType = relTypes.includes(type as Relation['type']) ? type as Relation['type'] : 'neutral'
                                   const d = [...contextData]; const idx = d.findIndex(x => x.name === ctx!.name)
                                   if (idx >= 0) {
@@ -1382,9 +1324,9 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                                     if (!d[idx].relations!.find((r: Relation) => r.name === name.trim())) d[idx].relations = [...d[idx].relations!, { name: name.trim(), type: relType }]
                                   }
                                   updateActiveBook({ contextData: d })
-                                }})
+                                }}})
                               }
-                            }})
+                            }}})
                           }}>+ Rel</button>
                         </div>
                       </div>
@@ -1416,14 +1358,14 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                           const typeLabel = type === 'character' ? 'Character' : type === 'place' ? 'Place' : type === 'date' ? 'Date/Event' : 'Item'
                           return (
                             <button key={type} className="template-type-btn" onClick={() => {
-                              setInputDialog({ title: `Add ${typeLabel}`, label: `${typeLabel} name:`, defaultValue: '', onSubmit: (name) => {
+                              setUI({ inputDialog: { title: `Add ${typeLabel}`, label: `${typeLabel} name:`, defaultValue: '', onSubmit: (name) => {
                                 if (name && name.trim()) {
                                   const details: Record<string, string> = {}
                                   Object.keys(CONTEXT_TEMPLATES[type]).forEach(k => { details[k] = '' })
                                   updateActiveBook({ contextData: [...contextData, { name: name.trim(), type, details, group: '', relations: [], notes: '' }] })
                                 }
                                 setState(s => ({ ...s, showTemplateSelector: false }))
-                              }})
+                              }} })
                             }}>
                               <span style={{ fontSize: '24px' }}>{type === 'character' ? '👤' : type === 'place' ? '📍' : type === 'date' ? '📅' : '📦'}</span>
                               <span>{typeLabel}</span>
@@ -1692,13 +1634,13 @@ const exportBook = async (format: 'docx' | 'pdf') => {
               <h2>🕸️ {t('mindmap.title')}</h2>
               <div className="panel-header-actions">
                 <button className="btn btn-sm" onClick={() => {
-                  setInputDialog({ title: t('mindmap.addCharacter'), label: t('mindmap.enterName'), defaultValue: '', onSubmit: (name) => {
+                  setUI({ inputDialog: { title: t('mindmap.addCharacter'), label: t('mindmap.enterName'), defaultValue: '', onSubmit: (name) => {
                     if (name && name.trim()) {
                       const details: Record<string, string> = {}
                       Object.keys(CONTEXT_TEMPLATES.character).forEach(k => { details[k] = '' })
                       updateActiveBook({ contextData: [...contextData, { name: name.trim(), type: 'character', details, relations: [], group: '', notes: '' }] })
                     }
-                  }})
+                  }} })
                 }}>➕ {t('mindmap.addCharacter')}</button>
                 {state.mindMapConnectFrom ? (
                   <button className="btn btn-sm btn-warning" onClick={() => setState(s => ({ ...s, mindMapConnectFrom: null }))}>✕ {t('mindmap.disconnectMode')}</button>
@@ -1759,13 +1701,13 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--cool-gray)', fontSize: '14px', flexDirection: 'column', gap: '8px' }}>
                   {t('mindmap.noCharacters')}
                   <button className="btn btn-primary btn-sm" onClick={() => {
-                    setInputDialog({ title: t('mindmap.addCharacter'), label: t('mindmap.enterName'), defaultValue: '', onSubmit: (name) => {
+                    setUI({ inputDialog: { title: t('mindmap.addCharacter'), label: t('mindmap.enterName'), defaultValue: '', onSubmit: (name) => {
                       if (name && name.trim()) {
                         const details: Record<string, string> = {}
                         Object.keys(CONTEXT_TEMPLATES.character).forEach(k => { details[k] = '' })
                         updateActiveBook({ contextData: [...contextData, { name: name.trim(), type: 'character', details, relations: [], group: '', notes: '' }] })
                       }
-                    }})
+                    }} })
                   }}>➕ {t('mindmap.addCharacter')}</button>
                 </div>
               )}
@@ -2242,12 +2184,12 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                 <>
                   <div className="format-toolbar">
                     <input ref={colorInputRef} type="color" style={{ display: 'none' }}
-                      value={selectedColor}
-                      onChange={e => setSelectedColor(e.target.value)}
+                      value={ui.selectedColor}
+                      onChange={e => setUI({ selectedColor: e.target.value })}
                       onBlur={e => applyColor(e.target.value, false)} />
                     <input ref={bgColorInputRef} type="color" style={{ display: 'none' }}
-                      value={selectedBgColor}
-                      onChange={e => setSelectedBgColor(e.target.value)}
+                      value={ui.selectedBgColor}
+                      onChange={e => setUI({ selectedBgColor: e.target.value })}
                       onBlur={e => applyColor(e.target.value, true)} />
                     {FORMAT_BUTTONS.map(btn => {
                       if (btn.type === 'sep') return <span key={btn.id} className="format-sep" />
@@ -2278,8 +2220,8 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                         <button key={btn.id} className={`format-btn ${btn.id === 'color' ? 'format-btn-color' : ''} ${btn.id === 'bgColor' ? 'format-btn-bgcolor' : ''}`}
                           title={t(btn.titleKey) || ''} onClick={() => applyFormat(btn)} style={style}>
                           {btn.icon}
-                          {btn.id === 'color' && <span className="format-color-swatch" style={{ background: selectedColor }} />}
-                          {btn.id === 'bgColor' && <span className="format-color-swatch" style={{ background: selectedBgColor }} />}
+                          {btn.id === 'color' && <span className="format-color-swatch" style={{ background: ui.selectedColor }} />}
+                          {btn.id === 'bgColor' && <span className="format-color-swatch" style={{ background: ui.selectedBgColor }} />}
                         </button>
                       )
                     })}
@@ -2338,11 +2280,11 @@ const exportBook = async (format: 'docx' | 'pdf') => {
               <h2>📝 {t('notes.title')}</h2>
               <div className="panel-header-actions">
                 <button className="btn btn-sm" onClick={() => {
-                  setInputDialog({ title: t('notes.addNote'), label: t('notes.noteTitle') + ':', defaultValue: '', onSubmit: (title) => {
+                  setUI({ inputDialog: { title: t('notes.addNote'), label: t('notes.noteTitle') + ':', defaultValue: '', onSubmit: (title) => {
                     if (title) {
                       updateNotes([...activeBook.notes, { id: Date.now().toString(), title, content: '', createdAt: new Date().toISOString() }])
                     }
-                  }})
+                  }} })
                 }}>➕ {t('notes.addNote')}</button>
                 <button className="btn-icon" onClick={() => setState(s => ({ ...s, showNotes: false }))}>×</button>
               </div>
@@ -2383,13 +2325,13 @@ const exportBook = async (format: 'docx' | 'pdf') => {
               <h2>🌍 {t('world.title')}</h2>
               <div className="panel-header-actions">
                 <button className="btn btn-sm" onClick={() => {
-                  setInputDialog({ title: t('world.addEntry'), label: t('world.entryTitle') + ':', defaultValue: '', onSubmit: (title) => {
+                  setUI({ inputDialog: { title: t('world.addEntry'), label: t('world.entryTitle') + ':', defaultValue: '', onSubmit: (title) => {
                     if (title) {
-                      setInputDialog({ title: t('world.category'), label: t('world.categoryHint') + ':', defaultValue: '', onSubmit: (category) => {
+                      setUI({ inputDialog: { title: t('world.category'), label: t('world.categoryHint') + ':', defaultValue: '', onSubmit: (category) => {
                         updateWorld([...activeBook.worldData, { id: Date.now().toString(), title, content: '', category, characterIds: [] }])
-                      }})
+                      }}})
                     }
-                  }})
+                  }}})
                 }}>➕ {t('world.addEntry')}</button>
                 <button className="btn-icon" onClick={() => setState(s => ({ ...s, showWorld: false }))}>×</button>
               </div>
@@ -2464,12 +2406,12 @@ const exportBook = async (format: 'docx' | 'pdf') => {
               <h2>📋 {t('kanban.title')}</h2>
               <div className="panel-header-actions">
                 <button className="btn btn-sm" onClick={() => {
-                  setInputDialog({ title: t('kanban.addColumn'), label: t('kanban.columnName') + ':', defaultValue: '', onSubmit: (name) => {
+                  setUI({ inputDialog: { title: t('kanban.addColumn'), label: t('kanban.columnName') + ':', defaultValue: '', onSubmit: (name) => {
                     if (name) {
                       const newCol = { id: Date.now().toString(), name, cards: [] }
                       updateKanban({ columns: [...activeBook.kanbanData.columns, newCol] })
                     }
-                  }})
+                  }} })
                 }}>➕ {t('kanban.addColumn')}</button>
                 <button className="btn-icon" onClick={() => setState(s => ({ ...s, showKanban: false }))}>×</button>
               </div>
@@ -2490,13 +2432,13 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                           <div className="kanban-card-actions">
                             <button className="btn-icon" style={{ fontSize: '11px', padding: '2px 6px' }}
                               onClick={() => {
-                                setInputDialog({ title: t('kanban.editCard'), label: t('kanban.cardTitle') + ':', defaultValue: card.title, onSubmit: (title) => {
-                                  setInputDialog({ title: t('kanban.cardContent'), label: t('kanban.cardContent') + ':', defaultValue: card.content, multiline: true, onSubmit: (content) => {
+                                setUI({ inputDialog: { title: t('kanban.editCard'), label: t('kanban.cardTitle') + ':', defaultValue: card.title, onSubmit: (title) => {
+                                  setUI({ inputDialog: { title: t('kanban.cardContent'), label: t('kanban.cardContent') + ':', defaultValue: card.content, multiline: true, onSubmit: (content) => {
                                     updateKanban({ columns: activeBook.kanbanData.columns.map(c => c.id === col.id ? {
                                       ...c, cards: c.cards.map(k => k.id === card.id ? { ...k, title, content } : k)
                                     } : c) })
-                                  }})
-                                }})
+                                  }}})
+                                }}})
                               }}>✏️</button>
                             <button className="btn-icon" style={{ fontSize: '11px', padding: '2px 6px' }}
                               onClick={() => {
@@ -2531,17 +2473,17 @@ const exportBook = async (format: 'docx' | 'pdf') => {
                     </div>
                     <button className="btn btn-sm" style={{ width: '100%', marginTop: '8px' }}
                       onClick={() => {
-                        setInputDialog({ title: t('kanban.addCard'), label: t('kanban.cardTitle') + ':', defaultValue: '', onSubmit: (title) => {
+                        setUI({ inputDialog: { title: t('kanban.addCard'), label: t('kanban.cardTitle') + ':', defaultValue: '', onSubmit: (title) => {
                           if (title) {
-                            setInputDialog({ title: t('kanban.cardContent'), label: t('kanban.cardContent') + ':', defaultValue: '', multiline: true, onSubmit: (content) => {
+                            setUI({ inputDialog: { title: t('kanban.cardContent'), label: t('kanban.cardContent') + ':', defaultValue: '', multiline: true, onSubmit: (content) => {
                               const colors = ['var(--accent)', 'var(--danger)', 'var(--success)', 'var(--purple)', 'var(--cool-gray)']
                               const color = colors[Math.floor(Math.random() * colors.length)]
                               updateKanban({ columns: activeBook.kanbanData.columns.map(c => c.id === col.id ? {
                                 ...c, cards: [...c.cards, { id: Date.now().toString(), title, content, color }]
                               } : c) })
-                            }})
+                            }}})
                           }
-                        }})
+                        }}})
                       }}>➕ {t('kanban.addCard')}</button>
                     </div>
                 ))}
@@ -2551,39 +2493,39 @@ const exportBook = async (format: 'docx' | 'pdf') => {
         </div>
       )}
 
-      {toast && (
-        <div className={`toast toast-${toast.type}`}>
-          {toast.type === 'success' ? '✓' : toast.type === 'error' ? '✕' : 'ℹ'} {toast.message}
+      {ui.toast && (
+        <div className={`toast toast-${ui.toast.type}`}>
+          {ui.toast.type === 'success' ? '✓' : ui.toast.type === 'error' ? '✕' : 'ℹ'} {ui.toast.message}
         </div>
       )}
 
-      {confirmDialog && (
-        <div className="modal-overlay" onClick={() => setConfirmDialog(null)}>
+      {ui.confirmDialog && (
+        <div className="modal-overlay" onClick={() => setUI({ confirmDialog: null })}>
           <div className="confirm-dialog" onClick={e => e.stopPropagation()}>
-            <div className="confirm-message">{confirmDialog.message}</div>
+            <div className="confirm-message">{ui.confirmDialog.message}</div>
             <div className="confirm-actions">
-              <button className="btn btn-sm" onClick={() => setConfirmDialog(null)}>Cancel</button>
-              <button className="btn btn-primary btn-sm" onClick={() => { confirmDialog.onConfirm(); setConfirmDialog(null) }}>Confirm</button>
+              <button className="btn btn-sm" onClick={() => setUI({ confirmDialog: null })}>Cancel</button>
+              <button className="btn btn-primary btn-sm" onClick={() => { ui.confirmDialog!.onConfirm(); setUI({ confirmDialog: null }) }}>Confirm</button>
             </div>
           </div>
         </div>
       )}
 
-      {inputDialog && (
-        <div className="modal-overlay" onClick={() => setInputDialog(null)}>
+      {ui.inputDialog && (
+        <div className="modal-overlay" onClick={() => setUI({ inputDialog: null })}>
           <div className="input-dialog" onClick={e => e.stopPropagation()}>
-            <div className="input-dialog-title">{inputDialog.title}</div>
+            <div className="input-dialog-title">{ui.inputDialog.title}</div>
             <div className="form-group">
-              <label>{inputDialog.label}</label>
-              {inputDialog.multiline ? (
-                <textarea className="form-textarea" ref={inputDialogRef as unknown as React.RefObject<HTMLTextAreaElement>} defaultValue={inputDialog.defaultValue} autoFocus rows={4} />
+              <label>{ui.inputDialog.label}</label>
+              {ui.inputDialog.multiline ? (
+                <textarea className="form-textarea" ref={inputDialogRef as unknown as React.RefObject<HTMLTextAreaElement>} defaultValue={ui.inputDialog.defaultValue} autoFocus rows={4} />
               ) : (
-                <input type="text" className="form-input" ref={inputDialogRef as React.RefObject<HTMLInputElement>} defaultValue={inputDialog.defaultValue} autoFocus onKeyDown={e => { if (e.key === 'Enter') { inputDialog.onSubmit((inputDialogRef.current as HTMLInputElement)?.value || ''); setInputDialog(null) } else if (e.key === 'Escape') setInputDialog(null) }} />
+                <input type="text" className="form-input" ref={inputDialogRef as React.RefObject<HTMLInputElement>} defaultValue={ui.inputDialog.defaultValue} autoFocus onKeyDown={e => { if (e.key === 'Enter') { ui.inputDialog!.onSubmit((inputDialogRef.current as HTMLInputElement)?.value || ''); setUI({ inputDialog: null }) } else if (e.key === 'Escape') setUI({ inputDialog: null }) }} />
               )}
             </div>
             <div className="input-dialog-actions">
-              <button className="btn btn-sm" onClick={() => setInputDialog(null)}>Cancel</button>
-              <button className="btn btn-primary btn-sm" onClick={() => { inputDialog.onSubmit((inputDialogRef.current as HTMLInputElement | HTMLTextAreaElement)?.value || ''); setInputDialog(null) }}>OK</button>
+              <button className="btn btn-sm" onClick={() => setUI({ inputDialog: null })}>Cancel</button>
+              <button className="btn btn-primary btn-sm" onClick={() => { ui.inputDialog!.onSubmit((inputDialogRef.current as HTMLInputElement | HTMLTextAreaElement)?.value || ''); setUI({ inputDialog: null }) }}>OK</button>
             </div>
           </div>
         </div>

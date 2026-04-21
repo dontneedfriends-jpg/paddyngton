@@ -11,10 +11,11 @@
 ## Возможности
 
 ### ✍️ Markdown Editor
-- **CodeMirror 6** — с подсветкой синтаксиса (мы не зря потратили 3 часа на настройку)
+- **CodeMirror 6** — с подсветкой синтаксиса
 - Кнопки форматирования — для тех, кто не помнит все горячие клавиши
 - **Line numbers** — включить/выключить, потому что можно
-- **Auto-save** — сохраняет ваши труды. Иногда. Зависит от настроения
+- **Auto-save** — сохраняет ваши труды каждые 60 секунд
+- **Подсветка markdown-маркеров** — faded-стиль для `**`, `*`, `#`
 
 ### 🗂️ Context System (Персонажи, Места, Даты, Предметы)
 
@@ -33,6 +34,7 @@
 
 - Перетаскивайте персонажей по холсту — терапия для перфекционистов
 - Соединяйте линиями — кто кого предаст в третьем акте
+- Панорамирование и зум колёсиком мыши
 - Цвета по типу отношений:
   - **ally** — союзник (пока не предал)
   - **enemy** — враг (пока не стал союзником)
@@ -44,6 +46,11 @@
 ### 📚 Wiki View
 
 Просмотр и редактирование деталей персонажей, мест, дат и предметов. Всё, что вы забудете через месяц.
+
+- Редактирование свойств inline
+- Управление relations с цветовыми бейджами
+- Timeline events & world connections
+- Перекрёстные ссылки между персонажами
 
 ### ⏱️ Timeline
 
@@ -82,6 +89,7 @@ Ctrl+Shift+F — ищите по всем главам. Результаты с 
 ### 📸 Версионирование
 
 - **Save snapshot** — сохраняйте версии с меткой ("финальная", "нет, теперь финальная", "серьёзно, последняя")
+- **Auto-snapshots** — по таймеру (настраивается в Settings)
 - **Word count, char count, chapter count** — для параноиков и перфекционистов
 - **Restore** — восстанавливайте предыдущие версии. На случай "а давайте удалим всё"
 
@@ -99,16 +107,43 @@ Ctrl+Shift+F — ищите по всем главам. Результаты с 
 
 ```
 paddyngton/
-├── src/                    # React frontend
-│   ├── App.tsx             # ~2500 строк кода — одно спагетти
-│   ├── index.css          # Темы и стили — CSS variables в действии
-│   ├── i18n.tsx          # Интернационализация — 3 языка, один страх
-│   └── translations/     # en.json, es.json, ru.json — спасибо переводчикам
-├── src-tauri/             # Rust backend
-│   └── src/lib.rs        # Tauri команды — PDF, DOCX, файлы
-├── package.json          # dependencies — кто-то их ещё обновляет
-├── context-template.json # Шаблон контекста — настройте под себя
-└── book-template.json    # Шаблон книги — базовый, как мы любим
+├── src/                       # React frontend
+│   ├── App.tsx                # ~2550 строк — композиция + legacy-логика
+│   ├── index.css              # 1785 строк — темы и глобальные стили
+│   ├── i18n.tsx               # Интернационализация — 3 языка
+│   ├── main.tsx               # Точка входа
+│   ├── types/                 # TS-типы и константы
+│   │   └── index.ts
+│   ├── constants/             # FORMAT_BUTTONS, MARKER_CLOSERS
+│   │   └── formatButtons.ts
+│   ├── store/                 # Zustand stores
+│   │   ├── useBookStore.ts    # Состояние книг
+│   │   ├── useUIStore.ts      # Состояние UI (модалки, тосты, цвета)
+│   │   ├── useSettingsStore.ts # Настройки + localStorage
+│   │   └── index.ts
+│   ├── hooks/                 # Кастомные хуки
+│   │   ├── useBookManager.ts
+│   │   ├── useEditor.ts
+│   │   ├── useMindMap.ts
+│   │   ├── useKeyboardShortcuts.ts
+│   │   ├── useAutoSave.ts
+│   │   ├── useVersions.ts
+│   │   ├── useWindowControls.ts
+│   │   └── useSettings.ts     # Утилиты localStorage (устаревает)
+│   ├── lib/                   # Чистые функции
+│   │   ├── markdownRender.ts
+│   │   ├── contextHelpers.ts
+│   │   ├── formatEditor.ts
+│   │   └── bookIO.ts
+│   ├── components/            # Компоненты
+│   │   ├── dialogs/           # Toast, ConfirmDialog, InputDialog
+│   │   └── panels/            # TimelinePanel
+│   └── translations/          # en.json, es.json, ru.json
+├── src-tauri/                 # Rust backend
+│   └── src/lib.rs             # Tauri команды — PDF, DOCX, файлы
+├── package.json
+├── context-template.json      # Шаблон контекста
+└── book-template.json         # Шаблон книги
 ```
 
 ---
@@ -167,15 +202,16 @@ npm run tauri build
 
 | Клавиша | Действие |
 |--------|----------|
-| Ctrl+N | Новая книга — начните страдать заново |
-| Ctrl+O | Открыть папку — или создайте новую страницу |
-| Ctrl+S | Сохранить — работает. Иногда. Наверное. |
-| Ctrl+K | Command palette — для тех, кто любит горячие клавиши |
-| Ctrl+B | Показать/скрыть сайдбар — освободите место для текста |
-| Ctrl+T | Сменить тему — вы всё равно будете это делать |
-| Ctrl+Shift+F | Поиск — найдите то, что забыли написать |
-| Ctrl+Z / Ctrl+Y | Отмена/повтор — исправляйте ошибки, не стирая всё |
-| Ctrl+, | Настройки — где-то там автосохранение |
+| Ctrl+N | Новая глава |
+| Ctrl+Shift+N | Новая книга |
+| Ctrl+O | Открыть папку |
+| Ctrl+S | Сохранить главу |
+| Ctrl+K | Command palette |
+| Ctrl+B | Показать/скрыть сайдбар |
+| Ctrl+T | Сменить тему |
+| Ctrl+Shift+F | Поиск |
+| Ctrl+Z / Ctrl+Y | Отмена/повтор |
+| Ctrl+, | Настройки |
 | Escape | Закрыть всё — паника |
 
 ---
@@ -194,6 +230,8 @@ npm run tauri build
 ## Contributing
 
 Pull requests приветствуются. Особенно те, что делают приложение лучше и не ломают существующий функционал.
+
+См. `TODO.md` и `REFACTORING.md` для текущего плана рефакторинга.
 
 ---
 

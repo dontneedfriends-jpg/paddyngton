@@ -268,7 +268,7 @@ export function useBookManager(t: (key: string) => string) {
       if (format === 'docx') {
         const { Document, Packer, Paragraph, TextRun, HeadingLevel } =
           await import('docx')
-        const paragraphs: Paragraph[] = []
+        const paragraphs: InstanceType<typeof Paragraph>[] = []
         paragraphs.push(
           new Paragraph({
             text: activeBook.title,
@@ -403,7 +403,7 @@ export function useBookManager(t: (key: string) => string) {
       updateActiveBook({
         chapters: next,
         activeChapterId: next[0]?.id || null,
-        bookConfig: newBookConfig,
+        bookConfig: newBookConfig ?? undefined,
       })
     },
     [chapters, activeBook, bookConfig, updateActiveBook]
@@ -434,7 +434,7 @@ export function useBookManager(t: (key: string) => string) {
   const saveContextFn = useCallback(async () => {
     if (!activeBook) return
     try {
-      await saveContextFile(activeBook.dir, contextData)
+      await saveContextFile(activeBook.dir, contextData, activeBook.contextGroups)
       updateActiveBook({
         contextGroups: extractGroups(contextData, t('context.noGroup')),
       })

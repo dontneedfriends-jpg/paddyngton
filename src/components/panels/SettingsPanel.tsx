@@ -1,5 +1,5 @@
 import React from 'react'
-import { Check, X } from 'lucide-react'
+import { Check, X, RefreshCw } from 'lucide-react'
 import { useTranslation, Language } from '../../i18n'
 import { useUIStore } from '../../store/useUIStore'
 import { useSettingsStore } from '../../store/useSettingsStore'
@@ -110,17 +110,59 @@ export const SettingsPanel: React.FC = () => {
           {ui.settingsTab === 1 && !bookConfig && (
             <div className="setting-section"><p style={{ color: 'var(--cool-gray)', fontSize: '13px' }}>{t('settings.noBookOpen')}</p></div>
           )}
-          {ui.settingsTab === 2 && (
+              {ui.settingsTab === 2 && (
             <div className="setting-about-section">
               <div className="about-header">
                 <div className="about-logo">📖</div>
                 <div className="about-app-name">Paddyngton</div>
-                <div className="about-version">{ui.currentVersion}</div>
+                <div className="about-version">{ui.currentVersion || '...'}</div>
               </div>
 
-              {ui.updateLoading && (
-                <div className="about-update-checking">{t('about.checkingUpdate')}</div>
-              )}
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '12px' }}>
+                <button className="btn btn-sm" onClick={async () => {
+                  setUI({ updateLoading: true, updateAvailable: null })
+                  try {
+                    const resp = await fetch('https://github.com/dontneedfriends-jpg/paddyngton/releases/latest/download/latest.json', {
+                      headers: { 'Accept': 'application/json' }
+                    })
+                    if (resp.ok) {
+                      const data = await resp.json()
+                      const remoteVersion = data.version as string
+                      const localVersion = ui.currentVersion || '0.0.0'
+                      const parseVersion = (v: string) => v.split('.').map(n => parseInt(n, 10) || 0)
+                      const isNewer = (() => {
+                        const r = parseVersion(remoteVersion)
+                        const l = parseVersion(localVersion)
+                        for (let i = 0; i < Math.max(r.length, l.length); i++) {
+                          const rv = r[i] || 0
+                          const lv = l[i] || 0
+                          if (rv > lv) return true
+                          if (rv < lv) return false
+                        }
+                        return false
+                      })()
+                      if (isNewer) {
+                        setUI({ updateAvailable: remoteVersion, updateLoading: false })
+                      } else {
+                        setUI({ updateAvailable: null, updateLoading: false })
+                      }
+                    } else {
+                      setUI({ updateLoading: false })
+                      alert('Update check failed: HTTP ' + resp.status)
+                    }
+                  } catch (e) {
+                    console.error('Manual update check failed:', e)
+                    setUI({ updateLoading: false })
+                    alert('Update check failed: ' + (e as Error).message)
+                  }
+                }}>
+                  <RefreshCw size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                  Check for updates
+                </button>
+                {ui.updateLoading && (
+                  <span style={{ fontSize: '12px', color: 'var(--cool-gray)' }}>Checking...</span>
+                )}
+              </div>
 
               {ui.updateAvailable && !ui.updateLoading && (
                 <div className="about-update-box">

@@ -239,7 +239,9 @@ function App() {
       try {
         localVersion = await invoke<string>('get_version')
         setUI({ currentVersion: localVersion })
-      } catch {
+        console.log('[Updater] Local version:', localVersion)
+      } catch (err) {
+        console.error('[Updater] Failed to get local version:', err)
         setUI({ currentVersion: localVersion })
       }
 
@@ -247,20 +249,30 @@ function App() {
 
       try {
         setUI({ updateLoading: true })
+        console.log('[Updater] Fetching latest.json...')
         // Fetch from GitHub Release asset (not raw.githubusercontent.com)
-        const resp = await fetch('https://github.com/dontneedfriends-jpg/paddyngton/releases/latest/download/latest.json')
+        const resp = await fetch('https://github.com/dontneedfriends-jpg/paddyngton/releases/latest/download/latest.json', {
+          headers: { 'Accept': 'application/json' }
+        })
+        console.log('[Updater] Fetch response status:', resp.status, resp.ok)
         if (resp.ok) {
           const data = await resp.json()
+          console.log('[Updater] Remote data:', data)
           const remoteVersion = data.version as string
+          console.log('[Updater] Comparing remote', remoteVersion, 'vs local', localVersion)
           if (isNewerVersion(remoteVersion, localVersion)) {
+            console.log('[Updater] Update available:', remoteVersion)
             setUI({ updateAvailable: remoteVersion, updateLoading: false })
           } else {
+            console.log('[Updater] No update needed')
             setUI({ updateAvailable: null, updateLoading: false })
           }
         } else {
+          console.error('[Updater] Fetch failed with status:', resp.status)
           setUI({ updateAvailable: null, updateLoading: false })
         }
-      } catch {
+      } catch (err) {
+        console.error('[Updater] Fetch error:', err)
         setUI({ updateAvailable: null, updateLoading: false })
       }
     }

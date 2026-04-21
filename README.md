@@ -34,6 +34,8 @@
 
 - Перетаскивайте персонажей по холсту — терапия для перфекционистов
 - Соединяйте линиями — кто кого предаст в третьем акте
+- **Группы**: персонажи объединяются в группы с полупрозрачными фонами и подписями
+- **Граница ноды**: линии рисуются до края карточки, а не до центра
 - Панорамирование и зум колёсиком мыши
 - Цвета по типу отношений:
   - **ally** — союзник (пока не предал)
@@ -84,7 +86,7 @@
 
 ### 🔍 Поиск
 
-Ctrl+Shift+F — ищите по всем главам. Результаты с подсветкой. Потому что grep — слишком сложно для нормальных людей.
+Ctrl+Shift+F — ищите по всем главам и контексту. Результаты с подсветкой. Потому что grep — слишком сложно для нормальных людей.
 
 ### 📸 Версионирование
 
@@ -108,7 +110,7 @@ Ctrl+Shift+F — ищите по всем главам. Результаты с 
 ```
 paddyngton/
 ├── src/                       # React frontend
-│   ├── App.tsx                # ~2550 строк — композиция + legacy-логика
+│   ├── App.tsx                # ~1320 строк — композиция + оставшиеся панели
 │   ├── index.css              # 1785 строк — темы и глобальные стили
 │   ├── i18n.tsx               # Интернационализация — 3 языка
 │   ├── main.tsx               # Точка входа
@@ -116,12 +118,12 @@ paddyngton/
 │   │   └── index.ts
 │   ├── constants/             # FORMAT_BUTTONS, MARKER_CLOSERS
 │   │   └── formatButtons.ts
-│   ├── store/                 # Zustand stores
+│   ├── store/                 # Zustand stores (все подключены)
 │   │   ├── useBookStore.ts    # Состояние книг
 │   │   ├── useUIStore.ts      # Состояние UI (модалки, тосты, цвета)
 │   │   ├── useSettingsStore.ts # Настройки + localStorage
 │   │   └── index.ts
-│   ├── hooks/                 # Кастомные хуки
+│   ├── hooks/                 # Кастомные хуки (все подключены)
 │   │   ├── useBookManager.ts
 │   │   ├── useEditor.ts
 │   │   ├── useMindMap.ts
@@ -130,14 +132,15 @@ paddyngton/
 │   │   ├── useVersions.ts
 │   │   ├── useWindowControls.ts
 │   │   └── useSettings.ts     # Утилиты localStorage (устаревает)
-│   ├── lib/                   # Чистые функции
+│   ├── lib/                   # Чистые функции (все подключены)
 │   │   ├── markdownRender.ts
 │   │   ├── contextHelpers.ts
 │   │   ├── formatEditor.ts
 │   │   └── bookIO.ts
 │   ├── components/            # Компоненты
 │   │   ├── dialogs/           # Toast, ConfirmDialog, InputDialog
-│   │   └── panels/            # TimelinePanel
+│   │   └── panels/            # TimelinePanel, SearchPanel, NotesPanel,
+│   │                          # WorldPanel, KanbanPanel, SettingsPanel, ContextEditor
 │   └── translations/          # en.json, es.json, ru.json
 ├── src-tauri/                 # Rust backend
 │   └── src/lib.rs             # Tauri команды — PDF, DOCX, файлы
@@ -231,7 +234,7 @@ npm run tauri build
 
 Pull requests приветствуются. Особенно те, что делают приложение лучше и не ломают существующий функционал.
 
-См. `TODO.md` и `REFACTORING.md` для текущего плана рефакторинга.
+См. `TODO.md` и `IMPROVEMENT_PLAN.md` для текущего плана рефакторинга.
 
 ---
 

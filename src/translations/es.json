@@ -194,7 +194,12 @@
     "hr": "Separador"
   },
   "status": {
-    "modified": "Modificado"
+    "modified": "Modificado",
+    "words": "palabras",
+    "savedJustNow": "ahora mismo",
+    "savedSecondsAgo": "hace {n}s",
+    "savedMinutesAgo": "hace {n} min",
+    "savedHoursAgo": "hace {n} h"
   },
   "versions": {
     "title": "Historial de Versiones",

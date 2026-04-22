@@ -13,12 +13,14 @@ export function useAutoSave() {
   })
   const settings = useSettingsStore((s) => s.settings)
   const showToast = useUIStore((s) => s.showToast)
+  const setUI = useUIStore((s) => s.set)
 
   useEffect(() => {
     if (!activeBook || settings.autoSnapshotMinutes <= 0) return
     const interval = setInterval(() => {
       ;(async () => {
         await saveAllBookData(activeBook)
+        setUI({ lastSavedAt: Date.now() })
         try {
           await invoke<VersionSnapshot>('save_version_snapshot', {
             bookDir: activeBook.dir,
@@ -29,15 +31,16 @@ export function useAutoSave() {
       })()
     }, settings.autoSnapshotMinutes * 60 * 1000)
     return () => clearInterval(interval)
-  }, [activeBook, settings.autoSnapshotMinutes])
+  }, [activeBook, settings.autoSnapshotMinutes, setUI, showToast])
 
   useEffect(() => {
     if (!activeBook) return
     const interval = setInterval(() => {
       saveAllBookData(activeBook).then(() => {
+        setUI({ lastSavedAt: Date.now() })
         if (settings.autoSaveToast) showToast('Book auto-saved', 'info')
       })
     }, 60000)
     return () => clearInterval(interval)
-  }, [activeBook, settings.autoSaveToast])
+  }, [activeBook, settings.autoSaveToast, setUI, showToast])
 }

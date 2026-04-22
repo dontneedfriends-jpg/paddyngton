@@ -68,6 +68,7 @@ interface UIState {
   toast: ToastState | null
   confirmDialog: ConfirmDialogState | null
   inputDialog: InputDialogState | null
+  lastSavedAt: number | null
 }
 
 const initialState: UIState = {
@@ -119,6 +120,7 @@ const initialState: UIState = {
   toast: null,
   confirmDialog: null,
   inputDialog: null,
+  lastSavedAt: null,
 }
 
 interface UIActions {

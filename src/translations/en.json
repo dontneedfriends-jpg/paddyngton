@@ -195,7 +195,12 @@
     "hr": "Divider"
   },
   "status": {
-    "modified": "Modified"
+    "modified": "Modified",
+    "words": "words",
+    "savedJustNow": "just now",
+    "savedSecondsAgo": "{n}s ago",
+    "savedMinutesAgo": "{n} min ago",
+    "savedHoursAgo": "{n} hr ago"
   },
   "versions": {
     "title": "Version History",

@@ -25,6 +25,7 @@ import { useSettingsStore } from './store/useSettingsStore'
 import { useBookStore } from './store/useBookStore'
 import { useBookManager } from './hooks/useBookManager'
 import { useAutoSave } from './hooks/useAutoSave'
+import { useWritingStats } from './hooks/useWritingStats'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useEditor } from './hooks/useEditor'
 import {
@@ -60,6 +61,7 @@ function App() {
   const updateActiveBookStore = useBookStore((s) => s.updateActiveBook)
   const bookManager = useBookManager(t)
   useAutoSave()
+  useWritingStats()
   const editor = useEditor()
 
   const activeBook = openBooks.find((b) => b.id === activeBookId) || null
@@ -253,10 +255,7 @@ function App() {
               {activeChapter ? (
                 <>
                   <FormatToolbar systemFonts={systemFonts} />
-                  <div
-                    className="editor"
-                    style={{ flex: ui.showPreview ? 1 : 2, display: 'flex', flexDirection: 'column' }}
-                  >
+                  <div className="editor">
                     {ui.showPreview ? (
                       <div
                         className="editor-preview"

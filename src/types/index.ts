@@ -112,6 +112,10 @@ export interface AppSettings {
   showLineNumbers: boolean
   autoSnapshotMinutes: number
   autoSaveToast: boolean
+  sessionTarget: number
+  wordsToday: number
+  lastWritingDate: string
+  streak: number
 }
 
 export interface Tooltip {
@@ -233,6 +237,10 @@ export const DEFAULT_SETTINGS: AppSettings = {
   showLineNumbers: true,
   autoSnapshotMinutes: 0,
   autoSaveToast: false,
+  sessionTarget: 500,
+  wordsToday: 0,
+  lastWritingDate: '',
+  streak: 0,
 }
 
 export const CONTEXT_TEMPLATES: Record<ContextEntryType, Record<string, string>> = {

@@ -194,7 +194,12 @@
     "hr": "Разделитель"
   },
   "status": {
-    "modified": "Изменено"
+    "modified": "Изменено",
+    "words": "слов",
+    "savedJustNow": "только что",
+    "savedSecondsAgo": "{n} сек назад",
+    "savedMinutesAgo": "{n} мин назад",
+    "savedHoursAgo": "{n} ч назад"
   },
   "versions": {
     "title": "История версий",

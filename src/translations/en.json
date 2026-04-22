@@ -7,7 +7,17 @@
       "openBook": "Open Book Folder",
       "hintNew": "Ctrl+N — new book",
       "hintOpen": "Ctrl+O — open folder",
-      "hintCommands": "Ctrl+K — commands"
+      "hintCommands": "Ctrl+K — commands",
+      "removeFromRecent": "Remove from recent",
+      "newBearBook": "New Book (.bear)",
+      "newBearBookDesc": "Create and save as a .bear archive file",
+      "openFolder": "Open Folder",
+      "openFolderDesc": "Open an existing book from a folder",
+      "openBearFile": "Open .bear File",
+      "openBearFileDesc": "Open a .bear archive file",
+      "recentBooks": "Recent Books",
+      "saveAsBear": "Save as .bear",
+      "saveAsBearDesc": "Save the current book as a .bear archive file"
     }
   },
   "header": {
@@ -26,7 +36,8 @@
     "deleteConfirm": "Delete this chapter? The file will be removed from disk."
   },
   "editor": {
-    "placeholder": "Start writing..."
+    "placeholder": "Start writing...",
+    "previewMode": "Toggle Preview Mode"
   },
   "settings": {
     "title": "Settings",
@@ -65,10 +76,12 @@
     "group": "Group",
     "relationships": "Relationships",
     "noRelationships": "No relationships yet. Use the Mind Map to connect characters.",
-    "openMindMap": "Open Mind Map"
+    "openMindMap": "Open Mind Map",
+    "eventsAndConnections": "Events & Connections"
   },
   "mindmap": {
     "title": "Interaction Map",
+    "fitToScreen": "Fit to screen (Ctrl+0)",
     "characters": "characters",
     "noCharacters": "Add characters to context to display the map",
     "addCharacter": "Add Character",
@@ -106,6 +119,7 @@
     "group": "Group",
     "property": "Property",
     "addProperty": "+ Property",
+    "properties": "Properties",
     "notes": "Notes",
     "notesPlaceholder": "Personal notes, ideas, drafts...",
     "types": {
@@ -113,6 +127,12 @@
       "place": "Place",
       "date": "Event",
       "item": "Item"
+    },
+    "typeAbbr": {
+      "character": "Ch",
+      "place": "Pl",
+      "date": "Ev",
+      "item": "It"
     },
     "noGroup": "No Group",
     "view": "View",
@@ -165,10 +185,14 @@
     "settings": "Settings",
     "undoRedo": "Undo/Redo",
     "copyPaste": "Cut/Copy/Paste",
+    "zenMode": "Zen Mode",
+    "focusMode": "Focus Mode",
     "checkingUpdate": "Checking for updates...",
     "updateAvailable": "Version {version} available",
     "updateNow": "Update Now",
-    "upToDate": "You're up to date!"
+    "upToDate": "You're up to date!",
+    "checkForUpdates": "Check for updates",
+    "checkFailed": "Update check failed"
   },
   "format": {
     "bold": "Bold",
@@ -213,10 +237,19 @@
   },
   "timeline": {
     "title": "Timeline",
+    "short": "Event",
     "addEvent": "Add Event",
     "newEvent": "New Timeline Event",
     "eventLabel": "Event label",
     "eventDate": "Date",
+    "endDate": "End Date",
+    "dateNote": "Date Note",
+    "datePlaceholder": "Year 100, Day 1",
+    "endDatePlaceholder": "Year 105 (optional)",
+    "dateNotePlaceholder": "e.g., The Great War era",
+    "labelPlaceholder": "What happened?",
+    "searchPlaceholder": "Search characters...",
+    "notesPlaceholder": "Additional details about this event...",
     "eventDescription": "Description",
     "date": "Date",
     "color": "Color",
@@ -235,23 +268,35 @@
   },
   "world": {
     "title": "World Building",
+    "short": "World",
     "addEntry": "Add Entry",
     "entryTitle": "Entry title",
     "category": "Category",
     "categoryHint": "e.g., Geography, History, Magic",
+    "datePlaceholder": "Date (e.g., Year 100)",
+    "contentPlaceholder": "Describe this aspect of your world...",
     "noEntries": "No world entries yet. Click 'Add Entry' to start describing your world.",
     "deleteEntry": "Delete this entry?"
   },
   "kanban": {
     "title": "Kanban Board",
+    "boardLabel": "Board",
     "addColumn": "Add Column",
     "columnName": "Column name",
     "addCard": "Add Card",
     "cardTitle": "Card title",
+    "cardTitlePlaceholder": "Card title",
     "cardContent": "Content",
+    "cardContentPlaceholder": "Description (optional)",
     "editCard": "Edit Card",
     "deleteCard": "Delete this card?",
-    "moveTo": "Move to..."
+    "moveTo": "Move to...",
+    "cancel": "Cancel",
+    "save": "Save",
+    "add": "Add",
+    "labelColor": "Label color",
+    "colorDescription": "Description for this color:",
+    "clickToLabel": "Click to label"
   },
   "dialogs": {
     "cancel": "Cancel",

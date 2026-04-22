@@ -7,7 +7,17 @@
       "openBook": "Открыть папку с книгой",
       "hintNew": "Ctrl+N — новая книга",
       "hintOpen": "Ctrl+O — открыть папку",
-      "hintCommands": "Ctrl+K — команды"
+      "hintCommands": "Ctrl+K — команды",
+      "removeFromRecent": "Удалить из недавних",
+      "newBearBook": "Новая книга (.bear)",
+      "newBearBookDesc": "Создать и сохранить как .bear архив",
+      "openFolder": "Открыть папку",
+      "openFolderDesc": "Открыть существующую книгу из папки",
+      "openBearFile": "Открыть .bear файл",
+      "openBearFileDesc": "Открыть .bear архив",
+      "recentBooks": "Недавние книги",
+      "saveAsBear": "Сохранить как .bear",
+      "saveAsBearDesc": "Сохранить текущую книгу как .bear архив"
     }
   },
   "header": {
@@ -26,7 +36,8 @@
     "deleteConfirm": "Удалить эту главу? Файл будет удалён с диска."
   },
   "editor": {
-    "placeholder": "Начните писать..."
+    "placeholder": "Начните писать...",
+    "previewMode": "Переключить предпросмотр"
   },
   "settings": {
     "title": "Настройки",
@@ -68,6 +79,7 @@
     "group": "Группа",
     "property": "Свойство",
     "addProperty": "+ Свойство",
+    "properties": "Свойства",
     "notes": "Заметки",
     "notesPlaceholder": "Личные заметки, идеи, черновики...",
     "types": {
@@ -75,6 +87,12 @@
       "place": "Место",
       "date": "Событие",
       "item": "Предмет"
+    },
+    "typeAbbr": {
+      "character": "П",
+      "place": "М",
+      "date": "С",
+      "item": "Пр"
     },
     "noGroup": "Без группы",
     "view": "Просмотр",
@@ -88,10 +106,12 @@
     "group": "Группа",
     "relationships": "Отношения",
     "noRelationships": "Отношений пока нет. Используйте Карту взаимодействий для связи персонажей.",
-    "openMindMap": "Открыть Карту"
+    "openMindMap": "Открыть Карту",
+    "eventsAndConnections": "События и связи"
   },
   "mindmap": {
     "title": "Карта взаимодействий",
+    "fitToScreen": "По размеру экрана (Ctrl+0)",
     "characters": "персонажей",
     "noCharacters": "Добавьте персонажей в контекст",
     "addCharacter": "Добавить персонажа",
@@ -164,10 +184,14 @@
     "settings": "Настройки",
     "undoRedo": "Отмена/Повтор",
     "copyPaste": "Вырезать/Копировать/Вставить",
+    "zenMode": "Режим фокуса (Zen)",
+    "focusMode": "Режим параграфа",
     "checkingUpdate": "Проверка обновлений...",
     "updateAvailable": "Доступна версия {version}",
     "updateNow": "Обновить",
-    "upToDate": "У вас последняя версия!"
+    "upToDate": "У вас последняя версия!",
+    "checkForUpdates": "Проверить обновления",
+    "checkFailed": "Ошибка проверки"
   },
   "format": {
     "bold": "Жирный",
@@ -212,10 +236,19 @@
   },
   "timeline": {
     "title": "Хронология",
+    "short": "Событие",
     "addEvent": "Добавить событие",
     "newEvent": "Новое событие",
     "eventLabel": "Название события",
     "eventDate": "Дата",
+    "endDate": "Дата окончания",
+    "dateNote": "Примечание к дате",
+    "datePlaceholder": "Год 100, День 1",
+    "endDatePlaceholder": "Год 105 (необязательно)",
+    "dateNotePlaceholder": "например, Эпоха Великой войны",
+    "labelPlaceholder": "Что произошло?",
+    "searchPlaceholder": "Поиск персонажей...",
+    "notesPlaceholder": "Дополнительные детали о событии...",
     "eventDescription": "Описание",
     "date": "Дата",
     "color": "Цвет",
@@ -234,23 +267,35 @@
   },
   "world": {
     "title": "Мир",
+    "short": "Мир",
     "addEntry": "Добавить запись",
     "entryTitle": "Название записи",
     "category": "Категория",
     "categoryHint": "напр., География, История, Магия",
+    "datePlaceholder": "Дата (например, Год 100)",
+    "contentPlaceholder": "Опишите этот аспект вашего мира...",
     "noEntries": "Записей о мире пока нет. Нажмите 'Добавить запись'.",
     "deleteEntry": "Удалить эту запись?"
   },
   "kanban": {
     "title": "Канбан-доска",
+    "boardLabel": "Доска",
     "addColumn": "Добавить колонку",
     "columnName": "Название колонки",
     "addCard": "Добавить карточку",
     "cardTitle": "Название карточки",
+    "cardTitlePlaceholder": "Название карточки",
     "cardContent": "Содержание",
+    "cardContentPlaceholder": "Описание (необязательно)",
     "editCard": "Редактировать карточку",
     "deleteCard": "Удалить эту карточку?",
-    "moveTo": "Переместить в..."
+    "moveTo": "Переместить в...",
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "add": "Добавить",
+    "labelColor": "Метка цвета",
+    "colorDescription": "Описание для этого цвета:",
+    "clickToLabel": "Кликни для метки"
   },
   "dialogs": {
     "cancel": "Отмена",

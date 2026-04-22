@@ -47,8 +47,8 @@ export const BookDialog: React.FC = () => {
                 <span className="book-dialog-icon">
                   <FolderOpen size={24} />
                 </span>
-                <span className="book-dialog-label">Open Folder</span>
-                <span className="book-dialog-desc">Open a book from a folder on your computer</span>
+                <span className="book-dialog-label">{t('app.welcome.openFolder')}</span>
+                <span className="book-dialog-desc">{t('app.welcome.openFolderDesc')}</span>
               </button>
               <button
                 className="book-dialog-option"
@@ -60,8 +60,8 @@ export const BookDialog: React.FC = () => {
                 <span className="book-dialog-icon">
                   <Package size={24} />
                 </span>
-                <span className="book-dialog-label">Open .bear File</span>
-                <span className="book-dialog-desc">Open a .bear archive file</span>
+                <span className="book-dialog-label">{t('app.welcome.openBearFile')}</span>
+                <span className="book-dialog-desc">{t('app.welcome.openBearFileDesc')}</span>
               </button>
             </>
           ) : (
@@ -76,8 +76,8 @@ export const BookDialog: React.FC = () => {
                 <span className="book-dialog-icon">
                   <Package size={24} />
                 </span>
-                <span className="book-dialog-label">Save as .bear</span>
-                <span className="book-dialog-desc">Save the current book as a .bear archive file</span>
+                <span className="book-dialog-label">{t('app.welcome.saveAsBear')}</span>
+                <span className="book-dialog-desc">{t('app.welcome.saveAsBearDesc')}</span>
               </button>
             </>
           )}

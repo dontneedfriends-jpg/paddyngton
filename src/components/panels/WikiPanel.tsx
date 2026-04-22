@@ -38,7 +38,7 @@ export const WikiPanel: React.FC = () => {
                   {items.map((item, i) => (
                     <div key={i} className={`wiki-sidebar-item ${ui.wikiSelected?.name === item.name ? 'active' : ''}`}
                       onClick={() => setUI({ wikiSelected: item })}>
-                      <span>{item.type === 'character' ? '[C]' : item.type === 'place' ? '[P]' : item.type === 'date' ? '[D]' : '[I]'}</span>
+                      <span>{item.type === 'character' ? t('context.typeAbbr.character') : item.type === 'place' ? t('context.typeAbbr.place') : item.type === 'date' ? t('context.typeAbbr.date') : t('context.typeAbbr.item')}</span>
                       {item.name}
                     </div>
                   ))}
@@ -94,7 +94,7 @@ export const WikiPanel: React.FC = () => {
                           setUI({ wikiSelected: { ...ui.wikiSelected!, notes: e.target.value } })
                         }} />
                     </div>
-                    <div className="form-group"><label>Properties</label>
+                    <div className="form-group"><label>{t('context.properties')}</label>
                       {Object.entries(ui.wikiSelected.details).map(([k, v], i) => (
                         <div key={i} className="detail-row">
                           <input type="text" className="detail-key-input" value={k}
@@ -147,7 +147,7 @@ export const WikiPanel: React.FC = () => {
                     </div>
                     {ui.wikiSelected.notes && (
                       <div style={{ marginTop: '16px' }}>
-                        <h4 style={{ fontSize: '12px', color: 'var(--cool-gray)', marginBottom: '8px' }}>NOTES</h4>
+                        <h4 style={{ fontSize: '12px', color: 'var(--cool-gray)', marginBottom: '8px' }}>{t('context.notes').toUpperCase()}</h4>
                         <div style={{ fontSize: '13px', color: 'var(--text)', background: 'var(--bg-secondary)', borderRadius: '8px', padding: '12px', whiteSpace: 'pre-wrap' }}>{ui.wikiSelected.notes}</div>
                       </div>
                     )}
@@ -160,7 +160,7 @@ export const WikiPanel: React.FC = () => {
                               const relEntry = contextData.find(c => c.name === rel.name)
                               return (
                                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-secondary)', borderRadius: '8px', padding: '8px 12px', borderLeft: `4px solid ${relationColors[rel.type]}` }}>
-                                  <span style={{ fontSize: '12px' }}>{relEntry?.type === 'character' ? '[C]' : relEntry?.type === 'place' ? '[P]' : '[I]'}</span>
+                                  <span style={{ fontSize: '12px' }}>{relEntry?.type === 'character' ? t('context.typeAbbr.character') : relEntry?.type === 'place' ? t('context.typeAbbr.place') : t('context.typeAbbr.item')}</span>
                                   <span style={{ fontSize: '13px', fontWeight: 600, cursor: 'pointer', color: 'var(--accent)' }}
                                     onClick={() => relEntry && setUI({ wikiSelected: relEntry })}>
                                     {rel.name}
@@ -226,12 +226,12 @@ export const WikiPanel: React.FC = () => {
                       if (relatedEvents.length > 0) {
                         return (
                           <div style={{ marginTop: '16px' }}>
-                            <h4 style={{ fontSize: '12px', color: 'var(--cool-gray)', marginBottom: '8px' }}>EVENTS & CONNECTIONS</h4>
+                            <h4 style={{ fontSize: '12px', color: 'var(--cool-gray)', marginBottom: '8px' }}>{t('wiki.eventsAndConnections')}</h4>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                               {relatedEvents.map((ev, i) => (
                                 <div key={i} style={{ background: 'var(--surface)', borderRadius: '8px', padding: '10px 12px', borderLeft: `4px solid ${ev.type === 'timeline' ? 'var(--danger)' : 'var(--success)'}` }}>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                                    <span style={{ fontSize: '11px', fontWeight: 600 }}>{ev.type === 'timeline' ? '[D]' : '[W]'}</span>
+                                    <span style={{ fontSize: '11px', fontWeight: 600 }}>{ev.type === 'timeline' ? t('timeline.short') : t('world.short')}</span>
                                     <span style={{ fontSize: '13px', fontWeight: 600 }}>{ev.title}</span>
                                     {ev.date && <span style={{ fontSize: '11px', color: 'var(--cool-gray)' }}>{ev.date}{ev.endDate ? ` — ${ev.endDate}` : ''}</span>}
                                   </div>
@@ -249,7 +249,7 @@ export const WikiPanel: React.FC = () => {
                       {contextData.filter(e => e.type === 'character' && e.name !== ui.wikiSelected!.name).map((e, i) => (
                         <button key={i} className="wiki-ref-item"
                           onClick={() => setUI({ wikiSelected: e })}>
-                          [C] {e.name}
+                          {t('context.typeAbbr.character')} {e.name}
                         </button>
                       ))}
                     </div>

@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react'
 import './InputDialog.css'
+import { useTranslation } from '../../i18n'
 
 interface InputDialogProps {
   inputDialog: {
@@ -14,6 +15,7 @@ interface InputDialogProps {
 
 export const InputDialog: React.FC<InputDialogProps> = ({ inputDialog, onCancel }) => {
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null)
+  const { t } = useTranslation()
 
   useEffect(() => {
     if (inputDialog) {
@@ -63,8 +65,8 @@ export const InputDialog: React.FC<InputDialogProps> = ({ inputDialog, onCancel 
           )}
         </div>
         <div className="input-dialog-actions">
-          <button className="btn btn-sm" onClick={onCancel}>Cancel</button>
-          <button className="btn btn-primary btn-sm" onClick={handleSubmit}>OK</button>
+          <button className="btn btn-sm" onClick={onCancel}>{t('dialogs.cancel')}</button>
+          <button className="btn btn-primary btn-sm" onClick={handleSubmit}>{t('dialogs.ok')}</button>
         </div>
       </div>
     </div>

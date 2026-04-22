@@ -129,20 +129,20 @@ export const TimelinePanel: React.FC<TimelinePanelProps> = ({
               <div className="timeline-form-grid">
                 <div className="timeline-form-group">
                   <label className="required">{t('timeline.date')}</label>
-                  <input type="text" className="timeline-form-input" placeholder="Year 100, Day 1" value={timelineForm.date} onChange={e => setTimelineForm(f => f ? { ...f, date: e.target.value } : null)} />
+                  <input type="text" className="timeline-form-input" placeholder={t('timeline.datePlaceholder')} value={timelineForm.date} onChange={e => setTimelineForm(f => f ? { ...f, date: e.target.value } : null)} />
                 </div>
                 <div className="timeline-form-group">
-                  <label>End Date</label>
-                  <input type="text" className="timeline-form-input" placeholder="Year 105 (optional)" value={timelineForm.endDate} onChange={e => setTimelineForm(f => f ? { ...f, endDate: e.target.value } : null)} />
+                  <label>{t('timeline.endDate')}</label>
+                  <input type="text" className="timeline-form-input" placeholder={t('timeline.endDatePlaceholder')} value={timelineForm.endDate} onChange={e => setTimelineForm(f => f ? { ...f, endDate: e.target.value } : null)} />
                 </div>
                 <div className="timeline-form-group">
-                  <label>Date Note</label>
-                  <input type="text" className="timeline-form-input" placeholder="e.g., The Great War era" value={timelineForm.dateNote} onChange={e => setTimelineForm(f => f ? { ...f, dateNote: e.target.value } : null)} />
+                  <label>{t('timeline.dateNote')}</label>
+                  <input type="text" className="timeline-form-input" placeholder={t('timeline.dateNotePlaceholder')} value={timelineForm.dateNote} onChange={e => setTimelineForm(f => f ? { ...f, dateNote: e.target.value } : null)} />
                 </div>
               </div>
               <div className="timeline-form-group" style={{ marginBottom: '12px' }}>
                 <label className="required">{t('timeline.eventLabel')}</label>
-                <input type="text" className="timeline-form-input" placeholder="What happened?" value={timelineForm.label} onChange={e => setTimelineForm(f => f ? { ...f, label: e.target.value } : null)} />
+                <input type="text" className="timeline-form-input" placeholder={t('timeline.labelPlaceholder')} value={timelineForm.label} onChange={e => setTimelineForm(f => f ? { ...f, label: e.target.value } : null)} />
               </div>
               <div className="timeline-form-grid-2">
                 <div className="timeline-form-group">
@@ -159,7 +159,7 @@ export const TimelinePanel: React.FC<TimelinePanelProps> = ({
                 <div className="timeline-form-group">
                   <label>{t('timeline.linkContext')}</label>
                   <div style={{ position: 'relative' }}>
-                    <input type="text" className="timeline-form-input" placeholder="Search characters..." value={contextSearch}
+                    <input type="text" className="timeline-form-input" placeholder={t('timeline.searchPlaceholder')} value={contextSearch}
                       onChange={e => { setContextSearch(e.target.value); setShowCharDropdown(true) }}
                       onFocus={() => setShowCharDropdown(true)} />
                     {showCharDropdown && filteredCharacters.length > 0 && (
@@ -198,7 +198,7 @@ export const TimelinePanel: React.FC<TimelinePanelProps> = ({
               </div>
               <div className="timeline-form-group" style={{ marginBottom: '12px' }}>
                 <label>{t('timeline.notes')}</label>
-                <textarea className="timeline-form-textarea" placeholder="Additional details about this event..." value={timelineForm.notes} onChange={e => setTimelineForm(f => f ? { ...f, notes: e.target.value } : null)} />
+                <textarea className="timeline-form-textarea" placeholder={t('timeline.notesPlaceholder')} value={timelineForm.notes} onChange={e => setTimelineForm(f => f ? { ...f, notes: e.target.value } : null)} />
               </div>
               <div className="timeline-form-actions">
                 <button className="btn btn-sm" onClick={() => { setTimelineForm(null); setContextSearch('') }}>{t('dialogs.cancel')}</button>

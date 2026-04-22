@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react'
+import { useCallback, useRef, useEffect } from 'react'
 import { useBookStore } from '../store/useBookStore'
 import { useUIStore } from '../store/useUIStore'
 
@@ -25,6 +25,7 @@ export function useMindMap() {
   const mindMapPanStart = useRef<PanStart | null>(null)
   const mindMapCanvasRef = useRef<HTMLDivElement>(null)
   const zoomTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const spacePressedRef = useRef(false)
 
   const activeBook = useBookStore((s) => {
     const id = s.activeBookId
@@ -35,8 +36,70 @@ export function useMindMap() {
   const mindMapPanX = useUIStore((s) => s.mindMapPanX)
   const mindMapPanY = useUIStore((s) => s.mindMapPanY)
   const mindMapConnectFrom = useUIStore((s) => s.mindMapConnectFrom)
+  const showMindMap = useUIStore((s) => s.showMindMap)
 
   const contextData = activeBook?.contextData || []
+
+  // Space key tracking
+  useEffect(() => {
+    if (!showMindMap) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space' && !e.repeat) {
+        e.preventDefault()
+        spacePressedRef.current = true
+        if (mindMapCanvasRef.current) {
+          mindMapCanvasRef.current.style.cursor = 'grab'
+        }
+      }
+      if ((e.ctrlKey || e.metaKey) && e.code === 'Digit0') {
+        e.preventDefault()
+        fitToScreen()
+      }
+    }
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        spacePressedRef.current = false
+        if (mindMapCanvasRef.current) {
+          mindMapCanvasRef.current.style.cursor = ''
+        }
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    window.addEventListener('keyup', onKeyUp)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('keyup', onKeyUp)
+      spacePressedRef.current = false
+    }
+  }, [showMindMap])
+
+  const fitToScreen = useCallback(() => {
+    const entries = contextData.filter((e) => e.type === 'character' && e._x != null && e._y != null)
+    if (entries.length === 0) {
+      useUIStore.getState().set({ mindMapZoom: 1, mindMapPanX: 0, mindMapPanY: 0 })
+      return
+    }
+    const xs = entries.map((e) => e._x!)
+    const ys = entries.map((e) => e._y!)
+    const minX = Math.min(...xs) - 80
+    const maxX = Math.max(...xs) + 80
+    const minY = Math.min(...ys) - 50
+    const maxY = Math.max(...ys) + 50
+    const contentW = maxX - minX
+    const contentH = maxY - minY
+    const canvas = mindMapCanvasRef.current
+    const viewW = canvas ? canvas.clientWidth : 840
+    const viewH = canvas ? canvas.clientHeight : 460
+    const padding = 40
+    const zoomX = (viewW - padding * 2) / contentW
+    const zoomY = (viewH - padding * 2) / contentH
+    const zoom = Math.min(zoomX, zoomY, 1.5)
+    const centerX = (minX + maxX) / 2
+    const centerY = (minY + maxY) / 2
+    const panX = viewW / 2 - centerX * zoom
+    const panY = viewH / 2 - centerY * zoom
+    useUIStore.getState().set({ mindMapZoom: Math.max(0.2, zoom), mindMapPanX: panX, mindMapPanY: panY })
+  }, [contextData])
 
   const getCanvasCoords = useCallback(
     (e: React.MouseEvent) => {
@@ -68,6 +131,17 @@ export function useMindMap() {
     (e: React.MouseEvent, entryName: string) => {
       e.stopPropagation()
       if (e.button === 1) return
+      if (spacePressedRef.current) {
+        // Space+drag on node = pan canvas
+        mindMapPanStart.current = {
+          panX: mindMapPanX,
+          panY: mindMapPanY,
+          cursorX: e.clientX,
+          cursorY: e.clientY,
+        }
+        mindMapPanRef.current = 'panning'
+        return
+      }
       if (mindMapConnectFrom) return
       const existing = contextData.find((c) => c.name === entryName)
       const startX = existing?._x ?? 420
@@ -96,7 +170,7 @@ export function useMindMap() {
       mindMapDragRef.current = null
       mindMapDragCursorStart.current = null
       mindMapDragEntryStart.current = null
-      if (e.button === 0) {
+      if (e.button === 0 || spacePressedRef.current) {
         mindMapPanStart.current = {
           panX: mindMapPanX,
           panY: mindMapPanY,
@@ -104,6 +178,9 @@ export function useMindMap() {
           cursorY: e.clientY,
         }
         mindMapPanRef.current = 'panning'
+        if (spacePressedRef.current && mindMapCanvasRef.current) {
+          mindMapCanvasRef.current.style.cursor = 'grabbing'
+        }
       }
     },
     [mindMapConnectFrom, mindMapPanX, mindMapPanY]
@@ -186,6 +263,9 @@ export function useMindMap() {
     mindMapDragEntryStart.current = null
     mindMapPanRef.current = null
     mindMapPanStart.current = null
+    if (mindMapCanvasRef.current) {
+      mindMapCanvasRef.current.style.cursor = spacePressedRef.current ? 'grab' : ''
+    }
     useUIStore.getState().set({ mindMapDrag: null })
   }, [activeBook, updateActiveBook])
 
@@ -195,6 +275,9 @@ export function useMindMap() {
     mindMapDragEntryStart.current = null
     mindMapPanRef.current = null
     mindMapPanStart.current = null
+    if (mindMapCanvasRef.current) {
+      mindMapCanvasRef.current.style.cursor = ''
+    }
   }, [])
 
   const handleMindMapWheel = useCallback((e: React.WheelEvent) => {
@@ -218,5 +301,6 @@ export function useMindMap() {
     handleMindMapMouseUp,
     handleMindMapMouseLeave,
     handleMindMapWheel,
+    fitToScreen,
   }
 }

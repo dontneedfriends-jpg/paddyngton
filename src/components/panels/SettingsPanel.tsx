@@ -70,6 +70,15 @@ export const SettingsPanel: React.FC = () => {
                 </div>
               </div>
               <div className="setting-section">
+                <h3>{t('settings.editor')}</h3>
+                <div className="form-group">
+                  <label className="toggle-label">
+                    <input type="checkbox" checked={settings.showLineNumbers} onChange={e => updateSettings({ showLineNumbers: e.target.checked })} />
+                    {t('settings.lineNumbers')}
+                  </label>
+                </div>
+              </div>
+              <div className="setting-section">
                 <h3>{t('settings.autoSave') || 'Auto Save & Snapshots'}</h3>
                 <div className="form-group"><label>{t('settings.autoSnapshotMinutes') || 'Auto-snapshot interval (minutes, 0 = off)'}</label>
                   <input type="number" className="form-input" min="0" max="1440" value={settings.autoSnapshotMinutes}
@@ -106,7 +115,7 @@ export const SettingsPanel: React.FC = () => {
                 <textarea className="form-textarea" value={bookConfig.description}
                   onChange={e => updateActiveBook({ bookConfig: { ...bookConfig, description: e.target.value } })} />
               </div>
-              <button className="btn btn-primary" onClick={async () => { await bookManager.saveBookConfig() }}>[Save] {t('settings.bookSave')}</button>
+              <button className="btn btn-primary" onClick={async () => { await bookManager.saveBookConfig() }}>{t('settings.bookSave')}</button>
             </div>
           )}
           {ui.settingsTab === 1 && !bookConfig && (
@@ -150,25 +159,25 @@ export const SettingsPanel: React.FC = () => {
                       }
                     } else {
                       setUI({ updateLoading: false })
-                      alert('Update check failed: HTTP ' + resp.status)
+                      alert(t('about.checkFailed') + ': HTTP ' + resp.status)
                     }
                   } catch (e) {
                     console.error('Manual update check failed:', e)
                     setUI({ updateLoading: false })
-                    alert('Update check failed: ' + (e as Error).message)
+                    alert(t('about.checkFailed') + ': ' + (e as Error).message)
                   }
                 }}>
                   <RefreshCw size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-                  Check for updates
+                  {t('about.checkForUpdates')}
                 </button>
                 {ui.updateLoading && (
-                  <span style={{ fontSize: '12px', color: 'var(--cool-gray)' }}>Checking...</span>
+                  <span style={{ fontSize: '12px', color: 'var(--cool-gray)' }}>{t('about.checkingUpdate')}</span>
                 )}
               </div>
 
               {ui.updateAvailable && !ui.updateLoading && (
                 <div className="about-update-box">
-                  <span className="about-update-label">[New] {t('about.updateAvailable').replace('{version}', ui.updateAvailable)}</span>
+                  <span className="about-update-label">{t('about.updateAvailable').replace('{version}', ui.updateAvailable)}</span>
                   <button className="about-update-btn" onClick={async () => {
                     try {
                       const resp = await fetch('https://github.com/dontneedfriends-jpg/paddyngton/releases/latest/download/latest.json')
@@ -201,11 +210,16 @@ export const SettingsPanel: React.FC = () => {
                   <div className="about-shortcut"><kbd>Ctrl+K</kbd><span>{t('about.commands')}</span></div>
                   <div className="about-shortcut"><kbd>Ctrl+N</kbd><span>{t('about.newChapter')}</span></div>
                   <div className="about-shortcut"><kbd>Ctrl+O</kbd><span>{t('about.openBook')}</span></div>
+                  <div className="about-shortcut"><kbd>Ctrl+Shift+O</kbd><span>{t('commands.newBook')}</span></div>
                   <div className="about-shortcut"><kbd>Ctrl+S</kbd><span>{t('about.save')}</span></div>
                   <div className="about-shortcut"><kbd>Ctrl+B</kbd><span>{t('about.sidebar')}</span></div>
                   <div className="about-shortcut"><kbd>Ctrl+T</kbd><span>{t('about.theme')}</span></div>
+                  <div className="about-shortcut"><kbd>Ctrl+Shift+F</kbd><span>{t('about.search')}</span></div>
                   <div className="about-shortcut"><kbd>Ctrl+,</kbd><span>{t('about.settings')}</span></div>
+                  <div className="about-shortcut"><kbd>Ctrl+Shift+.</kbd><span>{t('about.focusMode')}</span></div>
+                  <div className="about-shortcut"><kbd>F11</kbd><span>{t('about.zenMode')}</span></div>
                   <div className="about-shortcut"><kbd>Ctrl+Z/Y</kbd><span>{t('about.undoRedo')}</span></div>
+                  <div className="about-shortcut"><kbd>Ctrl+C/V/X</kbd><span>{t('about.copyPaste')}</span></div>
                 </div>
               </div>
             </div>

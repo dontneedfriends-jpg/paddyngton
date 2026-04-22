@@ -17,6 +17,7 @@ import {
 import { useBookStore } from '../store/useBookStore'
 import { useUIStore } from '../store/useUIStore'
 import { extractGroups } from '../lib/contextHelpers'
+import { useRecentBooks } from './useRecentBooks'
 import {
   loadBookData,
   saveAllBookData,
@@ -39,6 +40,7 @@ export function useBookManager(t: (key: string) => string) {
   const showToast = useUIStore((s) => s.showToast)
   const confirmAction = useUIStore((s) => s.confirmAction)
   const setInputDialog = useUIStore((s) => s.set)
+  const { addRecent } = useRecentBooks()
 
   const activeBook = openBooks.find((b) => b.id === activeBookId) || null
   const chapters = activeBook?.chapters || []
@@ -57,12 +59,13 @@ export function useBookManager(t: (key: string) => string) {
     ) => {
       const book = await loadBookData(dir, bConfig, ctxData, groups, t)
       addBook(book)
+      addRecent(dir, book.title)
       useUIStore.getState().set({ showWiki: false, wikiSelected: null })
     },
-    [addBook, t]
+    [addBook, t, addRecent]
   )
 
-  const createNewBook = useCallback(async () => {
+  const createNewBook = useCallback(async (templateType?: string) => {
     const selected = await open({ directory: true })
     if (!selected) return
     const bookDir = selected as string
@@ -95,8 +98,8 @@ export function useBookManager(t: (key: string) => string) {
     const bConfig: BookConfig = {
       title: 'New Book',
       author: 'Author',
-      genre: 'Novel',
-      bookType: 'Novel',
+      genre: templateType || 'Novel',
+      bookType: templateType || 'Novel',
       description: '',
       createdAt: new Date().toISOString(),
       chapters: [],

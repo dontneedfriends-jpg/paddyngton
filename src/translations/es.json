@@ -7,7 +7,17 @@
       "openBook": "Abrir Carpeta del Libro",
       "hintNew": "Ctrl+N — nuevo libro",
       "hintOpen": "Ctrl+O — abrir carpeta",
-      "hintCommands": "Ctrl+K — comandos"
+      "hintCommands": "Ctrl+K — comandos",
+      "removeFromRecent": "Eliminar de recientes",
+      "newBearBook": "Nuevo libro (.bear)",
+      "newBearBookDesc": "Crear y guardar como archivo .bear",
+      "openFolder": "Abrir carpeta",
+      "openFolderDesc": "Abrir un libro existente de una carpeta",
+      "openBearFile": "Abrir archivo .bear",
+      "openBearFileDesc": "Abrir un archivo .bear",
+      "recentBooks": "Libros recientes",
+      "saveAsBear": "Guardar como .bear",
+      "saveAsBearDesc": "Guardar el libro actual como archivo .bear"
     }
   },
   "header": {
@@ -26,7 +36,8 @@
     "deleteConfirm": "¿Eliminar este capítulo? El archivo se eliminará del disco."
   },
   "editor": {
-    "placeholder": "Empieza a escribir..."
+    "placeholder": "Empieza a escribir...",
+    "previewMode": "Alternar vista previa"
   },
   "settings": {
     "title": "Configuración",
@@ -68,6 +79,7 @@
     "group": "Grupo",
     "property": "Propiedad",
     "addProperty": "+ Propiedad",
+    "properties": "Propiedades",
     "notes": "Notas",
     "notesPlaceholder": "Notas personales, ideas, borradores...",
     "types": {
@@ -75,6 +87,12 @@
       "place": "Lugar",
       "date": "Evento",
       "item": "Objeto"
+    },
+    "typeAbbr": {
+      "character": "Ps",
+      "place": "Lu",
+      "date": "Ev",
+      "item": "Ob"
     },
     "noGroup": "Sin grupo",
     "view": "Ver",
@@ -88,10 +106,12 @@
     "group": "Grupo",
     "relationships": "Relaciones",
     "noRelationships": "Sin relaciones aún. Usa el Mapa de Interacciones para conectar personajes.",
-    "openMindMap": "Abrir Mapa"
+    "openMindMap": "Abrir Mapa",
+    "eventsAndConnections": "Eventos y Conexiones"
   },
   "mindmap": {
     "title": "Mapa de Interacciones",
+    "fitToScreen": "Ajustar a pantalla (Ctrl+0)",
     "characters": "personajes",
     "noCharacters": "Añade personajes al contexto para mostrar el mapa",
     "addCharacter": "Añadir Personaje",
@@ -155,19 +175,23 @@
     "ironic4": "Efectos secundarios: construcción obsesiva del mundo, inventar personajes y preguntas existenciales.",
     "shortcuts": "Atajos de teclado",
     "commands": "Comandos",
-    "newChapter": "Nuevo Capítulo",
-    "openBook": "Abrir Libro",
+    "newChapter": "Nuevo capítulo",
+    "openBook": "Abrir libro",
     "save": "Guardar",
-    "sidebar": "Barra Lateral",
-    "theme": "Cambiar Tema",
-    "search": "Buscar Todo",
-    "settings": "Configuración",
+    "sidebar": "Barra lateral",
+    "theme": "Tema",
+    "search": "Buscar",
+    "settings": "Ajustes",
     "undoRedo": "Deshacer/Rehacer",
     "copyPaste": "Cortar/Copiar/Pegar",
+    "zenMode": "Modo Zen",
+    "focusMode": "Modo foco",
     "checkingUpdate": "Buscando actualizaciones...",
     "updateAvailable": "Versión {version} disponible",
     "updateNow": "Actualizar Ahora",
-    "upToDate": "¡Tienes la última versión!"
+    "upToDate": "¡Tienes la última versión!",
+    "checkForUpdates": "Buscar actualizaciones",
+    "checkFailed": "Error al comprobar"
   },
   "format": {
     "bold": "Negrita",
@@ -212,10 +236,19 @@
   },
   "timeline": {
     "title": "Cronología",
+    "short": "Evento",
     "addEvent": "Añadir Evento",
     "newEvent": "Nuevo Evento",
     "eventLabel": "Etiqueta del evento",
     "eventDate": "Fecha",
+    "endDate": "Fecha final",
+    "dateNote": "Nota de fecha",
+    "datePlaceholder": "Año 100, Día 1",
+    "endDatePlaceholder": "Año 105 (opcional)",
+    "dateNotePlaceholder": "p. ej., Era de la Gran Guerra",
+    "labelPlaceholder": "¿Qué ocurrió?",
+    "searchPlaceholder": "Buscar personajes...",
+    "notesPlaceholder": "Detalles adicionales sobre este evento...",
     "eventDescription": "Descripción",
     "date": "Fecha",
     "color": "Color",
@@ -234,23 +267,35 @@
   },
   "world": {
     "title": "Construcción del Mundo",
+    "short": "Mundo",
     "addEntry": "Añadir Entrada",
     "entryTitle": "Título de la entrada",
     "category": "Categoría",
     "categoryHint": "p. ej., Geografía, Historia, Magia",
+    "datePlaceholder": "Fecha (p. ej., Año 100)",
+    "contentPlaceholder": "Describe este aspecto de tu mundo...",
     "noEntries": "No hay entradas del mundo. Haz clic en 'Añadir Entrada'.",
     "deleteEntry": "¿Eliminar esta entrada?"
   },
   "kanban": {
     "title": "Tablero Kanban",
+    "boardLabel": "Tablero",
     "addColumn": "Añadir Columna",
     "columnName": "Nombre de la columna",
     "addCard": "Añadir Tarjeta",
     "cardTitle": "Título de la tarjeta",
+    "cardTitlePlaceholder": "Título de la tarjeta",
     "cardContent": "Contenido",
+    "cardContentPlaceholder": "Descripción (opcional)",
     "editCard": "Editar Tarjeta",
     "deleteCard": "¿Eliminar esta tarjeta?",
-    "moveTo": "Mover a..."
+    "moveTo": "Mover a...",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "add": "Añadir",
+    "labelColor": "Etiqueta de color",
+    "colorDescription": "Descripción para este color:",
+    "clickToLabel": "Clic para etiquetar"
   },
   "dialogs": {
     "cancel": "Cancelar",

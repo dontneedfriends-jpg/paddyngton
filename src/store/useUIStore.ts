@@ -55,6 +55,8 @@ interface UIState {
   showPreview: boolean
   showKanban: boolean
   mindMapZoom: number
+  zenMode: boolean
+  focusMode: boolean
   updateAvailable: string | null
   updateLoading: boolean
   currentVersion: string
@@ -107,6 +109,8 @@ const initialState: UIState = {
   showPreview: false,
   showKanban: false,
   mindMapZoom: 1,
+  zenMode: false,
+  focusMode: false,
   updateAvailable: null,
   updateLoading: false,
   currentVersion: '0.0.0',

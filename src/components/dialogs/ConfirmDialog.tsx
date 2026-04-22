@@ -1,5 +1,6 @@
 import React from 'react'
 import './ConfirmDialog.css'
+import { useTranslation } from '../../i18n'
 
 interface ConfirmDialogProps {
   confirmDialog: { message: string; onConfirm: () => void } | null
@@ -7,14 +8,15 @@ interface ConfirmDialogProps {
 }
 
 export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ confirmDialog, onCancel }) => {
+  const { t } = useTranslation()
   if (!confirmDialog) return null
   return (
     <div className="modal-overlay" onClick={onCancel}>
       <div className="confirm-dialog" onClick={e => e.stopPropagation()}>
         <div className="confirm-message">{confirmDialog.message}</div>
         <div className="confirm-actions">
-          <button className="btn btn-sm" onClick={onCancel}>Cancel</button>
-          <button className="btn btn-primary btn-sm" onClick={() => { confirmDialog.onConfirm(); onCancel() }}>Confirm</button>
+          <button className="btn btn-sm" onClick={onCancel}>{t('dialogs.cancel')}</button>
+          <button className="btn btn-primary btn-sm" onClick={() => { confirmDialog.onConfirm(); onCancel() }}>{t('dialogs.confirm')}</button>
         </div>
       </div>
     </div>

@@ -29,18 +29,18 @@ export const ContextEditor: React.FC = () => {
             {ui.mindMapEditEntry && (
               <span style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}><User size={12} />{ui.mindMapEditEntry.name}</span>
             )}
-            <button className="btn btn-sm" onClick={() => setUI({ showWiki: true })}><BookOpen size={12} /> Wiki</button>
-            <button className="btn btn-sm" onClick={() => setUI({ showMindMap: true, mindMapEditEntry: null })}><Map size={12} /> Map</button>
+            <button className="btn btn-sm" onClick={() => setUI({ showWiki: true })}><BookOpen size={12} /> {t('wiki.title')}</button>
+            <button className="btn btn-sm" onClick={() => setUI({ showMindMap: true, mindMapEditEntry: null })}><Map size={12} /> {t('mindmap.title')}</button>
             <button className="btn-icon" onClick={() => setUI({ showContextEditor: false, mindMapEditEntry: null })}><X size={14} /></button>
           </div>
         </div>
         <div className="panel-content">
           {ui.mindMapEditEntry && (
             <div style={{ marginBottom: '12px', padding: '8px 12px', background: 'var(--accent)', color: 'var(--near-white)', borderRadius: '8px', fontSize: '13px' }}>
-              Editing: <strong>{ui.mindMapEditEntry.name}</strong>
+              {t('context.edit')}: <strong>{ui.mindMapEditEntry.name}</strong>
               {ui.mindMapEditEntry.relations && ui.mindMapEditEntry.relations.length > 0 && (
                 <div style={{ marginTop: '4px', fontSize: '12px', opacity: 0.9 }}>
-                  Relations: {ui.mindMapEditEntry.relations.map(r => `${r.name} (${t('relations.' + r.type)})`).join(', ')}
+                  {t('wiki.relationships')}: {ui.mindMapEditEntry.relations.map(r => `${r.name} (${t('relations.' + r.type)})`).join(', ')}
                 </div>
               )}
             </div>
@@ -53,10 +53,10 @@ export const ContextEditor: React.FC = () => {
                     onChange={e => { const d = [...contextData]; const idx = d.findIndex(x => x.name === ctx!.name); if (idx >= 0) d[idx].name = e.target.value; updateActiveBook({ contextData: d }) }} />
                   <select className="context-type-select" value={ctx!.type}
                     onChange={e => { const d = [...contextData]; const idx = d.findIndex(x => x.name === ctx!.name); if (idx >= 0) d[idx].type = e.target.value as ContextEntry['type']; updateActiveBook({ contextData: d }) }}>
-                    <option value="character">[C] {t('context.types.character')}</option>
-                    <option value="place">[P] {t('context.types.place')}</option>
-                    <option value="date">[D] {t('context.types.date')}</option>
-                    <option value="item">[I] {t('context.types.item')}</option>
+                    <option value="character">{t('context.typeAbbr.character')} — {t('context.types.character')}</option>
+                    <option value="place">{t('context.typeAbbr.place')} — {t('context.types.place')}</option>
+                    <option value="date">{t('context.typeAbbr.date')} — {t('context.types.date')}</option>
+                    <option value="item">{t('context.typeAbbr.item')} — {t('context.types.item')}</option>
                   </select>
                   <input type="text" placeholder={t('context.group')} style={{ padding: '4px 8px', background: 'var(--white)', border: '1px solid var(--border-gray)', borderRadius: '6px', fontSize: '12px', width: '100px', color: 'var(--near-black)', fontFamily: 'inherit' }}
                     value={ctx!.group || ''} onChange={e => { const d = [...contextData]; const idx = d.findIndex(x => x.name === ctx!.name); if (idx >= 0) d[idx].group = e.target.value; updateActiveBook({ contextData: d }) }} />
@@ -66,11 +66,11 @@ export const ContextEditor: React.FC = () => {
                 </div>
                 {ctx!.type === 'character' && (
                   <div style={{ marginBottom: '8px' }}>
-                    <div style={{ fontSize: '11px', color: 'var(--cool-gray)', marginBottom: '4px', fontWeight: 600 }}>RELATIONS</div>
+                    <div style={{ fontSize: '11px', color: 'var(--cool-gray)', marginBottom: '4px', fontWeight: 600 }}>{t('context.addRelation').toUpperCase()}</div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '8px' }}>
                       {(ctx!.relations || []).map((rel, ri) => (
                         <span key={ri} className="relation-tag" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', background: relationColors[rel.type], color: 'var(--near-white)', borderRadius: '12px', fontSize: '11px' }}>
-                          [C] {rel.name}
+                          {t('context.typeAbbr.character')} {rel.name}
                           <span style={{ opacity: 0.7, fontSize: '9px' }}>{t('relations.' + rel.type)}</span>
                           <button style={{ background: 'none', border: 'none', color: 'var(--near-white)', cursor: 'pointer', padding: '0', fontSize: '12px', lineHeight: 1 }} onClick={() => {
                             const d = [...contextData]; const idx = d.findIndex(x => x.name === ctx!.name)
@@ -80,10 +80,10 @@ export const ContextEditor: React.FC = () => {
                         </span>
                       ))}
                       <button className="btn btn-sm" style={{ fontSize: '11px', padding: '2px 8px' }} onClick={() => {
-                        setUI({ inputDialog: { title: 'Add Relation', label: 'Character name:', defaultValue: '', onSubmit: (name) => {
+                        setUI({ inputDialog: { title: t('context.addRelation'), label: t('context.name') + ':', defaultValue: '', onSubmit: (name) => {
                           if (name && name.trim()) {
                             const relTypes: Relation['type'][] = ['ally', 'enemy', 'family', 'neutral', 'romantic', 'rival']
-                            setUI({ inputDialog: { title: 'Relation Type', label: 'Select relation type:', defaultValue: 'ally', onSubmit: (type) => {
+                            setUI({ inputDialog: { title: t('context.relationType'), label: t('context.relationType') + ':', defaultValue: 'ally', onSubmit: (type) => {
                               const relType = relTypes.includes(type as Relation['type']) ? type as Relation['type'] : 'neutral'
                               const d = [...contextData]; const idx = d.findIndex(x => x.name === ctx!.name)
                               if (idx >= 0) {
@@ -103,7 +103,7 @@ export const ContextEditor: React.FC = () => {
                     <div key={j} className="detail-row">
                       <input type="text" className="detail-key-input" value={key} placeholder={t('context.property')}
                         onChange={e => { const d = [...contextData]; const idx = d.findIndex(x => x.name === ctx!.name); if (idx >= 0) { const nd: Record<string, string> = {}; Object.entries(d[idx].details).forEach(([k, v], idx2) => { nd[idx2 === j ? e.target.value : k] = v }); d[idx].details = nd }; updateActiveBook({ contextData: d }) }} />
-                      <input type="text" className="detail-value-input" value={value} placeholder="Value"
+                      <input type="text" className="detail-value-input" value={value} placeholder={t('context.property')}
                         onChange={e => { const d = [...contextData]; const idx = d.findIndex(x => x.name === ctx!.name); if (idx >= 0) d[idx].details[key] = e.target.value; updateActiveBook({ contextData: d }) }} />
                       <button className="btn-icon" onClick={() => { const d = [...contextData]; const idx = d.findIndex(x => x.name === ctx!.name); if (idx >= 0) delete d[idx].details[key]; updateActiveBook({ contextData: d }) }}><X size={12} /></button>
                     </div>
@@ -119,7 +119,7 @@ export const ContextEditor: React.FC = () => {
                 <button className="btn btn-primary" onClick={() => setUI({ showTemplateSelector: true })}>+ {t('context.add')}</button>
               ) : (
                 <div className="template-selector">
-                  <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--cool-gray)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Choose type</div>
+                  <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--cool-gray)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('context.type')}</div>
                   <div className="template-types">
                     {(['character', 'place', 'date', 'item'] as const).map(type => {
                       const typeLabel = type === 'character' ? 'Character' : type === 'place' ? 'Place' : type === 'date' ? 'Date/Event' : 'Item'
@@ -134,13 +134,13 @@ export const ContextEditor: React.FC = () => {
                             setUI({ showTemplateSelector: false })
                           }} })
                         }}>
-                          <span style={{ fontSize: '24px' }}>{type === 'character' ? '[C]' : type === 'place' ? '[P]' : type === 'date' ? '[D]' : '[I]'}</span>
+                          <span style={{ fontSize: '24px' }}>{type === 'character' ? t('context.typeAbbr.character') : type === 'place' ? t('context.typeAbbr.place') : type === 'date' ? t('context.typeAbbr.date') : t('context.typeAbbr.item')}</span>
                           <span>{typeLabel}</span>
                         </button>
                       )
                     })}
                   </div>
-                  <button className="btn btn-sm" style={{ marginTop: '8px' }} onClick={() => setUI({ showTemplateSelector: false })}>Cancel</button>
+                  <button className="btn btn-sm" style={{ marginTop: '8px' }} onClick={() => setUI({ showTemplateSelector: false })}>{t('dialogs.cancel')}</button>
                 </div>
               )}
             </>

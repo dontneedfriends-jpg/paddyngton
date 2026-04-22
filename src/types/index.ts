@@ -66,6 +66,7 @@ export interface KanbanColumn {
 
 export interface KanbanBoard {
   columns: KanbanColumn[]
+  colorLabels?: Record<string, string>
 }
 
 export interface TimelineEntry {

@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react'
 import './MindMapCanvas.css'
-import { X, Link, User, BookMarked } from 'lucide-react'
+import { X, Link, User, BookMarked, Maximize } from 'lucide-react'
 import { useTranslation } from '../../i18n'
 import { useUIStore } from '../../store/useUIStore'
 import { useBookStore } from '../../store/useBookStore'
@@ -42,6 +42,7 @@ export const MindMapCanvas: React.FC = () => {
     handleMindMapMouseMove,
     handleMindMapMouseUp,
     handleMindMapWheel,
+    fitToScreen,
   } = useMindMap()
 
   const contextData = activeBook?.contextData || []
@@ -152,6 +153,9 @@ export const MindMapCanvas: React.FC = () => {
                 <Link size={14} /> {t('mindmap.connectMode')}
               </button>
             )}
+            <button className="btn-icon" onClick={fitToScreen} title={t('mindmap.fitToScreen')}>
+              <Maximize size={16} />
+            </button>
             <button className="btn-icon" onClick={() => setUI({ showMindMap: false, mindMapConnectFrom: null, mindMapConnectGroupFrom: null })}>
               <X size={16} />
             </button>

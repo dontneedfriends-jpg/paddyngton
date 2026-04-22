@@ -30,6 +30,7 @@
     "@uiw/react-codemirror": "^4.23.10",
     "codemirror": "^6.0.1",
     "docx": "^9.6.1",
+    "failed": "^0.0.1",
     "katex": "^0.16.45",
     "lucide-react": "^1.8.0",
     "marked": "^18.0.1",

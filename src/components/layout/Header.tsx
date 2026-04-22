@@ -92,16 +92,16 @@ export const Header: React.FC = () => {
           </div>
         </div>
         <div className="toolbar-divider" />
-        <button className={`btn btn-icon ${ui.showNotes ? 'active' : ''}`} onClick={() => setUI({ showNotes: !ui.showNotes })} title="Notes">
+        <button className={`btn btn-icon ${ui.showNotes ? 'active' : ''}`} onClick={() => setUI({ showNotes: !ui.showNotes })} title={t('notes.title')}>
           <StickyNote size={16} />
         </button>
-        <button className={`btn btn-icon ${ui.showTimeline ? 'active' : ''}`} onClick={() => setUI({ showTimeline: !ui.showTimeline })} title="Timeline">
+        <button className={`btn btn-icon ${ui.showTimeline ? 'active' : ''}`} onClick={() => setUI({ showTimeline: !ui.showTimeline })} title={t('timeline.title')}>
           <CalendarDays size={16} />
         </button>
-        <button className={`btn btn-icon ${ui.showWorld ? 'active' : ''}`} onClick={() => setUI({ showWorld: !ui.showWorld })} title="World">
+        <button className={`btn btn-icon ${ui.showWorld ? 'active' : ''}`} onClick={() => setUI({ showWorld: !ui.showWorld })} title={t('world.title')}>
           <Globe size={16} />
         </button>
-        <button className={`btn btn-icon ${ui.showKanban ? 'active' : ''}`} onClick={() => setUI({ showKanban: !ui.showKanban })} title="Kanban">
+        <button className={`btn btn-icon ${ui.showKanban ? 'active' : ''}`} onClick={() => setUI({ showKanban: !ui.showKanban })} title={t('kanban.title')}>
           <LayoutGrid size={16} />
         </button>
         <div className="toolbar-divider" />

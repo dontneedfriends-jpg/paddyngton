@@ -365,6 +365,22 @@
 }
 
 /* ============================================
+   FOCUS MODE — dim other paragraphs
+   ============================================ */
+.editor.focus-mode .cm-line {
+  opacity: 0.35;
+  transition: opacity 0.25s ease;
+}
+
+.editor.focus-mode .cm-activeLine {
+  opacity: 1;
+}
+
+.editor.focus-mode .cm-cursor {
+  opacity: 1;
+}
+
+/* ============================================
    EMPTY EDITOR & CONTEXT TOOLTIP
    ============================================ */
 .empty-editor {

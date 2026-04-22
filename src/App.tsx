@@ -215,12 +215,12 @@ function App() {
           <div className="context-tooltip-name">{ui.tooltip.name}</div>
           <div className="context-tooltip-type">
             {ui.tooltip.type === 'character'
-              ? '[C] ' + t('context.types.character')
+              ? t('context.typeAbbr.character') + ' — ' + t('context.types.character')
               : ui.tooltip.type === 'place'
-                ? '[P] ' + t('context.types.place')
+                ? t('context.typeAbbr.place') + ' — ' + t('context.types.place')
                 : ui.tooltip.type === 'date'
-                  ? '[D] ' + t('context.types.date')
-                  : '[I] ' + t('context.types.item')}
+                  ? t('context.typeAbbr.date') + ' — ' + t('context.types.date')
+                  : t('context.typeAbbr.item') + ' — ' + t('context.types.item')}
           </div>
           <div className="context-tooltip-details">
             {Object.entries(ui.tooltip.details)
@@ -241,21 +241,21 @@ function App() {
       <MindMapCanvas />
       <SearchPanel />
       <VersionsPanel />
-      <TitleBar />
+      {!ui.zenMode && <TitleBar />}
       <BookDialog />
 
       {activeBook === null ? (
         <WelcomeScreen />
       ) : (
         <>
-          <Header />
+          {!ui.zenMode && <Header />}
           <div className="main">
-            <Sidebar />
+            {!ui.zenMode && <Sidebar />}
             <div className="editor-container">
               {activeChapter ? (
                 <>
-                  <FormatToolbar systemFonts={systemFonts} />
-                  <div className="editor">
+                  {!ui.zenMode && <FormatToolbar systemFonts={systemFonts} />}
+                  <div className={`editor ${ui.focusMode ? 'focus-mode' : ''}`}>
                     {ui.showPreview ? (
                       <div
                         className="editor-preview"
@@ -325,7 +325,12 @@ function App() {
         onCancel={() => setUI({ inputDialog: null })}
       />
 
-      <StatusBar />
+      {!ui.zenMode && <StatusBar />}
+      {ui.zenMode && (
+        <div className="zen-hint">
+          <span>F11 — exit Zen mode</span>
+        </div>
+      )}
     </div>
   )
 }

@@ -76,13 +76,14 @@ export async function loadBookData(
   t: (key: string) => string
 ): Promise<BookInstance> {
   const worldData = (await readJsonFile(`${dir}/.world.json`, [])) as WorldEntry[]
-  const kanbanData = (await readJsonFile(`${dir}/.kanban.json`, {
+  const kanbanDataRaw = (await readJsonFile(`${dir}/.kanban.json`, {
     columns: [
       { id: '1', name: 'Ideas', cards: [] },
       { id: '2', name: 'In Progress', cards: [] },
       { id: '3', name: 'Done', cards: [] },
     ],
   })) as KanbanBoard
+  const kanbanData = { colorLabels: {}, ...kanbanDataRaw }
   const notes = (await readJsonFile(`${dir}/.notes.json`, [])) as Note[]
   const timelineData = (await readJsonFile(
     `${dir}/.timeline.json`,

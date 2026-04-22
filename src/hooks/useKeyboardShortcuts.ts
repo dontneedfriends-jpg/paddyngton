@@ -71,6 +71,10 @@ export function useKeyboardShortcuts(actions: ShortcutActions) {
         ) {
           e.preventDefault()
           if (actionsRef.current.editorViewRef.current) redo(actionsRef.current.editorViewRef.current)
+        } else if (e.code === 'Period' && e.shiftKey) {
+          e.preventDefault()
+          const s = useUIStore.getState()
+          useUIStore.getState().set({ focusMode: !s.focusMode })
         } else if (e.code === 'KeyC' && !inInput) {
           e.preventDefault()
           document.execCommand('copy')
@@ -81,6 +85,11 @@ export function useKeyboardShortcuts(actions: ShortcutActions) {
           e.preventDefault()
           document.execCommand('cut')
         }
+      }
+      if (e.code === 'F11') {
+        e.preventDefault()
+        const s = useUIStore.getState()
+        useUIStore.getState().set({ zenMode: !s.zenMode })
       }
       if (e.code === 'Escape') {
         useUIStore.getState().set({ showCommandPalette: false })

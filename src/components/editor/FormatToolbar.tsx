@@ -126,7 +126,7 @@ export const FormatToolbar: React.FC<FormatToolbarProps> = ({ systemFonts }) => 
       <span className="format-sep" />
       <button
         className={`format-btn format-btn-preview ${ui.showPreview ? 'active' : ''}`}
-        title="Toggle Preview Mode"
+        title={t('editor.previewMode')}
         onClick={() => setUI({ showPreview: !ui.showPreview })}
       >
         <Eye size={16} />

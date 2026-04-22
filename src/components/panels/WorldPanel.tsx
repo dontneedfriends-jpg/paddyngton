@@ -54,7 +54,7 @@ export const WorldPanel: React.FC = () => {
                       }}><X size={12} /></button>
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '8px', alignItems: 'center' }}>
-                    <input type="text" placeholder="Date (e.g., Year 100)"
+                    <input type="text" placeholder={t('world.datePlaceholder')}
                       value={entry.date || ''}
                       onChange={e => bookManager.updateWorld(activeBook.worldData.map(w => w.id === entry.id ? { ...w, date: e.target.value } : w))}
                       style={{ fontSize: '10px', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--border-gray)', background: 'var(--bg-secondary)', color: 'var(--text)', width: '100px' }}
@@ -70,7 +70,7 @@ export const WorldPanel: React.FC = () => {
                       style={{ fontSize: '10px', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--border-gray)', background: 'var(--bg-secondary)', color: 'var(--text)', cursor: 'pointer' }}>
                       <option value="">+ Link character</option>
                       {contextData.filter(c => c.type === 'character' && !entry.characterIds?.includes(c.name)).map(c => (
-                        <option key={c.name} value={c.name}>[C] {c.name}</option>
+                        <option key={c.name} value={c.name}>{t('context.typeAbbr.character')} {c.name}</option>
                       ))}
                     </select>
                     {(entry.characterIds || []).map(cid => {
@@ -78,7 +78,7 @@ export const WorldPanel: React.FC = () => {
                       return char ? (
                         <span key={cid} style={{ fontSize: '10px', background: 'var(--accent)', color: 'var(--near-white)', padding: '2px 6px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
                           onClick={() => setUI({ wikiSelected: char, showWiki: true })}>
-                          [C] {char.name}
+                          {t('context.typeAbbr.character')} {char.name}
                           <button style={{ background: 'none', border: 'none', color: 'var(--near-white)', cursor: 'pointer', padding: 0, marginLeft: '2px', lineHeight: 1 }}
                             onClick={(e) => { e.stopPropagation(); bookManager.updateWorld(activeBook.worldData.map(w => w.id === entry.id ? { ...w, characterIds: (w.characterIds || []).filter(id => id !== cid) } : w)) }}><X size={10} /></button>
                         </span>
@@ -86,7 +86,7 @@ export const WorldPanel: React.FC = () => {
                     })}
                   </div>
                   <textarea className="world-content" value={entry.content}
-                    placeholder="Describe this aspect of your world..."
+                    placeholder={t('world.contentPlaceholder')}
                     onChange={e => bookManager.updateWorld(activeBook.worldData.map(w => w.id === entry.id ? { ...w, content: e.target.value } : w))}
                   />
                 </div>

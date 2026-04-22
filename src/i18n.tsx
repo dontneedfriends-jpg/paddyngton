@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react'
+import type { TranslationKey } from './translations/keys'
 import en from './translations/en.json'
 import es from './translations/es.json'
 import ru from './translations/ru.json'
@@ -24,7 +25,7 @@ const translations: Record<Language, Record<string, TranslationValue>> = { en, e
 interface I18nContextType {
   language: Language
   setLanguage: (lang: Language) => void
-  t: (key: string) => string
+  t: (key: TranslationKey | string) => string
 }
 
 const I18nContext = createContext<I18nContextType | null>(null)
@@ -70,7 +71,7 @@ export function I18nProvider({ children }: I18nProviderProps) {
     } catch {}
   }, [])
 
-  const t = useCallback((key: string): string => {
+  const t = useCallback((key: TranslationKey | string): string => {
     const langData = translations[language]
     if (!langData) return key
     return getNestedValue(langData as Record<string, TranslationValue>, key)

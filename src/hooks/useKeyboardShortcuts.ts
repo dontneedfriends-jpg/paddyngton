@@ -75,6 +75,9 @@ export function useKeyboardShortcuts(actions: ShortcutActions) {
           e.preventDefault()
           const s = useUIStore.getState()
           useUIStore.getState().set({ focusMode: !s.focusMode })
+        } else if (e.code === 'KeyY' && e.shiftKey) {
+          e.preventDefault()
+          useSettingsStore.getState().updateSettings({ typewriterMode: !useSettingsStore.getState().settings.typewriterMode })
         } else if (e.code === 'KeyC' && !inInput) {
           e.preventDefault()
           document.execCommand('copy')

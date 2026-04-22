@@ -6,7 +6,14 @@ const STORAGE_KEY = 'paddyngton-settings'
 function loadSettings(): AppSettings {
   try {
     const s = localStorage.getItem(STORAGE_KEY)
-    if (s) return { ...DEFAULT_SETTINGS, ...JSON.parse(s) }
+    if (s) {
+      const parsed = JSON.parse(s) as Partial<AppSettings>
+      // Fix invalid themes from old versions (galaxy, aurora, forest, etc.)
+      if (parsed.theme && !THEME_ORDER.includes(parsed.theme as ThemeName)) {
+        parsed.theme = 'light'
+      }
+      return { ...DEFAULT_SETTINGS, ...parsed }
+    }
   } catch {}
   return { ...DEFAULT_SETTINGS }
 }

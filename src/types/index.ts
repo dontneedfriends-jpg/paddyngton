@@ -104,13 +104,24 @@ export interface BookInstance {
   timelineData: TimelineEntry[]
 }
 
-export type ThemeName = 'galaxy' | 'aurora' | 'forest' | 'obsidian' | 'neon' | 'retro' | 'monochrome'
+export type ThemeName = 'light' | 'dark' | 'paper'
+
+export type ColumnWidth = 'default' | 'narrow' | 'medium' | 'wide'
+
+export const COLUMN_WIDTH_MAP: Record<ColumnWidth, string> = {
+  default: '800px',
+  narrow: '60ch',
+  medium: '72ch',
+  wide: '90ch',
+}
 
 export interface AppSettings {
   theme: ThemeName
   fontSize: number
   fontFamily: string
   showLineNumbers: boolean
+  typewriterMode: boolean
+  columnWidth: ColumnWidth
   autoSnapshotMinutes: number
   autoSaveToast: boolean
   sessionTarget: number
@@ -198,44 +209,38 @@ export interface Command {
 
 export const BOOK_TYPES = ['Novel', 'Novella', 'Short Story', 'Flash Fiction', 'Poetry', 'Non-Fiction', 'Memoir', 'Biography', 'Essay', 'Script', 'Anthology', 'Other'] as const
 
-export const THEME_ORDER: ThemeName[] = ['galaxy', 'aurora', 'forest', 'obsidian', 'neon', 'retro', 'monochrome']
+export const THEME_ORDER: ThemeName[] = ['light', 'dark', 'paper']
 
 export const THEME_LABELS: Record<ThemeName, string> = {
-  galaxy: 'Galaxy',
-  aurora: 'Aurora',
-  forest: 'Forest',
-  obsidian: 'Obsidian',
-  neon: 'Neon',
-  retro: 'Retro',
-  monochrome: 'Mono',
+  light: 'Light',
+  dark: 'Dark',
+  paper: 'Paper',
 }
 
 export const THEME_ICONS: Record<ThemeName, string> = {
-  galaxy: '✦',
-  aurora: '❋',
-  forest: 'T',
-  obsidian: '◼',
-  neon: '⚡',
-  retro: 'Tv',
-  monochrome: '◑',
+  light: '☀',
+  dark: '☾',
+  paper: '◈',
 }
 
 export const RELATION_COLORS: Record<RelationType, string> = {
-  ally: '#38a169',
-  enemy: '#e53e3e',
-  family: '#3182ce',
-  neutral: '#718096',
-  romantic: '#d69e2e',
-  rival: '#805ad5',
+  ally: '#0F7B0F',
+  enemy: '#C42B1C',
+  family: '#0078D4',
+  neutral: '#616161',
+  romantic: '#D89600',
+  rival: '#8764B8',
 }
 
 export const RELATION_KEYS: RelationType[] = ['ally', 'enemy', 'family', 'neutral', 'romantic', 'rival']
 
 export const DEFAULT_SETTINGS: AppSettings = {
-  theme: 'monochrome',
+  theme: 'light',
   fontSize: 16,
-  fontFamily: 'IBM Plex Sans',
+  fontFamily: 'Segoe UI',
   showLineNumbers: true,
+  typewriterMode: false,
+  columnWidth: 'default',
   autoSnapshotMinutes: 0,
   autoSaveToast: false,
   sessionTarget: 500,

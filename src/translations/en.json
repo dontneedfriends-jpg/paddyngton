@@ -50,6 +50,12 @@
     "language": "Language",
     "editor": "Editor",
     "lineNumbers": "Line Numbers",
+    "typewriterMode": "Typewriter Mode",
+    "columnWidth": "Column Width",
+    "columnWidth_default": "Default",
+    "columnWidth_narrow": "Narrow (60)",
+    "columnWidth_medium": "Medium (72)",
+    "columnWidth_wide": "Wide (90)",
     "fontSize": "Font Size",
     "fontFamily": "Font",
     "bookInfo": "Book Information",
@@ -315,6 +321,7 @@
   },
   "export": {
     "exportPdf": "Export PDF",
+    "tocLabel": "Table of Contents",
     "exporting": "Exporting...",
     "exportSuccess": "PDF exported successfully",
     "exportFailed": "Failed to export PDF"

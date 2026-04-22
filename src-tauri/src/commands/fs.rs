@@ -3,7 +3,9 @@ use std::path::Path;
 
 #[tauri::command]
 pub fn save_binary_file(path: String, data: Vec<u8>) -> Result<(), String> {
-    fs::write(&path, data).map_err(|e| e.to_string())
+    let temp_path = format!("{}.tmp", path);
+    fs::write(&temp_path, data).map_err(|e| e.to_string())?;
+    fs::rename(&temp_path, &path).map_err(|e| e.to_string())
 }
 
 #[tauri::command]

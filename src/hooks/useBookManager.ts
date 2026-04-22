@@ -337,6 +337,7 @@ export function useBookManager(t: (key: string) => string) {
           path: exp,
           title: activeBook.title,
           chaptersJson: JSON.stringify(chaptersData),
+          tocLabel: t('export.tocLabel'),
         })
       }
     },

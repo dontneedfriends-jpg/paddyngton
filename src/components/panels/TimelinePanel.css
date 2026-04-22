@@ -196,7 +196,7 @@
   font-weight: 500;
   transition: background 0.15s;
 }
-.timeline-char-tag:hover { background: var(--purple-subtle); }
+.timeline-char-tag:hover { background: var(--accent-light); }
 .timeline-char-tag button {
   background: none;
   border: none;
@@ -391,7 +391,7 @@
   gap: 4px;
 }
 .timeline-card-char:hover {
-  background: var(--purple-subtle);
+  background: var(--accent-light);
 }
 
 /* Range indicator inside card */

@@ -12,6 +12,8 @@ import {
   THEME_LABELS,
   THEME_ICONS,
   BOOK_TYPES,
+  COLUMN_WIDTH_MAP,
+  type ColumnWidth,
 } from '../../types'
 
 export const SettingsPanel: React.FC = () => {
@@ -76,6 +78,26 @@ export const SettingsPanel: React.FC = () => {
                     <input type="checkbox" checked={settings.showLineNumbers} onChange={e => updateSettings({ showLineNumbers: e.target.checked })} />
                     {t('settings.lineNumbers')}
                   </label>
+                </div>
+                <div className="form-group">
+                  <label className="toggle-label">
+                    <input type="checkbox" checked={settings.typewriterMode} onChange={e => updateSettings({ typewriterMode: e.target.checked })} />
+                    {t('settings.typewriterMode')}
+                  </label>
+                </div>
+                <div className="form-group">
+                  <label>{t('settings.columnWidth')}</label>
+                  <div className="theme-grid">
+                    {(Object.keys(COLUMN_WIDTH_MAP) as ColumnWidth[]).map((w) => (
+                      <button
+                        key={w}
+                        className={`theme-option ${settings.columnWidth === w ? 'active' : ''}`}
+                        onClick={() => updateSettings({ columnWidth: w })}
+                      >
+                        {t(`settings.columnWidth_${w}`)}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
               <div className="setting-section">
@@ -218,6 +240,7 @@ export const SettingsPanel: React.FC = () => {
                   <div className="about-shortcut"><kbd>Ctrl+,</kbd><span>{t('about.settings')}</span></div>
                   <div className="about-shortcut"><kbd>Ctrl+Shift+.</kbd><span>{t('about.focusMode')}</span></div>
                   <div className="about-shortcut"><kbd>F11</kbd><span>{t('about.zenMode')}</span></div>
+                  <div className="about-shortcut"><kbd>Ctrl+Shift+Y</kbd><span>{t('settings.typewriterMode')}</span></div>
                   <div className="about-shortcut"><kbd>Ctrl+Z/Y</kbd><span>{t('about.undoRedo')}</span></div>
                   <div className="about-shortcut"><kbd>Ctrl+C/V/X</kbd><span>{t('about.copyPaste')}</span></div>
                 </div>

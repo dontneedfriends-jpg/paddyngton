@@ -141,6 +141,13 @@
   pointer-events: none;
   z-index: 1;
 }
+.mindmap-line {
+  animation: mindmapLineIn 0.6s ease-out;
+}
+@keyframes mindmapLineIn {
+  from { opacity: 0; }
+  to { opacity: inherit; }
+}
 
 .mindmap-groups-layer {
   position: absolute;

@@ -50,6 +50,12 @@
     "language": "Язык",
     "editor": "Редактор",
     "lineNumbers": "Нумерация строк",
+    "typewriterMode": "Режим пишущей машинки",
+    "columnWidth": "Ширина колонки",
+    "columnWidth_default": "По умолчанию",
+    "columnWidth_narrow": "Узкая (60)",
+    "columnWidth_medium": "Средняя (72)",
+    "columnWidth_wide": "Широкая (90)",
     "fontSize": "Размер шрифта",
     "fontFamily": "Шрифт",
     "bookInfo": "Информация о книге",
@@ -314,6 +320,7 @@
   },
   "export": {
     "exportPdf": "Экспорт в PDF",
+    "tocLabel": "Оглавление",
     "exporting": "Экспорт...",
     "exportSuccess": "PDF успешно экспортирован",
     "exportFailed": "Не удалось экспортировать PDF"

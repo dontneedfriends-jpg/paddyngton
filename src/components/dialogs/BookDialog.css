@@ -3,7 +3,7 @@
 .book-dialog .panel-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border-gray); }
 .book-dialog .panel-header h2 { font-size: 18px; font-weight: 700; margin: 0; color: var(--near-black); }
 .book-dialog-body { padding: 16px; display: flex; flex-direction: column; gap: 8px; }
-.book-dialog-option { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border: 1px solid var(--border-gray); border-radius: 12px; background: var(--bg-primary); cursor: pointer; transition: all 0.15s; text-align: left; }
+.book-dialog-option { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border: 1px solid var(--border-gray); border-radius: 12px; background: var(--surface-solid); cursor: pointer; transition: all 0.15s; text-align: left; }
 .book-dialog-option:hover { border-color: var(--accent); background: var(--surface); box-shadow: 0 4px 16px var(--glow-accent); }
 .book-dialog-icon { font-size: 28px; }
 .book-dialog-label { font-size: 15px; font-weight: 600; color: var(--near-black); flex: 1; }

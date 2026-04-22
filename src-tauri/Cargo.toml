@@ -28,3 +28,4 @@ tauri-plugin-http="2"
 font-kit = "0.14"
 zip = { version = "2.2", default-features = false, features = ["deflate"] }
 printpdf = "0.7"
+chrono = "0.4"

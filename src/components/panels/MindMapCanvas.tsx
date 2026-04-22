@@ -7,6 +7,16 @@ import { useBookStore } from '../../store/useBookStore'
 import { useMindMap } from '../../hooks/useMindMap'
 import { RELATION_COLORS, CONTEXT_TEMPLATES } from '../../types'
 
+function getBezierPath(x1: number, y1: number, x2: number, y2: number): string {
+  const dx = x2 - x1
+  const offset = Math.abs(dx) * 0.35
+  const cx1 = x1 + (dx > 0 ? offset : -offset)
+  const cy1 = y1
+  const cx2 = x2 - (dx > 0 ? offset : -offset)
+  const cy2 = y2
+  return `M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`
+}
+
 function getNodeEdgePoint(from: { x: number; y: number }, to: { x: number; y: number }) {
   const dx = to.x - from.x
   const dy = to.y - from.y
@@ -300,18 +310,19 @@ export const MindMapCanvas: React.FC = () => {
                             oy = perpY * 3
                           }
                         }
+                        const pathD = getBezierPath(e1.x + ox, e1.y + oy, e2.x + ox, e2.y + oy)
+                        const isDashed = rel.type === 'enemy' || rel.type === 'rival'
                         return (
-                          <line
+                          <path
                             key={`${entry.name}-${rel.name}-${ri}`}
-                            x1={e1.x + ox}
-                            y1={e1.y + oy}
-                            x2={e2.x + ox}
-                            y2={e2.y + oy}
+                            d={pathD}
                             stroke={color}
                             strokeWidth={isActive ? 2.5 : 2}
                             opacity={isActive ? 1 : 0.55}
-                            strokeDasharray={rel.type === 'enemy' || rel.type === 'rival' ? '6 3' : '0'}
+                            strokeDasharray={isDashed ? '6 3' : undefined}
                             markerEnd="url(#arrowhead)"
+                            fill="none"
+                            className={!isDashed ? 'mindmap-line' : ''}
                           />
                         )
                       })

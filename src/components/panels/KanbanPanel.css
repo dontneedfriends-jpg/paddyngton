@@ -21,7 +21,7 @@
 .kanban-card-title { font-size: 13px; font-weight: 600; color: var(--near-black); margin-bottom: 4px; word-wrap: break-word; white-space: pre-wrap; }
 .kanban-card-content { font-size: 12px; color: var(--cool-gray); line-height: 1.4; white-space: pre-wrap; }
 .kanban-card-actions { display: flex; gap: 4px; margin-top: 8px; align-items: center; }
-.kanban-move { border: 1px solid var(--border-gray); border-radius: 6px; background: var(--bg-primary); color: var(--text); font-size: 11px; padding: 2px 4px; cursor: pointer; }
+.kanban-move { border: 1px solid var(--border-gray); border-radius: 6px; background: var(--surface-solid); color: var(--near-black); font-size: 11px; padding: 2px 4px; cursor: pointer; }
 
 /* Color Legend */
 .kanban-legend {

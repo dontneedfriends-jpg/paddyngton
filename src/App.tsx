@@ -255,7 +255,7 @@ function App() {
               {activeChapter ? (
                 <>
                   {!ui.zenMode && <FormatToolbar systemFonts={systemFonts} />}
-                  <div className={`editor ${ui.focusMode ? 'focus-mode' : ''}`}>
+                  <div className={`editor ${ui.focusMode ? 'focus-mode' : ''} width-${settings.columnWidth}`}>
                     {ui.showPreview ? (
                       <div
                         className="editor-preview"

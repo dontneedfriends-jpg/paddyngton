@@ -55,6 +55,9 @@
   caret-color: var(--accent);
   word-wrap: break-word;
 }
+.editor.width-narrow .cm-content { max-width: 60ch; }
+.editor.width-medium .cm-content { max-width: 72ch; }
+.editor.width-wide .cm-content { max-width: 90ch; }
 
 .editor .cm-line {
   padding: 0 4px;
@@ -102,7 +105,7 @@
 .editor-preview .preview-content {
   max-width: 800px;
   margin: 0 auto;
-  color: var(--text);
+  color: var(--near-black);
   font-size: 16px;
   line-height: 1.7;
 }
@@ -150,7 +153,7 @@
 
 .editor-preview .preview-content pre {
   background: var(--editor-bg);
-  color: var(--text);
+  color: var(--near-black);
   padding: var(--space-4);
   border-radius: var(--radius-md);
   overflow-x: auto;
@@ -353,6 +356,27 @@
 
 .editor .md-faded-marker:hover {
   opacity: 0.8;
+}
+
+.editor .wiki-link {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 2px;
+  cursor: pointer;
+  font-weight: 500;
+}
+.editor .wiki-link:hover {
+  background: var(--accent-light);
+  border-radius: 2px;
+}
+
+.editor .char-highlight {
+  background: var(--accent-light);
+  color: var(--accent);
+  border-radius: 3px;
+  padding: 0 2px;
+  font-weight: 500;
 }
 
 .editor .cm-line > .md-faded-marker {

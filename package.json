@@ -8,8 +8,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "tauri": "tauri",
-    "test": "playwright test",
-    "test:headed": "playwright test --headed"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed"
   },
   "dependencies": {
     "@codemirror/commands": "^6.10.3",
@@ -43,10 +45,12 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
+    "@vitest/ui": "^4.1.5",
     "autoprefixer": "^10.5.0",
     "postcss": "^8.5.10",
     "tailwindcss": "^4.2.2",
     "typescript": "^6.0.2",
-    "vite": "^8.0.8"
+    "vite": "^8.0.8",
+    "vitest": "^4.1.5"
   }
 }

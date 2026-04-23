@@ -18,6 +18,7 @@ src-tauri/gen/
 # IDE
 .vscode/
 .idea/
+.vs/
 *.swp
 *.swo
 *~
@@ -37,13 +38,17 @@ yarn-debug.log*
 
 # Test
 test-results/
+playwright-report/
 
-# Keys
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Keys / secrets
 *.key
+*.pub
 paddyngton.pub
-
-# IDE
-.vs/
 
 # Temp / build scripts
 opencode.exe
@@ -60,12 +65,20 @@ write.ps1
 f.name
 temp_original.tsx
 
-# Tests (Playwright, not yet)
+# One-off scripts and reports (not part of the app)
+find_emojis.py
+replace_emojis.py
+replace_app_emojis.py
+fix_closings.py
+emoji_report.json
+
+# Old docs (kept locally but not in repo)
+DESIGN.md
+TODO.md
+REFACTORING.md
+IMPROVEMENT_PLAN.md
+
+# Playwright examples (if recreated)
 tests/app.spec.js
 tests/mindmap.spec.js
 tests/README.md
-REFACTORING.md
-IMPROVEMENT_PLAN.md
-CONTEXT.md
-TODO.md
-CONTEXT.md

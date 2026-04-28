@@ -4,6 +4,9 @@
 
 > [🇷🇺 Русская версия](README_RU.md)
 
+<img width="1202" height="802" alt="{869F106F-34C7-4CCA-84BC-3C2F8424AAB7}" src="https://github.com/user-attachments/assets/7bd8f5f0-d56e-4958-b6f6-e16b9adca25b" />
+
+
 ---
 
 *"Because writing should be beautiful. Or at least functional."*
@@ -25,6 +28,9 @@
 - **Auto-save** — debounced save after every keystroke
 - **Faded markdown markers** — `**`, `*`, `#`, `[]` fade away like in iA Writer
 
+<img width="1202" height="802" alt="{80E82271-70D4-4C5F-83D0-233D47E649C7}" src="https://github.com/user-attachments/assets/70501e79-3ae7-49ce-b57d-bc388696232b" />
+
+
 ### 🗂️ Context System (Characters, Places, Dates, Items)
 
 | Type | Description |
@@ -35,6 +41,9 @@
 | `item` | Artifacts, weapons, MacGuffins — whatever drives the plot |
 
 Each entry has **details**, **relations**, **group**, and **notes**. Templates are provided for each type.
+
+<img width="1202" height="802" alt="{F418F380-D882-41A2-9A2F-C8BCA2036340}" src="https://github.com/user-attachments/assets/75d50844-797b-4ac8-98dc-b1eae10a5662" />
+
 
 ### 🕸️ Character Relationship Mind Map
 - **SVG canvas** with pan, zoom, and drag
@@ -55,16 +64,25 @@ Relation types and their colors:
 | Romantic | Yellow |
 | Rival | Purple |
 
+<img width="1202" height="802" alt="{B98CA855-4DBB-4C11-9F36-AB379312CB88}" src="https://github.com/user-attachments/assets/e8cfadf4-e034-46ed-a17e-a043264cefa3" />
+
+
 ### 📚 Wiki View
 - Detailed view of any character, place, item, or event
 - Editable properties, notes, and relationships
 - Color-coded relationship badges
 - Quick link to the Mind Map
 
+<img width="1202" height="802" alt="{3107A1A4-EB9F-460A-87D2-D6EA94B65F80}" src="https://github.com/user-attachments/assets/97c64ed0-86ef-4859-9875-e6a8d6343310" />
+
+
 ### ⏱️ Timeline
 - Chronological events with dates, colors, labels, and notes
 - Link characters, places, and items to events
 - End dates and date notes for flexible time tracking
+
+<img width="1202" height="802" alt="{3C811944-ADF2-48B8-8589-DCF5C3071B63}" src="https://github.com/user-attachments/assets/da1b199b-cc0c-442e-abb7-985220e33a52" />
+
 
 ### 🌍 World Building
 - Structured entries with title, content, and category

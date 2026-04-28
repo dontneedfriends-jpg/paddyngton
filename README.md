@@ -1,273 +1,281 @@
-# 📖 Paddyngton
+# Paddyngton
 
-### Кроссплатформенный редактор для написания книг
+### Cross-Platform Book Writing Editor
 
----
-
-*"Потому что писать должно быть красиво. Или хотя бы функционально."*
+> [🇷🇺 Русская версия](README_RU.md)
 
 ---
 
-<img width="1202" height="802" alt="{6185871F-8D3A-45D7-B9C3-425D22F762C9}" src="https://github.com/user-attachments/assets/0a0a2e20-987d-434f-8bf5-fd1e33c914a9" />
+*"Because writing should be beautiful. Or at least functional."*
 
+---
 
-## Возможности
+## Features
 
-### ✍️ Markdown Editor
-- **CodeMirror 6** — с подсветкой синтаксиса
-- Кнопки форматирования — для тех, кто не помнит все горячие клавиши
-- **Line numbers** — включить/выключить, потому что можно
-- **Auto-save** — сохраняет ваши труды каждые 60 секунд
-- **Подсветка markdown-маркеров** — faded-стиль для `**`, `*`, `#`
+### ✍️ Markdown Editor with CodeMirror 6
+- **Syntax highlighting** powered by CodeMirror 6
+- **Formatting toolbar** — for those who can't remember all the shortcuts
+- **Wikilinks** `[[Character Name]]` — click to open the Wiki entry
+- **Typewriter mode** — cursor stays vertically centered while you type
+- **Focus mode** — dims everything except the active paragraph (like iA Writer)
+- **Zen mode** — hides all chrome, just you and your text
+- **Column width** — choose between Default, Narrow (60ch), Medium (72ch), and Wide (90ch)
+- **Line numbers** toggle in Settings
+- **Preview mode** — live-rendered markdown with KaTeX math support
+- **Auto-save** — debounced save after every keystroke
+- **Faded markdown markers** — `**`, `*`, `#`, `[]` fade away like in iA Writer
 
-  <img width="1202" height="802" alt="{2BEBBB46-0641-4CAF-A0CF-9D5AE4FF03DC}" src="https://github.com/user-attachments/assets/b118b77a-e318-4bd6-b37c-7f9f8f5fb9bb" />
+### 🗂️ Context System (Characters, Places, Dates, Items)
 
+| Type | Description |
+|------|-------------|
+| `character` | Your cast — alive, dead, or destined for tragedy |
+| `place` | Locations your heroes will visit... in theory |
+| `date` | Timeline anchors for your world |
+| `item` | Artifacts, weapons, MacGuffins — whatever drives the plot |
 
-### 🗂️ Context System (Персонажи, Места, Даты, Предметы)
+Each entry has **details**, **relations**, **group**, and **notes**. Templates are provided for each type.
 
-<img width="1202" height="802" alt="{5DA7185A-5373-4FB4-BCFB-111AFCAD0E0B}" src="https://github.com/user-attachments/assets/eb0ae9d0-b7a1-4e31-a487-03b0d7eed01b" />
+### 🕸️ Character Relationship Mind Map
+- **SVG canvas** with pan, zoom, and drag
+- **Bézier curves** connect related characters (smooth, not straight lines)
+- **Groups** — characters grouped with semi-transparent backgrounds
+- **Connect mode** — click two characters to define their relationship
+- **Space + drag** to pan the canvas (Figma-style)
+- **Ctrl+0** to fit all nodes to screen
+- **Double-click** a node to edit that character
 
-
-| Тип | Описание |
-|------|----------|
-| character | Ваши персонажи (те, кого вы ещё не убили в сюжете) |
-| place | Локации мира (куда герои никогда не доберутся) |
-| date | Важные даты (которые вы потом замените на "некоторое время спустя") |
-| item | Предметы и артефакты (полезные, пока не забыли, зачем они нужны) |
-
-Каждая запись содержит **details**, **relations**, **group** и **notes**. Всё как в реальной жизни, только без бюрократии.
-
-### 🕸️ Mind Map
-
-<img width="1202" height="802" alt="{B0398D4F-8D24-4D4B-963A-A802037B42BF}" src="https://github.com/user-attachments/assets/156e0bbd-91ac-41bf-b8e7-e6d39cb2d3a1" />
-
-
-Визуальная карта отношений между персонажами. Потому что в голове уже не помещается.
-
-- Перетаскивайте персонажей по холсту — терапия для перфекционистов
-- Соединяйте линиями — кто кого предаст в третьем акте
-- **Группы**: персонажи объединяются в группы с полупрозрачными фонами и подписями
-- **Граница ноды**: линии рисуются до края карточки, а не до центра
-- Панорамирование и зум колёсиком мыши
-- Цвета по типу отношений:
-  - **ally** — союзник (пока не предал)
-  - **enemy** — враг (пока не стал союзником)
-  - **family** — семья (непредсказуемо)
-  - **neutral** — нейтрально (автор ещё не решил)
-  - **romantic** — романтика (драма гарантирована)
-  - **rival** — соперник (кто-то точно умрёт)
+Relation types and their colors:
+| Type | Color |
+|------|-------|
+| Ally | Green |
+| Enemy | Red |
+| Family | Blue |
+| Neutral | Gray |
+| Romantic | Yellow |
+| Rival | Purple |
 
 ### 📚 Wiki View
-
-<img width="1202" height="802" alt="{60238812-8FAB-4C74-A895-04664BA50DBA}" src="https://github.com/user-attachments/assets/56996668-84f4-4496-acdc-3d1cfd3c40d9" />
-
-
-Просмотр и редактирование деталей персонажей, мест, дат и предметов. Всё, что вы забудете через месяц.
-
-- Редактирование свойств inline
-- Управление relations с цветовыми бейджами
-- Timeline events & world connections
-- Перекрёстные ссылки между персонажами
+- Detailed view of any character, place, item, or event
+- Editable properties, notes, and relationships
+- Color-coded relationship badges
+- Quick link to the Mind Map
 
 ### ⏱️ Timeline
-
-<img width="1202" height="802" alt="{72F87504-6421-4182-8523-CE0BC57893BE}" src="https://github.com/user-attachments/assets/0a2ee6bf-e7b6-4243-a3d7-93510ab22e6b" />
-
-Хронологические события с датами, цветом и заметками. Чтобы сюжет не развалился. Хотя обычно разваливается.
-
-### 📝 Notes
-
-Быстрые заметки. Для идей, которые вы потом точно не реализуете.
+- Chronological events with dates, colors, labels, and notes
+- Link characters, places, and items to events
+- End dates and date notes for flexible time tracking
 
 ### 🌍 World Building
-
-Записи о мире с категориями. Место для всего, что не влезло в основной сюжет.
+- Structured entries with title, content, and category
+- Grid view for browsing
+- Free-form categories (Geography, Magic System, History, etc.)
 
 ### 📋 Kanban Board
+- Columns and cards for plot planning
+- Color labels with editable legend
+- Inline add/edit forms
 
-<img width="1202" height="802" alt="{F2DA0166-FD0C-4C2F-819B-37FD912C1AE7}" src="https://github.com/user-attachments/assets/5ec48e9f-f420-4a16-baca-3d1b684ca339" />
+### 🔍 Full-Text Search
+- `Ctrl+Shift+F` to search across all chapters and context entries
+- Results grouped by chapter with match counts
 
-Доска с карточками: "Идеи", "В работе", "Готово". Реальность: "Идеи", "Идеи", "Идеи".
-
-
-### 🔍 Поиск
-
-<img width="1202" height="802" alt="{D41968EE-1AED-4257-8C57-C698D380B300}" src="https://github.com/user-attachments/assets/98d6cfdc-1c85-465c-a759-a66fb2801653" />
-
-
-Ctrl+Shift+F — ищите по всем главам и контексту. Результаты с подсветкой. Потому что grep — слишком сложно для нормальных людей.
-
-### 📸 Версионирование
-
-<img width="1202" height="802" alt="{2BB4B44E-C47B-422E-847B-197526B133A6}" src="https://github.com/user-attachments/assets/1848cc3d-016a-4689-8f4d-33109c9aaeff" />
-
-- **Save snapshot** — сохраняйте версии с меткой ("финальная", "нет, теперь финальная", "серьёзно, последняя")
-- **Auto-snapshots** — по таймеру (настраивается в Settings)
-- **Word count, char count, chapter count** — для параноиков и перфекционистов
-- **Restore** — восстанавливайте предыдущие версии. На случай "а давайте удалим всё"
+### 📸 Version History (Snapshots)
+- Manual snapshots with custom labels
+- Auto-snapshots at configurable intervals
+- Word count, character count, and chapter count per snapshot
+- Restore to any previous version with one click
 
 ### 🐻 Bear Import/Export
+- Import and export in Bear app format (ZIP archives)
+- Seamless migration between platforms
 
-Импорт/экспорт в формате Bear app (zip-архивы с note-сниппетами). Потому что миграция должна быть больной. Но хотя бы работает.
+### 🌐 i18n — 3 Languages
+- **English**, **Español**, **Русский**
+- **273 type-safe translation keys** — auto-generated from `en.json`
+- All UI strings use `t('key')` — no hardcoded text
 
-### 🌐 i18n
+### 🎨 3 Fluent Acrylic Themes
+- **Light** — crisp blue accent, high contrast
+- **Dark** — calm dark surfaces, cyan accent
+- **Paper** — muted warm gray, olive green accent, designed for eye comfort (low contrast, no pure white or black)
 
-3 языка: English, Español, Русский. Все UI-строки через `t('key')` — никаких хардкодных строк. Переводы в `/translations/`.
+### 📤 Export
+- **DOCX** — uses the `docx` library
+- **PDF** — generated by Rust (`printpdf` + `font-kit` for Cyrillic font support)
+- **.bear** archives for backup and portability
 
----
-
-## Структура
-
-```
-paddyngton/
-├── src/                       # React frontend
-│   ├── App.tsx                # ~331 строк — чистая композиция
-│   ├── index.css              # 1785 строк — темы и глобальные стили
-│   ├── i18n.tsx               # Интернационализация — 3 языка
-│   ├── main.tsx               # Точка входа
-│   ├── types/                 # TS-типы и константы
-│   │   └── index.ts
-│   ├── constants/             # FORMAT_BUTTONS, MARKER_CLOSERS
-│   │   └── formatButtons.ts
-│   ├── store/                 # Zustand stores (все подключены)
-│   │   ├── useBookStore.ts    # Состояние книг
-│   │   ├── useUIStore.ts      # Состояние UI (модалки, тосты, цвета)
-│   │   ├── useSettingsStore.ts # Настройки + localStorage
-│   │   └── index.ts
-│   ├── hooks/                 # Кастомные хуки (все подключены)
-│   │   ├── useBookManager.ts
-│   │   ├── useEditor.ts
-│   │   ├── useMindMap.ts
-│   │   ├── useKeyboardShortcuts.ts
-│   │   ├── useAutoSave.ts
-│   │   ├── useVersions.ts
-│   │   ├── useWindowControls.ts
-│   │   └── useSettings.ts     # Утилиты localStorage (устаревает)
-│   ├── lib/                   # Чистые функции (все подключены)
-│   │   ├── markdownRender.ts
-│   │   ├── contextHelpers.ts
-│   │   ├── formatEditor.ts
-│   │   └── bookIO.ts
-│   ├── components/            # Компоненты
-│   │   ├── dialogs/           # Toast, ConfirmDialog, InputDialog,
-│   │   │                      # CommandPalette, BookDialog
-│   │   ├── panels/            # TimelinePanel, SearchPanel, NotesPanel,
-│   │   │                      # WorldPanel, KanbanPanel, SettingsPanel,
-│   │   │                      # ContextEditor, WikiPanel, MindMapCanvas,
-│   │   │                      # VersionsPanel
-│   │   ├── layout/            # TitleBar, Header, Sidebar, StatusBar,
-│   │   │                      # WelcomeScreen
-│   │   └── editor/            # FormatToolbar
-│   └── translations/          # en.json, es.json, ru.json
-├── src-tauri/                 # Rust backend
-│   ├── src/
-│   │   ├── lib.rs             # ~55 строк — регистрация плагинов
-│   │   ├── models.rs          # Структуры данных
-│   │   ├── utils.rs           # Утилиты (chrono_lite_now, rand_id)
-│   │   └── commands/          # Модули команд
-│   │       ├── window.rs
-│   │       ├── version.rs
-│   │       ├── fs.rs
-│   │       ├── snapshot.rs
-│   │       ├── bear.rs
-│   │       └── pdf.rs
-│   └── tauri.conf.json
-├── package.json
-├── context-template.json      # Шаблон контекста
-└── book-template.json         # Шаблон книги
-```
+### 📊 Status Bar
+- Session timer (resets per chapter)
+- Real-time word count
+- Daily writing target progress bar (default: 500 words)
+- Streak counter — consecutive days with writing activity
+- "Saved X ago" auto-updating indicator
 
 ---
 
-## Формат файлов
+## Tech Stack
 
-### `.book.json`
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | React 19, TypeScript (`strict: true`), Vite 8 |
+| **Editor** | CodeMirror 6 + 5 custom ViewPlugins |
+| **State** | Zustand (3 stores) |
+| **Styling** | Tailwind CSS 4 + hand-written component CSS (Fluent Acrylic) |
+| **Icons** | Lucide React |
+| **Backend** | Rust (Tauri 2.x) |
+| **Math** | KaTeX |
+| **Export** | `docx` (DOCX), `printpdf` (PDF) |
+| **Testing** | Vitest (16 unit tests), Playwright (e2e smoke) |
+
+---
+
+## File Format
+
+Books are stored as **folders** containing markdown chapter files and two JSON configs:
+
+### `.book.json` — Metadata
 ```json
 {
-  "title": "Книга",
-  "author": "Автор",
-  "genre": "Жанр",
+  "title": "My Novel",
+  "author": "Author Name",
+  "genre": "Fantasy",
   "bookType": "Novel",
-  "description": "Описание",
-  "createdAt": "2024-01-01T00:00:00.000Z",
-  "chapters": [{"id": "uuid", "name": "Глава 1", "file": "Глава 1.md"}]
+  "description": "A story about...",
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "chapters": [
+    { "id": "uuid", "name": "Chapter 1", "file": "Chapter 1.md" }
+  ]
 }
 ```
 
-### `.context.json`
+### `.context.json` — Characters, timeline, notes, world, kanban
 ```json
 {
   "context": [
     {
-      "name": "Герой",
+      "name": "Hero",
       "type": "character",
-      "details": {"Age": "30", "Gender": "мужской"},
-      "relations": [{"name": "Союзник", "type": "ally"}],
-      "group": "Протагонисты",
+      "details": { "Age": "30", "Gender": "Male" },
+      "relations": [{ "name": "Ally", "type": "ally" }],
+      "group": "Protagonists",
       "notes": "",
-      "_x": 100,
-      "_y": 200
+      "_x": 100, "_y": 200
     }
   ],
   "timelineData": [],
   "notes": [],
   "worldData": [],
-  "kanbanData": {"columns": []}
+  "kanbanData": { "columns": [] }
 }
 ```
 
 ---
 
-## Установка
+## Keyboard Shortcuts
 
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+K` | Command palette |
+| `Ctrl+N` | New chapter |
+| `Ctrl+Shift+O` | New book |
+| `Ctrl+O` | Open book folder |
+| `Ctrl+S` | Save chapter |
+| `Ctrl+B` | Toggle sidebar |
+| `Ctrl+T` | Cycle theme (Light → Dark → Paper) |
+| `Ctrl+Shift+F` | Search |
+| `Ctrl+,` | Settings |
+| `Ctrl+Shift+.` | Focus mode |
+| `Ctrl+Shift+Y` | Typewriter mode |
+| `F11` | Zen mode |
+| `Ctrl+Z/Y` | Undo/Redo |
+| `Space+drag` | Pan mind map |
+| `Ctrl+0` | Fit mind map to screen |
+| `Escape` | Close panels / palette |
+
+---
+
+## Installation
+
+### Prerequisites
+- [Node.js](https://nodejs.org/) v18+
+- [Rust](https://rustup.rs/) stable
+- Windows 10+ / macOS 12+ / Linux
+
+### Build From Source
 ```bash
+git clone https://github.com/dontneedfriends-jpg/paddyngton.git
+cd paddyngton
 npm install
 npm run tauri build
 ```
 
-Или скачайте установщик из GitHub Releases. Там хотя бы версия актуальная.
+Or use the one-click build script (Windows):
+```bash
+.\build.bat
+```
+
+### Development
+```bash
+npm run tauri dev
+```
+
+### Testing
+```bash
+npm run test          # Unit tests (Vitest, 16 tests)
+npm run test:e2e      # E2E smoke tests (Playwright)
+```
 
 ---
 
-## Горячие клавиши
+## Project Structure
 
-| Клавиша | Действие |
-|--------|----------|
-| Ctrl+N | Новая глава |
-| Ctrl+Shift+N | Новая книга |
-| Ctrl+O | Открыть папку |
-| Ctrl+S | Сохранить главу |
-| Ctrl+K | Command palette |
-| Ctrl+B | Показать/скрыть сайдбар |
-| Ctrl+T | Сменить тему |
-| Ctrl+Shift+F | Поиск |
-| Ctrl+Z / Ctrl+Y | Отмена/повтор |
-| Ctrl+, | Настройки |
-| Escape | Закрыть всё — паника |
-
----
-
-## Зачем это нужно?
-
-~~Word~~ — слишком много кнопок  
-~~Google Docs~~ — требует интернет (а интернет — это обязательно что-то сломается)  
-~~Scrivener~~ — стоит денег  
-~~Notion~~ — для стартапов, не для книг (хотя маркетологи очень стараются)
-
-**Paddyngton** — бесплатно, локально, с картой персонажей и 7 темами. Остальное — ваша работа. Удачи.
-
----
-
-## Contributing
-
-Pull requests приветствуются. Особенно те, что делают приложение лучше и не ломают существующий функционал.
+```
+paddyngton/
+├── src/
+│   ├── App.tsx                   # Root — layout + panel composition
+│   ├── index.css                 # Fluent Acrylic design system (3 themes)
+│   ├── i18n.tsx                  # Type-safe translations (273 keys)
+│   ├── types/index.ts            # All TS types, constants, defaults
+│   ├── store/                    # Zustand: useBookStore, useUIStore, useSettingsStore
+│   ├── hooks/                    # useEditor, useMindMap, useBookManager, etc.
+│   ├── lib/                      # Pure utilities: markdownRender, contextHelpers, formatEditor
+│   ├── components/
+│   │   ├── layout/               # TitleBar, Header, Sidebar, StatusBar, WelcomeScreen
+│   │   ├── editor/               # FormatToolbar, Editor.css
+│   │   ├── panels/               # 10 panels: Settings, Wiki, Timeline, Kanban, etc.
+│   │   └── dialogs/              # Toast, Confirm, Input, CommandPalette, BookDialog
+│   └── translations/             # en.json, ru.json, es.json + auto-generated keys.ts
+├── src-tauri/                    # Rust backend (Tauri commands)
+│   └── src/commands/             # window, version, fs, snapshot, bear, pdf
+├── tests/
+│   ├── unit/utils.spec.ts        # 16 Vitest unit tests
+│   └── e2e/smoke.spec.ts         # Playwright smoke test
+├── scripts/
+│   └── generate-translation-types.ts
+├── CONTEXT.md                    # Full architecture documentation for AI agents
+├── build.bat                     # One-click Windows build script
+├── vitest.config.ts
+└── playwright.config.ts
+```
 
 ---
 
-## Лицензия
+## Why Paddyngton?
 
-MIT. Делайте что хотите. Мы не можем вам помешать.
+~~Word~~ — too many buttons  
+~~Google Docs~~ — needs internet (and internet means distractions)  
+~~Scrivener~~ — costs money  
+~~Notion~~ — for startups, not novels
+
+**Paddyngton** — free, local-first, with a character relationship map, timeline, wiki, 3 acrylic themes, and zero data collection. The rest is your job. Good luck.
 
 ---
 
-*"Paddyngton — потому что писать должно быть красиво. Или хотя бы не больно."*
+## License
+
+MIT. Do whatever you want. We can't stop you.
+
+---
+
+*"Paddyngton — because writing should be beautiful. And your eyes deserve comfort."*

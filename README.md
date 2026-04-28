@@ -8,6 +8,9 @@
 
 ---
 
+<img width="1202" height="802" alt="{6185871F-8D3A-45D7-B9C3-425D22F762C9}" src="https://github.com/user-attachments/assets/0a0a2e20-987d-434f-8bf5-fd1e33c914a9" />
+
+
 ## Возможности
 
 ### ✍️ Markdown Editor
@@ -17,7 +20,13 @@
 - **Auto-save** — сохраняет ваши труды каждые 60 секунд
 - **Подсветка markdown-маркеров** — faded-стиль для `**`, `*`, `#`
 
+  <img width="1202" height="802" alt="{2BEBBB46-0641-4CAF-A0CF-9D5AE4FF03DC}" src="https://github.com/user-attachments/assets/b118b77a-e318-4bd6-b37c-7f9f8f5fb9bb" />
+
+
 ### 🗂️ Context System (Персонажи, Места, Даты, Предметы)
+
+<img width="1202" height="802" alt="{5DA7185A-5373-4FB4-BCFB-111AFCAD0E0B}" src="https://github.com/user-attachments/assets/eb0ae9d0-b7a1-4e31-a487-03b0d7eed01b" />
+
 
 | Тип | Описание |
 |------|----------|
@@ -29,6 +38,9 @@
 Каждая запись содержит **details**, **relations**, **group** и **notes**. Всё как в реальной жизни, только без бюрократии.
 
 ### 🕸️ Mind Map
+
+<img width="1202" height="802" alt="{B0398D4F-8D24-4D4B-963A-A802037B42BF}" src="https://github.com/user-attachments/assets/156e0bbd-91ac-41bf-b8e7-e6d39cb2d3a1" />
+
 
 Визуальная карта отношений между персонажами. Потому что в голове уже не помещается.
 
@@ -47,6 +59,9 @@
 
 ### 📚 Wiki View
 
+<img width="1202" height="802" alt="{60238812-8FAB-4C74-A895-04664BA50DBA}" src="https://github.com/user-attachments/assets/56996668-84f4-4496-acdc-3d1cfd3c40d9" />
+
+
 Просмотр и редактирование деталей персонажей, мест, дат и предметов. Всё, что вы забудете через месяц.
 
 - Редактирование свойств inline
@@ -55,6 +70,8 @@
 - Перекрёстные ссылки между персонажами
 
 ### ⏱️ Timeline
+
+<img width="1202" height="802" alt="{72F87504-6421-4182-8523-CE0BC57893BE}" src="https://github.com/user-attachments/assets/0a2ee6bf-e7b6-4243-a3d7-93510ab22e6b" />
 
 Хронологические события с датами, цветом и заметками. Чтобы сюжет не развалился. Хотя обычно разваливается.
 
@@ -68,27 +85,21 @@
 
 ### 📋 Kanban Board
 
+<img width="1202" height="802" alt="{F2DA0166-FD0C-4C2F-819B-37FD912C1AE7}" src="https://github.com/user-attachments/assets/5ec48e9f-f420-4a16-baca-3d1b684ca339" />
+
 Доска с карточками: "Идеи", "В работе", "Готово". Реальность: "Идеи", "Идеи", "Идеи".
 
-### 🎨 7 Themes + Light/Dark
-
-| Theme | Описание |
-|-------|---------|
-| **Galaxy** | Фиолетовый космос — для тех, кто пишет Sci-Fi |
-| **Aurora** | Зелёное полярное сияние — для эстетов |
-| **Forest** | Природа — глаза скажут спасибо |
-| **Obsidian** | Тёмный минимализм — для геймеров |
-| **Neon** | Неоновый ретро — киберпанкеры оценят |
-| **Retro** | Старый телевизор — ностальгия |
-| **Monochrome** | Оттенки серого — для тех, кто не определился |
-
-Каждый с light/dark вариантами — 14 тем. Вы будете менять их каждые 15 минут. Это нормально.
 
 ### 🔍 Поиск
+
+<img width="1202" height="802" alt="{D41968EE-1AED-4257-8C57-C698D380B300}" src="https://github.com/user-attachments/assets/98d6cfdc-1c85-465c-a759-a66fb2801653" />
+
 
 Ctrl+Shift+F — ищите по всем главам и контексту. Результаты с подсветкой. Потому что grep — слишком сложно для нормальных людей.
 
 ### 📸 Версионирование
+
+<img width="1202" height="802" alt="{2BB4B44E-C47B-422E-847B-197526B133A6}" src="https://github.com/user-attachments/assets/1848cc3d-016a-4689-8f4d-33109c9aaeff" />
 
 - **Save snapshot** — сохраняйте версии с меткой ("финальная", "нет, теперь финальная", "серьёзно, последняя")
 - **Auto-snapshots** — по таймеру (настраивается в Settings)

@@ -282,7 +282,23 @@
     "datePlaceholder": "Date (e.g., Year 100)",
     "contentPlaceholder": "Describe this aspect of your world...",
     "noEntries": "No world entries yet. Click 'Add Entry' to start describing your world.",
-    "deleteEntry": "Delete this entry?"
+    "deleteEntry": "Delete this entry?",
+    "addEntryDialog": "Add World Entry",
+    "allCategories": "All categories",
+    "searchEntries": "Search entries...",
+    "newCategory": "New category...",
+    "newCategoryHint": "Enter new category name",
+    "categories": {
+      "geography": "Geography",
+      "history": "History",
+      "culture": "Culture",
+      "magicTech": "Magic & Technology",
+      "religion": "Religion & Mythology",
+      "floraFauna": "Flora & Fauna",
+      "politics": "Politics & Factions",
+      "economy": "Economy & Trade",
+      "other": "Other"
+    }
   },
   "kanban": {
     "title": "Kanban Board",

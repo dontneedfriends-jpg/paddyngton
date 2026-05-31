@@ -49,7 +49,23 @@ export interface WorldEntry {
   category: string
   characterIds?: string[]
   date?: string
+  subcategory?: string
+  tags?: string[]
 }
+
+export const DEFAULT_WORLD_CATEGORIES = [
+  'geography',
+  'history',
+  'culture',
+  'magicTech',
+  'religion',
+  'floraFauna',
+  'politics',
+  'economy',
+  'other',
+] as const
+
+export type WorldCategory = (typeof DEFAULT_WORLD_CATEGORIES)[number]
 
 export interface KanbanCard {
   id: string

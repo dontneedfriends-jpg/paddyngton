@@ -62,6 +62,7 @@
     "bookTitle": "Название",
     "bookAuthor": "Автор",
     "bookGenre": "Жанр",
+    "bookType": "Тип",
     "bookDescription": "Описание",
     "bookSave": "Сохранить",
     "noBookOpen": "Откройте книгу для редактирования",
@@ -281,7 +282,23 @@
     "datePlaceholder": "Дата (например, Год 100)",
     "contentPlaceholder": "Опишите этот аспект вашего мира...",
     "noEntries": "Записей о мире пока нет. Нажмите 'Добавить запись'.",
-    "deleteEntry": "Удалить эту запись?"
+    "deleteEntry": "Удалить эту запись?",
+    "addEntryDialog": "Добавить запись мира",
+    "allCategories": "Все категории",
+    "searchEntries": "Поиск записей...",
+    "newCategory": "Новая категория...",
+    "newCategoryHint": "Введите название новой категории",
+    "categories": {
+      "geography": "География",
+      "history": "История",
+      "culture": "Культура",
+      "magicTech": "Магия и Технологии",
+      "religion": "Религия и Мифология",
+      "floraFauna": "Флора и Фауна",
+      "politics": "Политика и Фракции",
+      "economy": "Экономика и Торговля",
+      "other": "Другое"
+    }
   },
   "kanban": {
     "title": "Канбан-доска",

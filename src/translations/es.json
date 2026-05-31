@@ -62,6 +62,7 @@
     "bookTitle": "Título",
     "bookAuthor": "Autor",
     "bookGenre": "Género",
+    "bookType": "Tipo",
     "bookDescription": "Descripción",
     "bookSave": "Guardar",
     "noBookOpen": "Abre un libro para editar información",
@@ -281,7 +282,23 @@
     "datePlaceholder": "Fecha (p. ej., Año 100)",
     "contentPlaceholder": "Describe este aspecto de tu mundo...",
     "noEntries": "No hay entradas del mundo. Haz clic en 'Añadir Entrada'.",
-    "deleteEntry": "¿Eliminar esta entrada?"
+    "deleteEntry": "¿Eliminar esta entrada?",
+    "addEntryDialog": "Añadir Entrada del Mundo",
+    "allCategories": "Todas las categorías",
+    "searchEntries": "Buscar entradas...",
+    "newCategory": "Nueva categoría...",
+    "newCategoryHint": "Introduce el nombre de la nueva categoría",
+    "categories": {
+      "geography": "Geografía",
+      "history": "Historia",
+      "culture": "Cultura",
+      "magicTech": "Magia y Tecnología",
+      "religion": "Religión y Mitología",
+      "floraFauna": "Flora y Fauna",
+      "politics": "Política y Facciones",
+      "economy": "Economía y Comercio",
+      "other": "Otro"
+    }
   },
   "kanban": {
     "title": "Tablero Kanban",

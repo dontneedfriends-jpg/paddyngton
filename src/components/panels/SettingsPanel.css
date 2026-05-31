@@ -148,6 +148,7 @@
 .setting-about-section .about-tagline { font-size: 14px; color: var(--cool-gray); font-style: italic; margin: 16px 0; }
 .setting-about-section .about-tech-stack { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
 .setting-about-section .about-tech-item { font-size: 11px; padding: 4px 10px; background: var(--surface); border: 1px solid var(--border-gray); border-radius: 20px; }
+.setting-about-section .about-license { font-size: 12px; color: var(--cool-gray); margin-bottom: 20px; }
 .setting-about-section .about-shortcuts { text-align: left; }
 .setting-about-section .about-shortcuts-title { font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--cool-gray); text-transform: uppercase; }
 .setting-about-section .about-shortcuts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }

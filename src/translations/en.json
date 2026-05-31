@@ -198,7 +198,8 @@
     "updateNow": "Update Now",
     "upToDate": "You're up to date!",
     "checkForUpdates": "Check for updates",
-    "checkFailed": "Update check failed"
+    "checkFailed": "Update check failed",
+    "license": "License: CC BY-NC 4.0 — Non-commercial use only"
   },
   "format": {
     "bold": "Bold",

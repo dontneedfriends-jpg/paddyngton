@@ -2,6 +2,7 @@
   "name": "paddyngton",
   "version": "1.0.0",
   "private": true,
+  "license": "CC-BY-NC-4.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

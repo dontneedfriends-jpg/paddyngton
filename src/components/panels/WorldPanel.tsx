@@ -21,17 +21,17 @@ export const WorldPanel: React.FC = () => {
   const [newTitle, setNewTitle] = useState('')
   const [newCategory, setNewCategory] = useState('')
   const [newCustomCategory, setNewCustomCategory] = useState('')
-  const [customCategories, setCustomCategories] = useState<string[]>(() => {
-    if (!activeBook) return []
+  const [customCategories, setCustomCategories] = useState<string[]>([])
+
+  React.useEffect(() => {
+    if (!activeBook) return
     const used = new Set(activeBook.worldData.map((e) => e.category))
     const predefined = new Set(DEFAULT_WORLD_CATEGORIES)
-    return [...used].filter((c) => c && !predefined.has(c as any))
-  })
+    setCustomCategories([...used].filter((c) => c && !predefined.has(c as any)))
+  }, [activeBook])
 
-  if (!ui.showWorld || !activeBook) return null
-
-  const worldData = activeBook.worldData
-  const contextData = activeBook.contextData || []
+  const worldData = activeBook?.worldData || []
+  const contextData = activeBook?.contextData || []
 
   const filtered = useMemo(() => {
     return worldData.filter((entry) => {
@@ -40,6 +40,8 @@ export const WorldPanel: React.FC = () => {
       return true
     })
   }, [worldData, filterCategory, searchQuery])
+
+  if (!ui.showWorld || !activeBook) return null
 
   const availableCategories = [...DEFAULT_WORLD_CATEGORIES, ...customCategories]
 

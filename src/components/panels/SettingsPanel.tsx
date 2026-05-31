@@ -226,6 +226,8 @@ export const SettingsPanel: React.FC = () => {
                 <div className="about-tech-item">CodeMirror 6</div>
               </div>
 
+              <div className="about-license">{t('about.license')}</div>
+
               <div className="about-shortcuts">
                 <div className="about-shortcuts-title">{t('about.shortcuts')}</div>
                 <div className="about-shortcuts-grid">

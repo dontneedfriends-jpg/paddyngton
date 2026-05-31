@@ -292,7 +292,10 @@ paddyngton/
 
 ## License
 
-MIT. Do whatever you want. We can't stop you.
+**CC BY-NC 4.0** — You may copy, share, and adapt this software for non-commercial purposes only.
+Commercial use (selling, paid services, monetization) is prohibited.
+
+See the [LICENSE](LICENSE) file for details.
 
 ---
 

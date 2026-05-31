@@ -198,7 +198,8 @@
     "updateNow": "Actualizar Ahora",
     "upToDate": "¡Tienes la última versión!",
     "checkForUpdates": "Buscar actualizaciones",
-    "checkFailed": "Error al comprobar"
+    "checkFailed": "Error al comprobar",
+    "license": "Licencia: CC BY-NC 4.0 — Solo uso no comercial"
   },
   "format": {
     "bold": "Negrita",

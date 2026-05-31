@@ -169,6 +169,7 @@ export type TranslationKey =
   | 'about.upToDate'
   | 'about.checkForUpdates'
   | 'about.checkFailed'
+  | 'about.license'
   | 'format.bold'
   | 'format.italic'
   | 'format.underline'
